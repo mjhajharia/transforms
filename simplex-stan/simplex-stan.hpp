@@ -10,9 +10,9 @@ using namespace stan::math;
 stan::math::profile_map profiles__;
 static constexpr std::array<const char*, 4> locations_array__ = 
 {" (found before start of program)",
- " (in 'transforms/simplex-stan/simplex-stan.stan', line 5, column 2 to column 15)",
- " (in 'transforms/simplex-stan/simplex-stan.stan', line 2, column 2 to column 17)",
- " (in 'transforms/simplex-stan/simplex-stan.stan', line 5, column 10 to column 11)"};
+ " (in '/Users/meenaljhajharia/transforms/simplex-stan/simplex-stan.stan', line 5, column 2 to column 15)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stan/simplex-stan.stan', line 2, column 2 to column 17)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stan/simplex-stan.stan', line 5, column 10 to column 11)"};
 
 
 

@@ -10,23 +10,23 @@ using namespace stan::math;
 stan::math::profile_map profiles__;
 static constexpr std::array<const char*, 18> locations_array__ = 
 {" (found before start of program)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 5, column 2 to column 16)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 8, column 2 to column 15)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 9, column 2 to column 16)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 11, column 6 to column 43)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 12, column 6 to column 36)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 10, column 19 to line 13, column 7)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 10, column 2 to line 13, column 7)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 14, column 2 to column 25)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 19, column 6 to column 53)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 18, column 19 to line 20, column 5)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 18, column 4 to line 20, column 5)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 17, column 19 to line 21, column 3)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 17, column 2 to line 21, column 3)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 2, column 2 to column 17)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 5, column 9 to column 12)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 8, column 10 to column 11)",
- " (in 'transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 9, column 9 to column 12)"};
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 5, column 2 to column 16)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 8, column 2 to column 15)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 9, column 2 to column 16)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 11, column 6 to column 43)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 12, column 6 to column 36)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 10, column 19 to line 13, column 7)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 10, column 2 to line 13, column 7)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 14, column 2 to column 25)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 19, column 6 to column 53)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 18, column 19 to line 20, column 5)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 18, column 4 to line 20, column 5)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 17, column 19 to line 21, column 3)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 17, column 2 to line 21, column 3)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 2, column 2 to column 17)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 5, column 9 to column 12)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 8, column 10 to column 11)",
+ " (in '/Users/meenaljhajharia/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 9, column 9 to column 12)"};
 
 
 
