@@ -78,7 +78,12 @@ $$J = \begin{pmatrix}\mathrm{diag}(x) - x x^\top \\ r x^\top\end{pmatrix} = \beg
 
 where $\boldsymbol{x}_n$ is the $n$-vector of ones.
 The Jacobian has a shape $(n+1,n)$.
-We can compute the density correction due to $\phi^{-1}$ as $\sqrt{|J^\top J}$:
+Even though $\phi$ is bijective, the output of $\phi$ is represented with an extra coordinate, so that $J$ is non-square.
+It is possible to construct $\phi$ as the composition of a bijective function and a semi-orthogonal transformation that lifts the output from an $n$-dimensional vector to an $(n+1)$-dimensional vector.
+
+The Jacobian would then factorize as $J = Q H$, where $Q$ is a size $(n+1,n)$ semi-orthogonal matrix so that $Q^\top Q = I_n$.
+Orthogonal transformations leave the volume unchanged, so the density correction depends only on the unknown $H$.
+Then $\sqrt{|J^\top J|} = \sqrt{|H^\top Q^\top Q H|} = \sqrt{|H^\top H|} = |H|$ computes the density correction.
 
 The matrix $P = I - x \boldsymbol{1}^\top_n$ is an orthogonal projection matrix, since if it operates twice on any vector $v$, the second action has no effect:
 
