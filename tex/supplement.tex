@@ -1,6 +1,8 @@
 \documentclass[twoside]{article}
 
 \usepackage{aistats2021}
+\usepackage{amssymb}
+
 % If your paper is accepted, change the options for the package
 % aistats2021 as follows:
 %
@@ -52,21 +54,50 @@ You can use \texttt{supplement.tex} in our starter pack as a starting point, or 
 
 Note that reviewers are under no obligation to examine your supplementary material.
 
-\section{MISSING PROOFS}
+\section{Derivations of density corrections}
 
-The supplementary materials may contain detailed proofs of the results that are missing in the main paper.
+\subsection{Simplex augmented softmax parameterization}
 
-\subsection{Proof of Lemma 3}
+We define the transformation $\phi: \mathbb{R} \backslash \{0\} \to \Delta^{n-1} \times \mathbb{R}_{>0}: z \mapsto (x, r)$,
+where $r = \sum_{i=1}^n e^{z_i}$ and $x_i = \frac{1}{r} e^{z_i}$.
 
-\textit{In this section, we present the detailed proof of Lemma 3 and then [ ... ]}
+First we compute the scalar derivatives:
 
-\section{ADDITIONAL EXPERIMENTS}
+$$
+\begin{aligned}
+    \frac{\mathrm{d} r}{\mathrm{d} z_j} &= e^{z_j} = r x_j\\
+    \frac{\mathrm{d} x_i}{\mathrm{d} z_j} &= \delta_{ij} \frac{1}{r} e^{z_i} - \frac{1}{r^2} e^{z_i} \frac{\mathrm{d} r}{\mathrm{d} z_j} = \delta_{ij} x_i - x_i x_j,
+\end{aligned}
+$$
 
-If you have additional experimental results, you may include them in the supplementary materials.
+where $\delta_{ij} = \begin{cases} 1 &\text{ if } i = j \\ 0 &\text{otherwise}\end{cases}$ is the Kronecker delta.
 
-\subsection{The Effect of Regularization Parameter}
+If $\mathrm{diag}(x)$ is the diagonal matrix whose diagonal are the elements of $x$, then we can write the Jacobian of $z \mapsto \begin{pmatrix}x \\ r \end{pmatrix}$ as
 
-\textit{Our algorithm depends on the regularization parameter $\lambda$. Figure 1 below illustrates the effect of this parameter on the performance of our algorithm. As we can see, [ ... ]}
+$$J = \begin{pmatrix}\mathrm{diag}(x) - x x^\top \\ r x^\top\end{pmatrix} = \begin{pmatrix}I_n - x \boldsymbol{1}_n^\top \\ r \boldsymbol{1}_n^\top \end{pmatrix} \mathrm{diag}(x),$$
+
+where $\boldsymbol{x}_n$ is the $n$-vector of ones.
+The Jacobian has a shape $(n+1,n)$.
+We can compute the density correction due to $\phi^{-1}$ as $\sqrt{|J^\top J}$:
+
+The matrix $P = I - x \boldsymbol{1}^\top_n$ is an orthogonal projection matrix, since if it operates twice on any vector $v$, the second action has no effect:
+
+$$Pv = v - (\boldsymbol{1}^\top_n v) x$$
+$$v - (\boldsymbol{1}^\top_n v) x - x (\boldsymbol{1}^\top_nv - (\boldsymbol{1}^\top_n v) (\boldsymbol{1}^\top_n x)) = v - (\boldsymbol{1}^\top_n v) x,$$
+
+since $\boldsymbol{1}^\top_n x = \sum_{i=1}^n x_i = 1$.
+As a result, $P^2 = P$ and $|P^\top P| = |P^2| = |P|$.
+Then,
+
+$$\sqrt{|J^\top J|} = \sqrt{|\mathrm{diag}(x)(I_n + (r^2 \boldsymbol{1}_n - x) \boldsymbol{1}_n^\top)\mathrm{diag}(x)|} = |\mathrm{diag}(x)|\sqrt{|I_n + (r^2 \boldsymbol{1}_n - x) \boldsymbol{1}_n^\top|}$$
+
+
+$|\operatorname{diag}(x)| = \prod_{i=1}^n x_i = r^{-n} \exp (\sum_{i=1}^n z_i)$. 
+Using Sylvester's determinant theorem, $|I_n + (r^2 \boldsymbol{1}_n - x) \boldsymbol{1}_n^\top| = 1 + \boldsymbol{1}_n^\top (r^2 \boldsymbol{1}_n - x) = 1 + n r^2 - \sum_{i=1}^n x_i = n r^2$, so the density correction is $\sqrt{n} (\sum_{i=1}^n e^{z_i})^{1-n} \exp(\sum_{i=1}^n z_i)$.
+
+To keep the target distribution proper, we must select a prior distribution for $r$.
+If we choose $r \sim \chi_n$, then the product of the correction and the density of the prior for $r$ is proportional to
+$$\exp\left(\sum_{i=1}^n z_i - \frac{1}{2}(\sum_{i=1}^n e^{z_i})^2\right).$$
 
 \vfill
 
