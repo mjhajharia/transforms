@@ -133,6 +133,12 @@ $$\mathrm{correction} = \pi(r) |J| = r^n e^{-r} \prod_{i=1}^n x_i = \exp\left(\s
 
 This latter correction is equivalent to the sampling procedure from the Dirichlet distribution with $\alpha_i=1$, where $z_i \sim \mathrm{Exponential}(1)$ and $y = \frac{z}{\sum_{i=1}^n z_i}$.
 
+Both of these corrections can be captured with the generalization
+
+$$\mathrm{correction} = \pi(r) |J| = r^n e^{-r^p/p} \prod_{i=1}^n x_i = \exp\left(\sum_{i=1}^n y_i - \frac{1}{p} \left(\sum_{i=1}^n e^{y_i}\right)^p\right),$$
+
+for $p > 0$, which corresponds to $r \sim \text{Generalized-Gamma}(1, n, p)$.
+
 \vfill
 
 \end{document}
