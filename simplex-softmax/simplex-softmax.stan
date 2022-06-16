@@ -1,12 +1,13 @@
 data {
- int<lower=0> N;
+ int<lower=0> K;
 }
 parameters {
- vector[N-1] alpha_unc;
+ vector[K-1] x_unc;
 }
 transformed parameters {
- simplex[N] alpha = softmax(append_row(alpha_unc, 0));
+ simplex[K] x = softmax(append_row(x_unc,0));
 }
 model {
- target += log_determinant(diag_matrix((alpha)-(alpha'*alpha)));
+ target += log(exp(sum(x_unc)));
+ target += -K * log1p(sum(exp(x_unc)));
 }
