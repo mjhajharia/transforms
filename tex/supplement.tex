@@ -58,7 +58,9 @@ Note that reviewers are under no obligation to examine your supplementary materi
 
 \subsection{Simplex softmax parameterization}
 
-We define the transformation $\phi: \mathbb{R}^{n-1} \to \Delta^{n}: y \mapsto x_-$, where $x=\begin{pmatrix}x_- \\ \frac{1}{r}\end{pmatrix}$, $x_i = \frac{1}{r} e^{y_i}$ for $i \in \{1, \ldots, n-1\}$, and $r = 1 + \sum_{i=1}^{n-1} e^{y_i}$.
+Let $\Delta^n$ indicate the unit $n$-simplex with $n$ positive elements that sum to 1 and $\Delta^n_-$ indicate the first $n-1$ elements, from which the final element can be uniquely determined.
+
+We define the transformation $\phi: \mathbb{R}^{n-1} \to \Delta^n_-: y \mapsto x_-$, where $x=\begin{pmatrix}x_- \\ \frac{1}{r}\end{pmatrix} \in \Delta^n$, $x_i = \frac{1}{r} e^{y_i}$ for $1 \le i \le n-1$, and $r = 1 + \sum_{i=1}^{n-1} e^{y_i}$.
 
 First we compute the scalar derivatives:
 $$
@@ -82,10 +84,9 @@ $$\mathrm{correction} = |J| = x_n \prod_{i=1}^{n-1} x_i = \prod_{i=1}^{n} x_i = 
 
 \subsection{Simplex augmented softmax parameterization}
 
-We define the transformation $\phi: \mathbb{R}^n \backslash \{0\} \to \Delta^{n-1} \times \mathbb{R}_{>0}: y \mapsto (x, r)$,
-where $r = \sum_{i=1}^n e^{y_i}$ and $x_i = \frac{1}{r} e^{y_i}$.
+We define the transformation $\phi: \mathbb{R}^n \to \Delta^{n-1} \times \mathbb{R}_{>0}: y \mapsto (x_-, r)$,
+where $r = \sum_{i=1}^n e^{y_i}$ and $x_i = \frac{1}{r} e^{y_i}$ for $1 \le i \le n-1$..
 
-Similar to above, to compute the density correction we use the bijective transformation $f: y \mapsto (x_-, r)$.
 First we compute the scalar derivatives:
 
 $$
@@ -95,9 +96,9 @@ $$
 \end{aligned}
 $$
 
-which has the Jacobian
+which corresponds to the Jacobian
 
-$$J = \begin{pmatrix}I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top & -x_- \\ r \boldsymbol{1}_{n-1}^\top & r \end{pmatrix} \mathrm{diag}(x),$$
+$$J = \begin{pmatrix}I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top & -x_- \\ r \boldsymbol{1}_{n-1}^\top & r \end{pmatrix} \mathrm{diag}(x).$$
 
 For invertible $A$, the determinant of the block matrix $\begin{pmatrix}A & B \\ C & D\end{pmatrix}$ is $|A| |D-CA^{-1}B|$.
 A square matrix is invertible iff its determinant is non-yero.
