@@ -82,9 +82,10 @@ $$\mathrm{correction} = |J| = x_n \prod_{i=1}^{n-1} x_i = \prod_{i=1}^{n} x_i = 
 
 \subsection{Simplex augmented softmax parameterization}
 
-We define the transformation $\phi: \mathbb{R} \backslash \{0\} \to \Delta^{n-1} \times \mathbb{R}_{>0}: z \mapsto (x, r)$,
+We define the transformation $\phi: \mathbb{R}^n \backslash \{0\} \to \Delta^{n-1} \times \mathbb{R}_{>0}: z \mapsto (x, r)$,
 where $r = \sum_{i=1}^n e^{z_i}$ and $x_i = \frac{1}{r} e^{z_i}$.
 
+Similar to above, to compute the density correction we use the bijective transformation $f: z \mapsto (x_-, r)$.
 First we compute the scalar derivatives:
 
 $$
@@ -94,39 +95,36 @@ $$
 \end{aligned}
 $$
 
-where $\delta_{ij} = \begin{cases} 1 &\text{ if } i = j \\ 0 &\text{otherwise}\end{cases}$ is the Kronecker delta.
+which has the Jacobian
 
-If $\mathrm{diag}(x)$ is the diagonal matrix whose diagonal are the elements of $x$, then we can write the Jacobian of $z \mapsto \begin{pmatrix}x \\ r \end{pmatrix}$ as
+$$J = \begin{pmatrix}I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top & -x_- \\ r \boldsymbol{1}_{n-1}^\top & r \end{pmatrix} \mathrm{diag}(x),$$
 
-$$J = \begin{pmatrix}\mathrm{diag}(x) - x x^\top \\ r x^\top\end{pmatrix} = \begin{pmatrix}I_n - x \boldsymbol{1}_n^\top \\ r \boldsymbol{1}_n^\top \end{pmatrix} \mathrm{diag}(x),$$
+For invertible $A$, the determinant of the block matrix $\begin{pmatrix}A & B \\ C & D\end{pmatrix}$ is $|A| |D-CA^{-1}B|$.
+A square matrix is invertible iff its determinant is non-zero.
+From the previous section, $|I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top| = x_n > 0$, so the determinant of the Jacobian is
 
-where $\boldsymbol{x}_n$ is the $n$-vector of ones.
-The Jacobian has a shape $(n+1,n)$.
-Even though $\phi$ is bijective, the output of $\phi$ is represented with an extra coordinate, so that $J$ is non-square.
-It is possible to construct $\phi$ as the composition of a bijective function and a semi-orthogonal transformation that lifts the output from an $n$-dimensional vector to an $(n+1)$-dimensional vector.
+$$|J| = x_n \left|r + r \boldsymbol{1}_{n-1}^\top (I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top)^{-1} x_-\right| \prod_{i=1}^n x_i$$
 
-The Jacobian would then factorize as $J = Q H$, where $Q$ is a size $(n+1,n)$ semi-orthogonal matrix so that $Q^\top Q = I_n$.
-Orthogonal transformations leave the volume unchanged, so the density correction depends only on the unknown $H$.
-Then $\sqrt{|J^\top J|} = \sqrt{|H^\top Q^\top Q H|} = \sqrt{|H^\top H|} = |H|$ computes the density correction.
+Let $w = (I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top)^{-1} x_-$. Then,
 
-The matrix $P = I - x \boldsymbol{1}^\top_n$ is an orthogonal projection matrix, since if it operates twice on any vector $v$, the second action has no effect:
+$$
+\begin{aligned}
+    w - x_- \sum_{i=1}^{n-1} w_i &= x_-\\
+    w &= x_- \left(1 - \sum_{i=1}^{n-1} w_i\right)\\
+    \sum_{i=1}^{n-1} w_i &= \sum_{i=1}^{n-1} \left( x_- (1 - \sum_{i=1}^{n-1} w_i) \right) = \left(\sum_{i=1}^{n-1} x_i \right) \left(1 - \sum_{i=1}^{n-1} w_i\right) = (1 - x_n)  \left(1 - \sum_{i=1}^{n-1} w_i\right)\\
+    \sum_{i=1}^{n-1} w_i &= \frac{1 - x_n}{x_n} = \frac{1}{x_n} - 1\\
+    w &= x_- \left(1 - \left(\frac{1}{x_n} - 1\right)\right) = \frac{1}{x_n} x_-
+\end{aligned}
+$$
 
-$$Pv = v - (\boldsymbol{1}^\top_n v) x$$
-$$v - (\boldsymbol{1}^\top_n v) x - x (\boldsymbol{1}^\top_nv - (\boldsymbol{1}^\top_n v) (\boldsymbol{1}^\top_n x)) = v - (\boldsymbol{1}^\top_n v) x,$$
+Then
 
-since $\boldsymbol{1}^\top_n x = \sum_{i=1}^n x_i = 1$.
-As a result, $P^2 = P$ and $|P^\top P| = |P^2| = |P|$.
-Then,
+$$|J| = x_n r \left|1 + \frac{1}{x_n}\sum_{i=1}^{n-1} x_i\right| \prod_{i=1}^n x_i = r \prod_{i=1}^n x_i$$
 
-$$\sqrt{|J^\top J|} = \sqrt{|\mathrm{diag}(x)(I_n + (r^2 \boldsymbol{1}_n - x) \boldsymbol{1}_n^\top)\mathrm{diag}(x)|} = |\mathrm{diag}(x)|\sqrt{|I_n + (r^2 \boldsymbol{1}_n - x) \boldsymbol{1}_n^\top|}$$
-
-
-$|\operatorname{diag}(x)| = \prod_{i=1}^n x_i = r^{-n} \exp (\sum_{i=1}^n z_i)$. 
-Using Sylvester's determinant theorem, $|I_n + (r^2 \boldsymbol{1}_n - x) \boldsymbol{1}_n^\top| = 1 + \boldsymbol{1}_n^\top (r^2 \boldsymbol{1}_n - x) = 1 + n r^2 - \sum_{i=1}^n x_i = n r^2$, so the density correction is $\sqrt{n} (\sum_{i=1}^n e^{z_i})^{1-n} \exp(\sum_{i=1}^n z_i)$.
-
-To keep the target distribution proper, we must select a prior distribution for $r$.
+To keep the target distribution proper, we must select a prior distribution $\pi(r)$ for $r$.
 If we choose $r \sim \chi_n$, then the product of the correction and the density of the prior for $r$ is proportional to
-$$\exp\left(\sum_{i=1}^n z_i - \frac{1}{2}(\sum_{i=1}^n e^{z_i})^2\right).$$
+
+$$\mathrm{correction} = \pi(r) |J| = r^n e^{-r^2/2} \prod_{i=1}^n x_i = \exp\left(\sum_{i=1}^n z_i - \frac{1}{2}\left(\sum_{i=1}^n e^{z_i}\right)^2\right).$$
 
 \vfill
 
