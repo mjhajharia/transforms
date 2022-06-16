@@ -56,6 +56,30 @@ Note that reviewers are under no obligation to examine your supplementary materi
 
 \section{Derivations of density corrections}
 
+\subsection{Simplex softmax parameterization}
+
+We define the transformation $\phi: \mathbb{R}^{n-1} \to \Delta^{n}: z \mapsto x_-$, where $x=\begin{pmatrix}x_- \\ \frac{1}{r}\end{pmatrix}$, $x_i = \frac{1}{r} e^{z_i}$ for $i \in \{1, \ldots, n-1\}$, and $r = 1 + \sum_{i=1}^{n-1} e^{z_i}$.
+
+First we compute the scalar derivatives:
+$$
+\begin{aligned}
+    \frac{\mathrm{d} r}{\mathrm{d} z_j} &= e^{z_j} = r x_j\\
+    \frac{\mathrm{d} x_i}{\mathrm{d} z_j} &= \delta_{ij} \frac{1}{r} e^{z_i} - \frac{1}{r^2} e^{z_i} \frac{\mathrm{d} r}{\mathrm{d} z_j} = \delta_{ij} x_i - x_i x_j, \quad 1 \le i \le n-1
+\end{aligned}
+$$
+
+where $\delta_{ij} = \begin{cases} 1 &\text{if } i = j \\ 0 &\text{otherwise}\end{cases}$ is the Kronecker delta.
+
+If $\mathrm{diag}(x)$ is the diagonal matrix whose diagonal are the elements of $x$, then the Jacobian is
+
+$$J = (I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top) \operatorname{diag}(x_-),$$
+
+where $\boldsymbol{1}_n$ is the $n$-vector of ones.
+
+Using Sylvester's determinant theorem, $|I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top| = 1 - \boldsymbol{1}_{n-1}^\top x_- = 1 - \sum_{i=1}^{n-1} x_i = x_n$, so
+
+$$\mathrm{correction} = |J| = x_n \prod_{i=1}^{n-1} x_i = \prod_{i=1}^{n} x_i = \exp\left(\sum_{i=1}^{n-1} z_i\right) \left(1 + \sum_{i=1}^{n-1} e^{z_i}\right)^{-n}$$
+
 \subsection{Simplex augmented softmax parameterization}
 
 We define the transformation $\phi: \mathbb{R} \backslash \{0\} \to \Delta^{n-1} \times \mathbb{R}_{>0}: z \mapsto (x, r)$,
