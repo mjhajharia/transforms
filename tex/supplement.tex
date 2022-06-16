@@ -126,6 +126,12 @@ If we choose $r \sim \chi_n$, then the product of the correction and the density
 
 $$\mathrm{correction} = \pi(r) |J| = r^n e^{-r^2/2} \prod_{i=1}^n x_i = \exp\left(\sum_{i=1}^n y_i - \frac{1}{2}\left(\sum_{i=1}^n e^{y_i}\right)^2\right).$$
 
+Alternatively, if we choose $r \sim \mathrm{Gamma}(n, 1)$, then
+
+$$\mathrm{correction} = \pi(r) |J| = r^n e^{-r} \prod_{i=1}^n x_i = \exp\left(\sum_{i=1}^n y_i - \sum_{i=1}^n e^{y_i}\right).$$
+
+This latter correction is equivalent to the sampling procedure from the Dirichlet distribution with $\alpha_i=1$, where $z_i \sim \mathrm{Exponential}(1)$ and $y = \frac{z}{\sum_{i=1}^n z_i}$.
+
 \vfill
 
 \end{document}
