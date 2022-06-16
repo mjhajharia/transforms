@@ -58,13 +58,13 @@ Note that reviewers are under no obligation to examine your supplementary materi
 
 \subsection{Simplex softmax parameterization}
 
-We define the transformation $\phi: \mathbb{R}^{n-1} \to \Delta^{n}: z \mapsto x_-$, where $x=\begin{pmatrix}x_- \\ \frac{1}{r}\end{pmatrix}$, $x_i = \frac{1}{r} e^{z_i}$ for $i \in \{1, \ldots, n-1\}$, and $r = 1 + \sum_{i=1}^{n-1} e^{z_i}$.
+We define the transformation $\phi: \mathbb{R}^{n-1} \to \Delta^{n}: y \mapsto x_-$, where $x=\begin{pmatrix}x_- \\ \frac{1}{r}\end{pmatrix}$, $x_i = \frac{1}{r} e^{y_i}$ for $i \in \{1, \ldots, n-1\}$, and $r = 1 + \sum_{i=1}^{n-1} e^{y_i}$.
 
 First we compute the scalar derivatives:
 $$
 \begin{aligned}
-    \frac{\mathrm{d} r}{\mathrm{d} z_j} &= e^{z_j} = r x_j\\
-    \frac{\mathrm{d} x_i}{\mathrm{d} z_j} &= \delta_{ij} \frac{1}{r} e^{z_i} - \frac{1}{r^2} e^{z_i} \frac{\mathrm{d} r}{\mathrm{d} z_j} = \delta_{ij} x_i - x_i x_j, \quad 1 \le i \le n-1
+    \frac{\mathrm{d} r}{\mathrm{d} y_j} &= e^{y_j} = r x_j\\
+    \frac{\mathrm{d} x_i}{\mathrm{d} y_j} &= \delta_{ij} \frac{1}{r} e^{y_i} - \frac{1}{r^2} e^{y_i} \frac{\mathrm{d} r}{\mathrm{d} y_j} = \delta_{ij} x_i - x_i x_j, \quad 1 \le i \le n-1
 \end{aligned}
 $$
 
@@ -78,20 +78,20 @@ where $\boldsymbol{1}_n$ is the $n$-vector of ones.
 
 Using Sylvester's determinant theorem, $|I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top| = 1 - \boldsymbol{1}_{n-1}^\top x_- = 1 - \sum_{i=1}^{n-1} x_i = x_n$, so
 
-$$\mathrm{correction} = |J| = x_n \prod_{i=1}^{n-1} x_i = \prod_{i=1}^{n} x_i = \exp\left(\sum_{i=1}^{n-1} z_i\right) \left(1 + \sum_{i=1}^{n-1} e^{z_i}\right)^{-n}$$
+$$\mathrm{correction} = |J| = x_n \prod_{i=1}^{n-1} x_i = \prod_{i=1}^{n} x_i = \exp\left(\sum_{i=1}^{n-1} y_i\right) \left(1 + \sum_{i=1}^{n-1} e^{y_i}\right)^{-n}$$
 
 \subsection{Simplex augmented softmax parameterization}
 
-We define the transformation $\phi: \mathbb{R}^n \backslash \{0\} \to \Delta^{n-1} \times \mathbb{R}_{>0}: z \mapsto (x, r)$,
-where $r = \sum_{i=1}^n e^{z_i}$ and $x_i = \frac{1}{r} e^{z_i}$.
+We define the transformation $\phi: \mathbb{R}^n \backslash \{0\} \to \Delta^{n-1} \times \mathbb{R}_{>0}: y \mapsto (x, r)$,
+where $r = \sum_{i=1}^n e^{y_i}$ and $x_i = \frac{1}{r} e^{y_i}$.
 
-Similar to above, to compute the density correction we use the bijective transformation $f: z \mapsto (x_-, r)$.
+Similar to above, to compute the density correction we use the bijective transformation $f: y \mapsto (x_-, r)$.
 First we compute the scalar derivatives:
 
 $$
 \begin{aligned}
-    \frac{\mathrm{d} r}{\mathrm{d} z_j} &= e^{z_j} = r x_j\\
-    \frac{\mathrm{d} x_i}{\mathrm{d} z_j} &= \delta_{ij} \frac{1}{r} e^{z_i} - \frac{1}{r^2} e^{z_i} \frac{\mathrm{d} r}{\mathrm{d} z_j} = \delta_{ij} x_i - x_i x_j,
+    \frac{\mathrm{d} r}{\mathrm{d} y_j} &= e^{y_j} = r x_j\\
+    \frac{\mathrm{d} x_i}{\mathrm{d} y_j} &= \delta_{ij} \frac{1}{r} e^{y_i} - \frac{1}{r^2} e^{y_i} \frac{\mathrm{d} r}{\mathrm{d} y_j} = \delta_{ij} x_i - x_i x_j,
 \end{aligned}
 $$
 
@@ -100,7 +100,7 @@ which has the Jacobian
 $$J = \begin{pmatrix}I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top & -x_- \\ r \boldsymbol{1}_{n-1}^\top & r \end{pmatrix} \mathrm{diag}(x),$$
 
 For invertible $A$, the determinant of the block matrix $\begin{pmatrix}A & B \\ C & D\end{pmatrix}$ is $|A| |D-CA^{-1}B|$.
-A square matrix is invertible iff its determinant is non-zero.
+A square matrix is invertible iff its determinant is non-yero.
 From the previous section, $|I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top| = x_n > 0$, so the determinant of the Jacobian is
 
 $$|J| = x_n \left|r + r \boldsymbol{1}_{n-1}^\top (I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top)^{-1} x_-\right| \prod_{i=1}^n x_i$$
@@ -124,7 +124,7 @@ $$|J| = x_n r \left|1 + \frac{1}{x_n}\sum_{i=1}^{n-1} x_i\right| \prod_{i=1}^n x
 To keep the target distribution proper, we must select a prior distribution $\pi(r)$ for $r$.
 If we choose $r \sim \chi_n$, then the product of the correction and the density of the prior for $r$ is proportional to
 
-$$\mathrm{correction} = \pi(r) |J| = r^n e^{-r^2/2} \prod_{i=1}^n x_i = \exp\left(\sum_{i=1}^n z_i - \frac{1}{2}\left(\sum_{i=1}^n e^{z_i}\right)^2\right).$$
+$$\mathrm{correction} = \pi(r) |J| = r^n e^{-r^2/2} \prod_{i=1}^n x_i = \exp\left(\sum_{i=1}^n y_i - \frac{1}{2}\left(\sum_{i=1}^n e^{y_i}\right)^2\right).$$
 
 \vfill
 

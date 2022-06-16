@@ -2,12 +2,12 @@ data {
  int<lower=0> N;
 }
 parameters {
- vector[N] z;
+ vector[N] y;
 }
 transformed parameters {
- real<lower=0> logr = log_sum_exp(z);
- simplex[N] x = exp(z - logr);
+ real<lower=0> logr = log_sum_exp(y);
+ simplex[N] x = exp(y - logr);
 }
 model {
- target += sum(z) - exp(2 * logr) / 2;
+ target += sum(y) - exp(2 * logr) / 2;
 }
