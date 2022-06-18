@@ -1,5 +1,6 @@
 data {
  int<lower=0> N;
+ vector<lower=0>[N] alpha;
  real<lower=0> p;
 }
 parameters {
@@ -11,4 +12,5 @@ transformed parameters {
 }
 model {
  target += sum(y) - exp(p * logr) / p;
+ target += dirichlet_lupdf(x | alpha);
 }

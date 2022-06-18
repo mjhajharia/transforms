@@ -1,12 +1,14 @@
 data {
- int<lower=0> K;
+ int<lower=0> N;
+ vector<lower=0>[N] alpha;
 }
 parameters {
- vector[K-1] x_unc;
+ vector[N-1] y;
 }
 transformed parameters {
- simplex[K] x = softmax(append_row(x_unc,0));
+ simplex[N] x = softmax(append_row(y,0));
 }
 model {
- target += -K * log1p(sum(exp(x_unc))) + sum(x_unc);
+ target += -N * log1p_exp(log_sum_exp(y)) + sum(y);
+ target += dirichlet_lupdf(x | alpha);
 }
