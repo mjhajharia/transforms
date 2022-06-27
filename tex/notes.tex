@@ -1,6 +1,7 @@
 \documentclass[twoside]{article}
 
 \usepackage{aistats2021}
+\usepackage{amsmath}
 % If your paper is accepted, change the options for the package
 % aistats2021 as follows:
 %
@@ -43,7 +44,15 @@
 \onecolumn
 \aistatstitle{Notes}
 
+\section{Introduction}
+
+\section{Constraints}
+\subsection{Bounded Constraints}
+\subsection{Simplex Constraints}
+\subsection{Definite Matrix constraints}
 \section{Softmax Transform}
-\textit{Roughly writing the algebra for the idea that Bob Proposed}
+
+The softmax function can be understood from Multinomial Logistic Regression employed for predicting probabilities of a Categorically distributed variable. Geometrically it maps $R^K$ to the boundary of a unit K-simplex(it is simply the convex hull of $k+1$ affinely independent points in $R^K$. Essentially it transforms a vector of size K to another vector of size K where the outputs sum to 1. It is worth noting that the mapping is actually from $R^K$ to $R^{K-1}$, so when a vector of size $K$ is transformed the $K_th$ vector is simply $1$- sumofk-1 vectors
+R
 
 \end{document}

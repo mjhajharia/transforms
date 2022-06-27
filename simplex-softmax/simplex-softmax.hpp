@@ -8,15 +8,18 @@ using namespace stan::math;
 
 
 stan::math::profile_map profiles__;
-static constexpr std::array<const char*, 8> locations_array__ = 
+static constexpr std::array<const char*, 11> locations_array__ = 
 {" (found before start of program)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 5, column 1 to column 19)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 8, column 1 to column 45)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 11, column 1 to column 32)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 12, column 1 to column 39)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 2, column 1 to column 16)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 5, column 8 to column 11)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 8, column 9 to column 10)"};
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 7, column 2 to column 20)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 11, column 2 to column 46)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 15, column 2 to column 33)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 16, column 2 to column 40)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 17, column 2 to column 39)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 2, column 2 to column 17)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 3, column 18 to column 19)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 3, column 2 to column 27)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 7, column 9 to column 12)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-softmax/simplex-softmax.stan', line 11, column 10 to column 11)"};
 
 
 
@@ -25,8 +28,9 @@ class simplex_softmax_model final : public model_base_crtp<simplex_softmax_model
 
  private:
   int K;
+  Eigen::Matrix<double, -1, 1> alpha__;
   int x_unc_1dim__; 
-  
+  Eigen::Map<Eigen::Matrix<double, -1, 1>> alpha{nullptr, 0};
  
  public:
   ~simplex_softmax_model() { }
@@ -53,25 +57,53 @@ class simplex_softmax_model final : public model_base_crtp<simplex_softmax_model
     try {
       int pos__ = std::numeric_limits<int>::min();
       pos__ = 1;
-      current_statement__ = 5;
+      current_statement__ = 6;
       context__.validate_dims("data initialization","K","int",
            std::vector<size_t>{});
       K = std::numeric_limits<int>::min();
       
       
-      current_statement__ = 5;
-      K = context__.vals_i("K")[(1 - 1)];
-      current_statement__ = 5;
-      stan::math::check_greater_or_equal(function__, "K", K, 0);
       current_statement__ = 6;
+      K = context__.vals_i("K")[(1 - 1)];
+      current_statement__ = 6;
+      stan::math::check_greater_or_equal(function__, "K", K, 0);
+      current_statement__ = 7;
+      stan::math::validate_non_negative_index("alpha", "K", K);
+      current_statement__ = 8;
+      context__.validate_dims("data initialization","alpha","double",
+           std::vector<size_t>{static_cast<size_t>(K)});
+      alpha__ = 
+        Eigen::Matrix<double, -1, 1>::Constant(K,
+          std::numeric_limits<double>::quiet_NaN());
+      new (&alpha) Eigen::Map<Eigen::Matrix<double, -1, 1>>(alpha__.data(), K);
+        
+      
+      {
+        std::vector<local_scalar_t__> alpha_flat__;
+        current_statement__ = 8;
+        alpha_flat__ = context__.vals_r("alpha");
+        current_statement__ = 8;
+        pos__ = 1;
+        current_statement__ = 8;
+        for (int sym1__ = 1; sym1__ <= K; ++sym1__) {
+          current_statement__ = 8;
+          stan::model::assign(alpha, alpha_flat__[(pos__ - 1)],
+            "assigning variable alpha", stan::model::index_uni(sym1__));
+          current_statement__ = 8;
+          pos__ = (pos__ + 1);
+        }
+      }
+      current_statement__ = 8;
+      stan::math::check_greater_or_equal(function__, "alpha", alpha, 0);
+      current_statement__ = 9;
       x_unc_1dim__ = std::numeric_limits<int>::min();
       
       
-      current_statement__ = 6;
+      current_statement__ = 9;
       x_unc_1dim__ = (K - 1);
-      current_statement__ = 6;
+      current_statement__ = 9;
       stan::math::validate_non_negative_index("x_unc", "K - 1", x_unc_1dim__);
-      current_statement__ = 7;
+      current_statement__ = 10;
       stan::math::validate_non_negative_index("x", "K", K);
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
@@ -119,6 +151,8 @@ class simplex_softmax_model final : public model_base_crtp<simplex_softmax_model
         current_statement__ = 4;
         lp_accum__.add(
           (-K * stan::math::log1p(stan::math::sum(stan::math::exp(x_unc)))));
+        current_statement__ = 5;
+        lp_accum__.add(stan::math::dirichlet_lpdf<propto__>(x, alpha));
       }
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);

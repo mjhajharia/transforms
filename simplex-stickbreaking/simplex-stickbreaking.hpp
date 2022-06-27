@@ -8,23 +8,26 @@ using namespace stan::math;
 
 
 stan::math::profile_map profiles__;
-static constexpr std::array<const char*, 16> locations_array__ = 
+static constexpr std::array<const char*, 19> locations_array__ = 
 {" (found before start of program)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 5, column 2 to column 16)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 8, column 2 to column 15)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 9, column 2 to column 16)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 11, column 6 to column 40)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 12, column 6 to column 36)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 10, column 19 to line 13, column 7)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 10, column 2 to line 13, column 7)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 14, column 2 to column 25)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 18, column 6 to column 63)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 17, column 19 to line 19, column 5)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 17, column 2 to line 19, column 5)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 6, column 2 to column 16)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 9, column 2 to column 15)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 10, column 2 to column 16)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 12, column 6 to column 40)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 13, column 6 to column 36)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 11, column 19 to line 14, column 7)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 11, column 2 to line 14, column 7)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 15, column 2 to column 25)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 19, column 6 to column 63)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 18, column 19 to line 20, column 5)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 18, column 2 to line 20, column 5)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 21, column 2 to column 39)",
  " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 2, column 2 to column 17)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 5, column 9 to column 12)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 8, column 10 to column 11)",
- " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 9, column 9 to column 12)"};
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 3, column 18 to column 19)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 3, column 2 to column 27)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 6, column 9 to column 12)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 9, column 10 to column 11)",
+ " (in '/Users/meenaljhajharia/cmdstan/transforms/simplex-stickbreaking/simplex-stickbreaking.stan', line 10, column 9 to column 12)"};
 
 
 
@@ -33,9 +36,10 @@ class simplex_stickbreaking_model final : public model_base_crtp<simplex_stickbr
 
  private:
   int K;
-  int y_1dim__;
+  Eigen::Matrix<double, -1, 1> alpha__;
+  int Y_1dim__;
   int z_1dim__; 
-  
+  Eigen::Map<Eigen::Matrix<double, -1, 1>> alpha{nullptr, 0};
  
  public:
   ~simplex_stickbreaking_model() { }
@@ -62,38 +66,66 @@ class simplex_stickbreaking_model final : public model_base_crtp<simplex_stickbr
     try {
       int pos__ = std::numeric_limits<int>::min();
       pos__ = 1;
-      current_statement__ = 12;
+      current_statement__ = 13;
       context__.validate_dims("data initialization","K","int",
            std::vector<size_t>{});
       K = std::numeric_limits<int>::min();
       
       
-      current_statement__ = 12;
+      current_statement__ = 13;
       K = context__.vals_i("K")[(1 - 1)];
-      current_statement__ = 12;
+      current_statement__ = 13;
       stan::math::check_greater_or_equal(function__, "K", K, 0);
-      current_statement__ = 13;
-      y_1dim__ = std::numeric_limits<int>::min();
-      
-      
-      current_statement__ = 13;
-      y_1dim__ = (K - 1);
-      current_statement__ = 13;
-      stan::math::validate_non_negative_index("y", "K - 1", y_1dim__);
       current_statement__ = 14;
-      stan::math::validate_non_negative_index("x", "K", K);
+      stan::math::validate_non_negative_index("alpha", "K", K);
       current_statement__ = 15;
+      context__.validate_dims("data initialization","alpha","double",
+           std::vector<size_t>{static_cast<size_t>(K)});
+      alpha__ = 
+        Eigen::Matrix<double, -1, 1>::Constant(K,
+          std::numeric_limits<double>::quiet_NaN());
+      new (&alpha) Eigen::Map<Eigen::Matrix<double, -1, 1>>(alpha__.data(), K);
+        
+      
+      {
+        std::vector<local_scalar_t__> alpha_flat__;
+        current_statement__ = 15;
+        alpha_flat__ = context__.vals_r("alpha");
+        current_statement__ = 15;
+        pos__ = 1;
+        current_statement__ = 15;
+        for (int sym1__ = 1; sym1__ <= K; ++sym1__) {
+          current_statement__ = 15;
+          stan::model::assign(alpha, alpha_flat__[(pos__ - 1)],
+            "assigning variable alpha", stan::model::index_uni(sym1__));
+          current_statement__ = 15;
+          pos__ = (pos__ + 1);
+        }
+      }
+      current_statement__ = 15;
+      stan::math::check_greater_or_equal(function__, "alpha", alpha, 0);
+      current_statement__ = 16;
+      Y_1dim__ = std::numeric_limits<int>::min();
+      
+      
+      current_statement__ = 16;
+      Y_1dim__ = (K - 1);
+      current_statement__ = 16;
+      stan::math::validate_non_negative_index("Y", "K - 1", Y_1dim__);
+      current_statement__ = 17;
+      stan::math::validate_non_negative_index("x", "K", K);
+      current_statement__ = 18;
       z_1dim__ = std::numeric_limits<int>::min();
       
       
-      current_statement__ = 15;
+      current_statement__ = 18;
       z_1dim__ = (K - 1);
-      current_statement__ = 15;
+      current_statement__ = 18;
       stan::math::validate_non_negative_index("z", "K - 1", z_1dim__);
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
     }
-    num_params_r__ = y_1dim__;
+    num_params_r__ = Y_1dim__;
     
   }
   
@@ -115,12 +147,12 @@ class simplex_stickbreaking_model final : public model_base_crtp<simplex_stickbr
     (void) function__;  // suppress unused var warning
     
     try {
-      Eigen::Matrix<local_scalar_t__, -1, 1> y =
-         Eigen::Matrix<local_scalar_t__, -1, 1>::Constant(y_1dim__,
+      Eigen::Matrix<local_scalar_t__, -1, 1> Y =
+         Eigen::Matrix<local_scalar_t__, -1, 1>::Constant(Y_1dim__,
            DUMMY_VAR__);
       current_statement__ = 1;
-      y = in__.template read<Eigen::Matrix<local_scalar_t__, -1, 1>>(
-            y_1dim__);
+      Y = in__.template read<Eigen::Matrix<local_scalar_t__, -1, 1>>(
+            Y_1dim__);
       Eigen::Matrix<local_scalar_t__, -1, 1> x =
          Eigen::Matrix<local_scalar_t__, -1, 1>::Constant(K, DUMMY_VAR__);
       Eigen::Matrix<local_scalar_t__, -1, 1> z =
@@ -131,7 +163,7 @@ class simplex_stickbreaking_model final : public model_base_crtp<simplex_stickbr
         current_statement__ = 4;
         stan::model::assign(z,
           stan::math::inv_logit(
-            (stan::model::rvalue(y, "y", stan::model::index_uni(k)) -
+            (stan::model::rvalue(Y, "Y", stan::model::index_uni(k)) -
               stan::math::log((K - k)))),
           "assigning variable z", stan::model::index_uni(k));
         current_statement__ = 5;
@@ -166,6 +198,8 @@ class simplex_stickbreaking_model final : public model_base_crtp<simplex_stickbr
                   stan::model::rvalue(x, "x",
                     stan::model::index_min_max(1, (k - 1)))))));
         }
+        current_statement__ = 12;
+        lp_accum__.add(stan::math::dirichlet_lpdf<propto__>(x, alpha));
       }
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
@@ -199,19 +233,19 @@ class simplex_stickbreaking_model final : public model_base_crtp<simplex_stickbr
     (void) function__;  // suppress unused var warning
     
     try {
-      Eigen::Matrix<double, -1, 1> y =
-         Eigen::Matrix<double, -1, 1>::Constant(y_1dim__,
+      Eigen::Matrix<double, -1, 1> Y =
+         Eigen::Matrix<double, -1, 1>::Constant(Y_1dim__,
            std::numeric_limits<double>::quiet_NaN());
       current_statement__ = 1;
-      y = in__.template read<Eigen::Matrix<local_scalar_t__, -1, 1>>(
-            y_1dim__);
+      Y = in__.template read<Eigen::Matrix<local_scalar_t__, -1, 1>>(
+            Y_1dim__);
       Eigen::Matrix<double, -1, 1> x =
          Eigen::Matrix<double, -1, 1>::Constant(K,
            std::numeric_limits<double>::quiet_NaN());
       Eigen::Matrix<double, -1, 1> z =
          Eigen::Matrix<double, -1, 1>::Constant(z_1dim__,
            std::numeric_limits<double>::quiet_NaN());
-      out__.write(y);
+      out__.write(Y);
       if (stan::math::logical_negation((stan::math::primitive_value(
             emit_transformed_parameters__) || stan::math::primitive_value(
             emit_generated_quantities__)))) {
@@ -222,7 +256,7 @@ class simplex_stickbreaking_model final : public model_base_crtp<simplex_stickbr
         current_statement__ = 4;
         stan::model::assign(z,
           stan::math::inv_logit(
-            (stan::model::rvalue(y, "y", stan::model::index_uni(k)) -
+            (stan::model::rvalue(Y, "Y", stan::model::index_uni(k)) -
               stan::math::log((K - k)))),
           "assigning variable z", stan::model::index_uni(k));
         current_statement__ = 5;
@@ -270,14 +304,14 @@ class simplex_stickbreaking_model final : public model_base_crtp<simplex_stickbr
     try {
       int pos__ = std::numeric_limits<int>::min();
       pos__ = 1;
-      Eigen::Matrix<local_scalar_t__, -1, 1> y =
-         Eigen::Matrix<local_scalar_t__, -1, 1>::Constant(y_1dim__,
+      Eigen::Matrix<local_scalar_t__, -1, 1> Y =
+         Eigen::Matrix<local_scalar_t__, -1, 1>::Constant(Y_1dim__,
            DUMMY_VAR__);
-      for (int sym1__ = 1; sym1__ <= y_1dim__; ++sym1__) {
-        stan::model::assign(y, in__.read<local_scalar_t__>(),
-          "assigning variable y", stan::model::index_uni(sym1__));
+      for (int sym1__ = 1; sym1__ <= Y_1dim__; ++sym1__) {
+        stan::model::assign(Y, in__.read<local_scalar_t__>(),
+          "assigning variable Y", stan::model::index_uni(sym1__));
       }
-      out__.write(y);
+      out__.write(Y);
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
     }
@@ -285,14 +319,14 @@ class simplex_stickbreaking_model final : public model_base_crtp<simplex_stickbr
     
   inline void get_param_names(std::vector<std::string>& names__) const {
     
-    names__ = std::vector<std::string>{"y", "x", "z"};
+    names__ = std::vector<std::string>{"Y", "x", "z"};
     
     } // get_param_names() 
     
   inline void get_dims(std::vector<std::vector<size_t>>& dimss__) const {
     
     dimss__ = std::vector<std::vector<size_t>>{std::vector<size_t>{
-                                                                   static_cast<size_t>(y_1dim__)
+                                                                   static_cast<size_t>(Y_1dim__)
                                                                    },
       std::vector<size_t>{static_cast<size_t>(K)},
       std::vector<size_t>{static_cast<size_t>(z_1dim__)}};
@@ -305,9 +339,9 @@ class simplex_stickbreaking_model final : public model_base_crtp<simplex_stickbr
                                       bool emit_generated_quantities__ = true) const
     final {
     
-    for (int sym1__ = 1; sym1__ <= y_1dim__; ++sym1__) {
+    for (int sym1__ = 1; sym1__ <= Y_1dim__; ++sym1__) {
       {
-        param_names__.emplace_back(std::string() + "y" + '.' + std::to_string(sym1__));
+        param_names__.emplace_back(std::string() + "Y" + '.' + std::to_string(sym1__));
       } 
     }
     if (emit_transformed_parameters__) {
@@ -335,9 +369,9 @@ class simplex_stickbreaking_model final : public model_base_crtp<simplex_stickbr
                                         bool emit_generated_quantities__ = true) const
     final {
     
-    for (int sym1__ = 1; sym1__ <= y_1dim__; ++sym1__) {
+    for (int sym1__ = 1; sym1__ <= Y_1dim__; ++sym1__) {
       {
-        param_names__.emplace_back(std::string() + "y" + '.' + std::to_string(sym1__));
+        param_names__.emplace_back(std::string() + "Y" + '.' + std::to_string(sym1__));
       } 
     }
     if (emit_transformed_parameters__) {
@@ -361,13 +395,13 @@ class simplex_stickbreaking_model final : public model_base_crtp<simplex_stickbr
     
   inline std::string get_constrained_sizedtypes() const {
     
-    return std::string("[{\"name\":\"y\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(y_1dim__) + "},\"block\":\"parameters\"},{\"name\":\"x\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(K) + "},\"block\":\"transformed_parameters\"},{\"name\":\"z\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(z_1dim__) + "},\"block\":\"transformed_parameters\"}]");
+    return std::string("[{\"name\":\"Y\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(Y_1dim__) + "},\"block\":\"parameters\"},{\"name\":\"x\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(K) + "},\"block\":\"transformed_parameters\"},{\"name\":\"z\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(z_1dim__) + "},\"block\":\"transformed_parameters\"}]");
     
     } // get_constrained_sizedtypes() 
     
   inline std::string get_unconstrained_sizedtypes() const {
     
-    return std::string("[{\"name\":\"y\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(y_1dim__) + "},\"block\":\"parameters\"},{\"name\":\"x\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string((K - 1)) + "},\"block\":\"transformed_parameters\"},{\"name\":\"z\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(z_1dim__) + "},\"block\":\"transformed_parameters\"}]");
+    return std::string("[{\"name\":\"Y\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(Y_1dim__) + "},\"block\":\"parameters\"},{\"name\":\"x\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string((K - 1)) + "},\"block\":\"transformed_parameters\"},{\"name\":\"z\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(z_1dim__) + "},\"block\":\"transformed_parameters\"}]");
     
     } // get_unconstrained_sizedtypes() 
     
@@ -380,7 +414,7 @@ class simplex_stickbreaking_model final : public model_base_crtp<simplex_stickbr
                             const bool emit_transformed_parameters = true,
                             const bool emit_generated_quantities = true,
                             std::ostream* pstream = nullptr) const {
-      const size_t num_params__ = y_1dim__;
+      const size_t num_params__ = Y_1dim__;
       const size_t num_transformed = emit_transformed_parameters * 
   (K + z_1dim__);
       const size_t num_gen_quantities = emit_generated_quantities * 0;
@@ -400,7 +434,7 @@ class simplex_stickbreaking_model final : public model_base_crtp<simplex_stickbr
                             bool emit_transformed_parameters = true,
                             bool emit_generated_quantities = true,
                             std::ostream* pstream = nullptr) const {
-      const size_t num_params__ = y_1dim__;
+      const size_t num_params__ = Y_1dim__;
       const size_t num_transformed = emit_transformed_parameters * 
   (K + z_1dim__);
       const size_t num_gen_quantities = emit_generated_quantities * 0;
@@ -441,8 +475,8 @@ class simplex_stickbreaking_model final : public model_base_crtp<simplex_stickbr
                               std::vector<int>& params_i,
                               std::vector<double>& vars,
                               std::ostream* pstream__ = nullptr) const {
-     constexpr std::array<const char*, 1> names__{"y"};
-      const std::array<Eigen::Index, 1> constrain_param_sizes__{y_1dim__};
+     constexpr std::array<const char*, 1> names__{"Y"};
+      const std::array<Eigen::Index, 1> constrain_param_sizes__{Y_1dim__};
       const auto num_constrained_params__ = std::accumulate(
         constrain_param_sizes__.begin(), constrain_param_sizes__.end(), 0);
     

@@ -1,13 +1,15 @@
 data {
- int<lower=0> N;
+ int<lower=0> K;
+ vector<lower=0>[K] alpha;
 }
 parameters {
- vector[N] z;
+ vector[K] z;
 }
 transformed parameters {
  real<lower=0> logr = log_sum_exp(z);
- simplex[N] x = exp(z - logr);
+ simplex[K] x = exp(z - logr);
 }
 model {
  target += sum(z) - exp(2 * logr) / 2;
+ target += dirichlet_lupdf(x | alpha);
 }
