@@ -1,2 +1,6 @@
 .DS_Store
 tex/*pdf
+*.hpp
+utils/__pycache__/*
+utils/.ipynb_checkpoints/*
+*.json

@@ -1,5 +1,6 @@
 data {
-  int<lower=0> K;
+  int<lower=0> N;
+  vector<lower=0>[N] alpha;
 }
 parameters {
   vector[K-1] y;
@@ -17,4 +18,5 @@ model {
   for (k in 1:K-1) {
       target += log(z[k]) + log1m(z[k]) + log1m(sum(x[1:k-1]));
     }
+   target += dirichlet_lupdf(x | alpha);
 }

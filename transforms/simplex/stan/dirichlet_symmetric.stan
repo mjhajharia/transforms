@@ -6,5 +6,5 @@ parameters {
   simplex[N] x;
 }
 model {
-  x ~ dirichlet(alpha);
+  target += dirichlet_lupdf(x | alpha);
 }

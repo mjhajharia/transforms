@@ -1,7 +1,7 @@
 data {
  int<lower=0> N;
  vector<lower=0>[N] alpha;
- real<lower=0> p;
+ real<lower=0> p=0.5;
 }
 parameters {
  vector[N] y;
