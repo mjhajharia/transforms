@@ -1,0 +1,300 @@
+\documentclass[11pt]{article}
+    
+\usepackage[letterpaper, total={6.5in, 9in}]{geometry}
+\usepackage{cite}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{mathpazo}
+\usepackage{sourcecodepro}
+
+\newcommand{\setcomp}[2]{\left\{ #1 \ \Big|\ #2 \right\}}
+\newcommand{\rngto}[1]{1{:}#1}
+\newcommand{\abs}[1]{\left| #1 \right|}
+\newcommand{\absdet}[1]{\abs{#1}}
+
+
+\begin{document}
+
+
+\title{Efficient Unconstraining
+  Parameter Transforms for Hamiltonian Monte Carlo}
+\author{Meenal Jhajaria \\ \small Flatiron Institute \and Seth Axen \\
+  \small University of T\"ubingen \and Bob
+  Carpenter \\ \small Flatiron Institute}
+\date{DRAFT: \today}
+\maketitle
+
+
+\begin{abstract}
+  \noindent
+  This paper evaluates the the statistical and computational
+  efficiency of unconstraining parameter transforms for Hamiltonian
+  Monte Carlo sampling.
+\end{abstract}
+
+\section{Introduction}
+
+In statistical computing, we often need to compute high-dimensional
+integrals over densities $\pi(x)$ (e.g., Bayesian estimation or
+prediction, $p$-value calcuations, etc.).  The only black-box
+techniques that work for general high-dimensional integrals are
+Markov chain Monte Carlo (MCMC) methods.  The most effective MCMC
+method in high dimensions is Hamiltonian Monte Carlo (HMC).  HMC works
+by simulating the Hamiltonian dynamics of a fictitious particle
+representing the value being sampled coupled with a momentum term.
+
+Although it's possible to write HMC samplers that work for simply
+constrained values such as upper- and/or lower-bounds
+\cite{neal2011mcmc} or unit vectors \cite{byrne2013geodesic}, it is
+much more challenging to do the same for complex constraints such as
+simplexes or positive definite matrices or for densities involving
+multiple constrained values.  Instead, it is far more common to map
+the constrained values to unconstrained values before sampling
+\cite{}.  This presents the issue of selecting which transform to use
+among an infinite set of options, which is the topic of this paper.
+
+Sampling algorithms play an important role in Statistics, in this case
+we refer to drawing samples from a probability density or distribution
+(not survey sampling). Monte Carlo Markov chain methods are commonly
+used for high dimensional sampling. In this paper, we look at
+Hamiltonian Monte Carlo, which uses hamiltonian dynamics to propose
+samples for the Metropolis algorithm. Bayesian Inference often uses
+parameters with constraints, but HMC optimizes on the unconstrained
+space. It is difficult to use Monte Carlo estimation on a constrained
+domain ~\cite{neal2008optimal}
+
+
+\section{Changes of Variables}
+
+If $X$ is a random variable with density $p_X$ and $Y = f(X)$ for a
+smooth and bijective function $f$, then
+\[
+  p_Y(y) = p_X(f^{-1}(y)) \absdet{J_{f^{-1}}(y)},
+\]
+where the Jacobian of the inverse transform is defined by
+\[
+  J_{f^{-1}}(y) = \frac{\partial}{\partial y} \, f^{-1}(y)
+\]
+and
+\[
+  \absdet{J_{f^{-1}}(y)}
+  = \abs{\det J_{f^{-1}}(y)}.
+\]
+
+
+
+\section{Unit simplex}
+
+A unit $N$-simplex is an $N + 1$-dimensional vector of non-negative
+values that sums to one.  As such, there are only $N$ degrees of
+freedom, because if $x$ is an $N$-simplex, then
+\[
+  x_N = -(x_1 + x_2 + \cdots + x_{N-1}).
+\]
+Simplexes are useful for representations of multinomial probabilities
+(e.g., probabilities of categories in a classification problem).
+
+The set of unit $N$-simplexes is conventionally denoted
+\[
+  \Delta^N = \setcomp{x \in \mathbb{R}^{N + 1}}{\textrm{sum}(x) = 1
+    \textrm{ and }
+    x_n \geq 0 \textrm{ for } n \in \rngto{N}}
+\]
+Geometrically, an $N$-simplex is the convex closure of $N+1$ points
+that are 1 in one coordinate and 0 elsewhere.  For example, the
+3-simplex is the complex closure of
+$\begin{bmatrix}1 & 0 & 0 \end{bmatrix},
+\begin{bmatrix} 0 & 1 & 0 \end{bmatrix}$,
+and $\begin{bmatrix} 0 & 0 & 1 \end{bmatrix}$.
+
+
+\subsection{Additive log ratio transform}
+
+The unconstraining transform for the identified softmax is known as
+the additive log ratio (ALR) transform \cite{aitchison???}, which is a
+bijection $\textrm{alr}:\Delta^{N-1} \rightarrow \mathbb{R}^{N-1}$ defined by
+\[
+  \textrm{alr}(x)
+  = \begin{bmatrix}\displaystyle
+    \log \frac{x_1}{x_N} \cdots \log \frac{x_{N-1}}{x_N}
+  \end{bmatrix}.
+\]
+The inverse additive log ratio transform maps values in $\mathbb{R}^{N-1}$ to
+$\Delta^{N-1}$ by
+\[
+  \textrm{alr}^{-1}(x) = \textrm{softmax}(\begin{bmatrix}x &  0\end{bmatrix}),
+\]
+where for $u \in \mathbb{R}^N$,
+\[
+  \textrm{softmax}(u) = \frac{\exp(u)}{\textrm{sum}(\exp(u))}.
+\]
+To calculate the change of variables adjustment, we consider only the
+first $N-1$ coordinates of the result, because the last is defined in
+terms of the first $N-1$.  The function operating on the first $N-1$
+coordinates is $s:\mathbb{R}^{N-1} \rightarrow \mathbb{R}^{N-1}$, defined by
+\[
+  s(x) = \frac{\exp(x)}{\exp(x) + 1}.
+\]
+The change of variables is then defined so that if $p_X(x)$ is a
+density over simplices $x \in \Delta^{N-1}$, then we inverse transform
+to an unconstrained density defined over $Y \in R^{N-1}$ by
+\[
+  p_Y(y) = p_X(\textrm{alr}^{-1}(y)) \absdet{J_{\textrm{alr}^{-1}}}.
+\]
+
+
+
+  
+
+
+
+\subsubsection{Softmax Transform}
+
+The softmax function can be understood from Multinomial Logistic
+Regression employed for predicting probabilities of a Categorically
+distributed variable. Geometrically it maps $R^K$ to the boundary of a
+unit K-simplex(it is simply the convex hull of $k+1$ affinely
+independent points in $R^K$. Essentially it transforms a vector of
+size K to another vector of size K where the outputs sum to 1. It is
+worth noting that the mapping is actually from $R^K$ to $R^{K-1}$, so
+when a vector of size $K$ is transformed the $K_th$ vector is simply
+$1$- sumof k-1 vectors
+
+
+\subsection{Simplex softmax parameterization}
+
+Let $\Delta^n$ indicate the unit $n$-simplex with $n$ positive
+elements that sum to 1 and $\Delta^n_-$ indicate the first $n-1$
+elements, from which the final element can be uniquely determined.
+
+We define the transformation
+$\phi: \mathbb{R}^{n-1} \to \Delta^n_-: y \mapsto x_-$, where
+$x=\begin{pmatrix}x_- \\ \frac{1}{r}\end{pmatrix} \in \Delta^n$,
+$x_i = \frac{1}{r} e^{y_i}$ for $1 \le i \le n-1$, and
+$r = 1 + \sum_{i=1}^{n-1} e^{y_i}$.
+
+First we compute the scalar derivatives:
+\[
+\begin{aligned}
+  \frac{\mathrm{d} r}{\mathrm{d} y_j}
+  &= e^{y_j} = r x_j\\
+  \frac{\mathrm{d} x_i}{\mathrm{d} y_j}
+  &= \delta_{ij} \frac{1}{r} e^{y_i} - \frac{1}{r^2} e^{y_i}
+  \frac{\mathrm{d} r}{\mathrm{d} y_j}
+  = \delta_{ij} x_i - x_i x_j, \quad 1 \le i \le n-1
+\end{aligned}
+\]
+where
+$\delta_{ij} = \begin{cases} 1 &\text{if } i = j \\ 0
+  &\text{otherwise}\end{cases}$ is the Kronecker delta.
+
+If $\mathrm{diag}(x)$ is the diagonal matrix whose diagonal are the
+elements of $x$, then the Jacobian is
+\[
+  J = (I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top) \operatorname{diag}(x_-),
+\]
+where $\boldsymbol{1}_n$ is the $n$-vector of ones.
+
+Using Sylvester's determinant theorem,
+$|I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top| = 1 -
+\boldsymbol{1}_{n-1}^\top x_- = 1 - \sum_{i=1}^{n-1} x_i = x_n$, so
+$$\mathrm{correction} = |J| = x_n \prod_{i=1}^{n-1} x_i = \prod_{i=1}^{n} x_i = \exp\left(\sum_{i=1}^{n-1} y_i\right) \left(1 + \sum_{i=1}^{n-1} e^{y_i}\right)^{-n}$$
+
+
+\subsection{Simplex augmented softmax parameterization}
+
+We define the transformation
+$\phi: \mathbb{R}^n \to \Delta^{n-1} \times \mathbb{R}_{>0}: y \mapsto
+(x_-, r)$, where $r = \sum_{i=1}^n e^{y_i}$ and
+$x_i = \frac{1}{r} e^{y_i}$ for $1 \le i \le n-1$..
+
+First we compute the scalar derivatives:
+\[
+\begin{aligned}
+  \frac{\mathrm{d} r}{\mathrm{d} y_j}
+  &= e^{y_j} = r x_j
+  \\
+  \frac{\mathrm{d} x_i}{\mathrm{d} y_j}
+  &= \delta_{ij} \frac{1}{r} e^{y_i} - \frac{1}{r^2} e^{y_i} \frac{\mathrm{d} r}{\mathrm{d} y_j} = \delta_{ij} x_i - x_i x_j,
+\end{aligned}
+\]
+which corresponds to the Jacobian
+\[
+  J = \begin{pmatrix}I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top & -x_- \\
+    r \boldsymbol{1}_{n-1}^\top & r \end{pmatrix} \mathrm{diag}(x).
+\]
+
+For invertible $A$, the determinant of the block matrix
+$\begin{pmatrix}A & B \\ C & D\end{pmatrix}$ is $|A| |D-CA^{-1}B|$.  A
+square matrix is invertible iff its determinant is non-yero.  From the
+previous section,
+\[
+  |I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top| = x_n > 0,
+\]
+so the determinant of the Jacobian is
+\[
+  |J| = x_n \left|r + r \boldsymbol{1}_{n-1}^\top (I_{n-1} - x_-
+    \boldsymbol{1}_{n-1}^\top)^{-1} x_-\right|
+  \prod_{i=1}^n x_i.
+\]
+
+Let $w = (I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top)^{-1} x_-$. Then,
+\[
+\begin{aligned}
+    w - x_- \sum_{i=1}^{n-1} w_i &= x_-\\
+    w &= x_- \left(1 - \sum_{i=1}^{n-1} w_i\right)\\
+    \sum_{i=1}^{n-1} w_i &= \sum_{i=1}^{n-1} \left( x_- (1 - \sum_{i=1}^{n-1} w_i) \right) = \left(\sum_{i=1}^{n-1} x_i \right) \left(1 - \sum_{i=1}^{n-1} w_i\right) = (1 - x_n)  \left(1 - \sum_{i=1}^{n-1} w_i\right)\\
+    \sum_{i=1}^{n-1} w_i &= \frac{1 - x_n}{x_n} = \frac{1}{x_n} - 1\\
+    w &= x_- \left(1 - \left(\frac{1}{x_n} - 1\right)\right) = \frac{1}{x_n} x_-
+  \end{aligned}
+\]
+
+Then
+\[
+  |J| = x_n r \left|1 + \frac{1}{x_n}\sum_{i=1}^{n-1} x_i\right|
+  \prod_{i=1}^n x_i = r \prod_{i=1}^n x_i
+\]
+
+To keep the target distribution proper, we must select a prior
+distribution $\pi(r)$ for $r$.  If we choose $r \sim \chi_n$, then the
+product of the correction and the density of the prior for $r$ is
+proportional to
+
+\[
+  \mathrm{correction}
+  = \pi(r) |J| = r^n e^{-r^2/2} \prod_{i=1}^n x_i
+  = \exp\left(\sum_{i=1}^n y_i - \frac{1}{2}\left(\sum_{i=1}^n
+      e^{y_i}\right)^2\right).
+\]
+
+Alternatively, if we choose $r \sim \mathrm{Gamma}(n, 1)$, then
+\[
+  \mathrm{correction} = \pi(r) |J| = r^n e^{-r} \prod_{i=1}^n x_i =
+  \exp\left(\sum_{i=1}^n y_i - \sum_{i=1}^n e^{y_i}\right).
+\]
+This latter correction is equivalent to the sampling procedure from
+the Dirichlet distribution with $\alpha_i=1$, where
+$z_i \sim \mathrm{Exponential}(1)$ and
+$y = \frac{z}{\sum_{i=1}^n z_i}$.
+
+Both of these corrections can be captured with the generalization
+\[
+  \mathrm{correction}
+  = \pi(r) |J|
+  = r^n e^{-r^p/p} \prod_{i=1}^n x_i
+  = \exp\left(\sum_{i=1}^n y_i - \frac{1}{p} \left(\sum_{i=1}^n e^{y_i}\right)^p\right),
+\]
+for $p > 0$, which corresponds to $r \sim \text{Generalized-Gamma}(1, n, p)$.
+
+
+\subsubsection*{Acknowledgements}
+
+We would like to thank $\ldots$.
+
+
+
+
+\bibliography{all}{}
+\bibliographystyle{plain}
+
+\end{document}
