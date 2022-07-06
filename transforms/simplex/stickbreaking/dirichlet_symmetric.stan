@@ -3,20 +3,21 @@ data {
   vector<lower=0>[N] alpha;
 }
 parameters {
-  vector[K-1] y;
+  vector[N-1] y;
 }
 transformed parameters {
-  simplex[K] x;
-  vector[K-1] z;
-  for (k in 1:K-1) {
-      z[k] = inv_logit(y[k] - log(K-k));
-      x[k] = (1-sum(x[1:k-1]))*z[k];
+  simplex[N] x;
+  vector[N-1] z;
+  for (n in 1:N-1) {
+      z[n] = inv_logit(y[n] - log(N-n));
+      x[n] = (1-sum(x[1:n-1]))*z[n];
       }   
-  x[K] = 1-sum(x[1:K-1]);
+  x[N] = 1-sum(x[1:N-1]);
 }
 model {
-  for (k in 1:K-1) {
-      target += log(z[k]) + log1m(z[k]) + log1m(sum(x[1:k-1]));
+  for (n in 1:N-1) {
+      target += log(z[n]) + log1m(z[n]) + log1m(sum(x[1:n-1]));
     }
    target += dirichlet_lupdf(x | alpha);
 }
+

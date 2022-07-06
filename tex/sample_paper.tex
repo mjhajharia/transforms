@@ -2,6 +2,9 @@
 
 \usepackage{aistats2021}
 \usepackage{cite}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
 
 % If your paper is accepted, change the options for the package
 % aistats2021 as follows:
@@ -66,10 +69,29 @@ Sampling algorithms play an important role in Statistics, in this case we refer 
 
 
 
-\subsection{Simplex Transforms}
+\subsection{Simplex}
 
+A simplex is a set of non negative vectors that sum up to a constant $a$, this can be written as:
+\begin{equation*}
+\Delta=\left\{\mathbf{x} \in \mathbb{R}^{n} \mid\left\langle\mathbf{x}, \mathbf{1}_{n}\right\rangle=a, \mathbf{x} \geq 0\right\}
+\end{equation*}
+
+In computational works, we generally care about the unit simplex, this is the special case where $ a = 1$. Geometrically, an \textit{n-simplex} is the convex closure of $n+1$ affinely independent set of points $x_0, x_1, \dots x_n$. It is the simplest polytope for $n$-dimensions(in this case we will be looking at a simplex as a convex polytope instead of abstract). An $n-simplex$ can be represented in the barycentric coordinate system with weighted vertices, as follows:
+\begin{equation*}
+\Delta = \left\{x_{0} u_{0}+\cdots+x_{n} u_{n} \mid \sum_{i=0}^{n} x_{i}=1\\
+ \text{ and } x_{i} \geq 0 \text { for } i=0, \ldots, k\right\}
+\end{equation*}
+
+With this representation, taking $u_{i}=1$, the $n$ unit simplex can be written as: 
+\begin{equation*}
+\left\{x \in \mathbb{R}^{n}: x_{0}+\cdots+x_{n-1}=1, x_{i} \geq 0 \text { for } i=0, \ldots, k-1\right\}
+\end{equation*}
+
+A \textit{unit simplex} on $R^n$ is an $n - 1$ dimensional simplex with unit vectors as vertices. Notice the unit weights, this set only has $n-1$ affinely independent points.
+
+Sum to one constraints are useful in probabilistic inference, often used for modeling categorical responses. The rest of the section describes various transforms used to map a simplex to an unconstrained space ($R^n$).
 \subsubsection{Softmax Transform}
-The softmax function can be understood from Multinomial Logistic Regression employed for predicting probabilities of a Categorically distributed variable. Geometrically it maps $R^K$ to the boundary of a unit K-simplex(it is simply the convex hull of $k+1$ affinely independent points in $R^K$. Essentially it transforms a vector of size K to another vector of size K where the outputs sum to 1. It is worth noting that the mapping is actually from $R^K$ to $R^{K-1}$, so when a vector of size $K$ is transformed the $K_th$ vector is simply $1$- sumofk-1 vectors
+The softmax function can be understood from Multinomial Logistic Regression employed for predicting probabilities of a Categorically distributed variable. Geometrically it maps $R^K$ to the boundary of a unit K-simplex(it is simply the convex hull of $k+1$ affinely independent points in $R^K$. Essentially it transforms a vector of size K to another vector of size K where the outputs sum to 1. It is worth noting that the mapping is actually from $R^K$ to $R^{K-1}$, so when a vector of size $K$ is transformed the $K_th$ vector is simply $1$- sumof k-1 vectors
 
 
 \subsubsection{Third Level Heading}

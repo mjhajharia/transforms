@@ -1,7 +1,6 @@
 data {
  int<lower=0> N;
  vector<lower=0>[N] alpha;
- real<lower=0> p=0.5;
 }
 parameters {
  vector[N] y;
@@ -11,6 +10,6 @@ transformed parameters {
  simplex[N] x = exp(y - logr);
 }
 model {
- target += sum(y) - exp(p * logr) / p;
+ target += sum(y) - exp(0.5 * logr) / 0.5;
  target += dirichlet_lupdf(x | alpha);
 }
