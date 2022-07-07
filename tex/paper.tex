@@ -81,7 +81,47 @@ and
   = \abs{\det J_{f^{-1}}(y)}.
 \]
 
+\section{Transforms}
 
+To draw samples from a distribution $p_X(x)$, defined on a constrained space $\mathcal{X}$ that can be uniquely parameterized by $n$ real degrees of freedom, we instead perform sampling in an unconstrained space $\mathcal{Y}=\mathbb{R}^m$ for $m \ge n$.
+
+Let $f\colon \mathcal{Y} \to \mathcal{X}$ be a smooth and continuous map.
+Only when $m = n$ can $f$ be bijective.
+When $m > n$, multiple values of $y \in \mathcal{Y}$ may map to a given value of $x = f(y)$.
+In this case, to make the function bijective, we consider an additional smooth and continuous map $g\colon \mathcal{Y} \to \mathcal{Z}$, where $\mathcal{Z}$ can be uniquely parameterized by $m - n$ real degrees of freedom.
+We then define $h\colon \mathcal{Y} \to \mathcal{X} \times \mathcal{Z}: y \mapsto (f(y), g(y)) = (x, z)$.
+$f$ and $g$ must be chosen so that $h$ is bijective almost-everywhere;
+that is, the values of $y$ for which $h$ is non-bijective must have no probability mass.
+When $h$ is non-bijective at single points, we call these singularities.
+While singularities themselves are in general not a problem for sampling with MCMC, the region of a target density near the singularity tends to have high curvature.
+
+Given a proper joint distribution with a smooth and continuous density $p_{X,Y}(x, y | \theta)$ for some parameters $\theta$, we can use the usual change of variables formula to write
+
+\[
+  p_Y(y | \theta) = p_{X,Z}(f(y), g(y) | \theta) |J_h(y)|.
+\]
+
+To sample from a target density $p_X(x | \theta)$, let $p_{X,Z}(x, z | \theta) = p_X(x | \theta) p_Z(z | x, \theta)$.
+Then we must choose some proper distribution $p_Z$ that is smooth and continuous.
+Given that choice, we find that
+\[
+  p_Y(y | \theta) = p_X(f(y) | \theta) p_Z(g(y) | f(y), \theta) |J_h(y)|.
+\]
+
+Note that when $m > n$, it is insufficient to specify a transform $h$.
+One must also select a prior $p_Z$, and it is desirable to establish some general properties that a given pair $h$ and $p_Z$ should have.
+In addition to the above properties, the optimal pair would
+1. discard as few degrees of freedom $|m - n|$ as possible.
+2. produce a $p_Z$ and $|J_y|$ and their gradients that are efficient to compute.
+3. produce a $p_Y$ that is easy to sample from.
+
+We can expand a bit on the latter point.
+As a general rule, the more normal $p_Y$ is, the easier it is to sample from (REF?).
+Additionally, near singularities, small perturbations to $y$ tend to result in larger changes to $h(y)$ than far from the singularity.
+This warps the volume around the singularity, which causes $|J_y(y)|$ to smoothly approach infinity near the singularity.
+If $m$ is large, this is generally not a problem, as the "curse of dimensionality" works in our favor, and there is exponentially more volume away from the singularity than near the singularity.
+However, for low $m$, it is necessary that $p_{X,Z}$ goes to 0 near the singularity faster than $|J_y(y)|$ goes to infinity.
+While $p_X$ is generally fixed by the user-specified model and may not have this necessary property, the user may then choose a $p_Z$ that has this property.
 
 \section{Unit simplex}
 
