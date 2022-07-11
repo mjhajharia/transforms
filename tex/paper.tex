@@ -1,11 +1,13 @@
 \documentclass[11pt]{article}
     
-\usepackage[letterpaper, total={6.5in, 9in}]{geometry}
-\usepackage{cite}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage{cite}
+\usepackage[letterpaper, total={6.5in, 9in}]{geometry}
 \usepackage{mathpazo}
 \usepackage{sourcecodepro}
+
+\usepackage{hyperref}
 
 \newcommand{\setcomp}[2]{\left\{ #1 \ \Big|\ #2 \right\}}
 \newcommand{\rngto}[1]{1{:}#1}
@@ -151,36 +153,53 @@ and $\begin{bmatrix} 0 & 0 & 1 \end{bmatrix}$.
 \subsection{Additive log ratio transform}
 
 The unconstraining transform for the identified softmax is known as
-the additive log ratio (ALR) transform \cite{aitchison???}, which is a
-bijection $\textrm{alr}:\Delta^{N-1} \rightarrow \mathbb{R}^{N-1}$ defined by
+the additive log ratio (ALR) transform
+\cite{aitchison1982statistical}, which is a bijection
+$\textrm{alr}:\Delta^{N-1} \rightarrow \mathbb{R}^{N-1}$ defined for
+$x \in \Delta^{N-1}$ by
 \[
   \textrm{alr}(x)
   = \begin{bmatrix}\displaystyle
     \log \frac{x_1}{x_N} \cdots \log \frac{x_{N-1}}{x_N}
   \end{bmatrix}.
 \]
-The inverse additive log ratio transform maps values in $\mathbb{R}^{N-1}$ to
-$\Delta^{N-1}$ by
+
+The inverse additive log ratio transform maps values in
+$\mathbb{R}^{N-1}$ to $\Delta^{N-1}$ defined for $y \in
+\mathbb{R}^{N-1}$ by
 \[
-  \textrm{alr}^{-1}(x) = \textrm{softmax}(\begin{bmatrix}x &  0\end{bmatrix}),
+  \textrm{alr}^{-1}(y)
+  = \textrm{softmax}(\begin{bmatrix} y &  0 \end{bmatrix}),
 \]
 where for $u \in \mathbb{R}^N$,
 \[
   \textrm{softmax}(u) = \frac{\exp(u)}{\textrm{sum}(\exp(u))}.
 \]
+
 To calculate the change of variables adjustment, we consider only the
 first $N-1$ coordinates of the result, because the last is defined in
-terms of the first $N-1$.  The function operating on the first $N-1$
-coordinates is $s:\mathbb{R}^{N-1} \rightarrow \mathbb{R}^{N-1}$, defined by
+terms of the first $N-1$.  For convenience, we define a function 
+$s:\mathbb{R}^{N-1} \rightarrow \mathbb{R}^{N-1}$ that operates on
+$N-1$ unconstrained variables and returns the first $N-1$ components
+of the $\textrm{alr}^{-1}(y)$, which is
+defined for $y \in \mathbb{R}^{N-1}$ by
 \[
-  s(x) = \frac{\exp(x)}{\exp(x) + 1}.
+  s(y) = \frac{\exp(y)}{\textrm{sum}(\exp(y)) + 1}
+  = \begin{bmatrix}
+    \textrm{alr}^{-1}(y)_1
+    & \cdots &
+    \textrm{alr}^{-1}(y)_{N-1}
+    \end{bmatrix}.
 \]
-The change of variables is then defined so that if $p_X(x)$ is a
-density over simplices $x \in \Delta^{N-1}$, then we inverse transform
-to an unconstrained density defined over $Y \in R^{N-1}$ by
+Given a density $p_X(x)$ defined over simplices $x \in \Delta^{N-1}$,
+we can transform to a density over unconstrained parameters $y \in
+\mathbb{R}^{N-1}$ by applying the inverse ALR transform and adjusting
+for the change of variables, which yields
 \[
-  p_Y(y) = p_X(\textrm{alr}^{-1}(y)) \absdet{J_{\textrm{alr}^{-1}}}.
+  p_Y(y) = p_X(\textrm{alr}^{-1}(y)) \absdet{J_{s}(y)},
 \]
+where $J_{s}(y)$ is the Jacobian of the function $s$ evaluated at $y$
+and $\absdet{J_s(y)}$ is the absolute value of its determinant.
 
 \subsection{StickBreaking Transform}
 
@@ -219,6 +238,87 @@ Absolute determinant of the diagonal matrix $\mathbf{J}$ is the product of its d
 The correction term $p_Y(y) = p_X(f^{-1}(y))\,
 \prod_{i=1}^{N-1}z_i\,(1 - z_i)\left(1 - \sum_{i'=1}^{i-1} x_{i'}\right).$
 \subsubsection{Softmax Transform}
+
+To calculate the determinant of the Jacobian of the inverse transform,
+we start by noting that $s = \textrm{exp} \circ \textrm{norm}$, where
+$\textrm{exp}$ is the elementwise exponential function and
+\textrm{norm} is defined by
+\[
+  \textrm{norm}(z) = \frac{z}{\textrm{sum}(z) + 1}.
+\]
+As such, the resulting Jacobian determinant is the product of the
+Jacobian determinants of the component functions,
+\[
+  \absdet{J_s(y)}
+  = \absdet{J_{\textrm{exp}}(y)} \absdet{J_{\textrm{norm}}(z)},
+\]
+where $z = \textrm{exp}(y)$.  The Jacobian for the exponential
+function is diagonal, so the determinant is the product of the
+diagonal of the Jacobian, which for $y \in \mathbb{R}^{N-1}$ is
+\[
+  \absdet{J_{\textrm{exp}}(y)} = \textrm{prod}(\exp(y)).
+\]
+As above, let $z = \exp(y) \in (0, \inf)^{N-1}$.  We can differentiate
+$\textrm{norm}$ to derive the Jacobian,
+\[
+  J_{\textrm{norm}}
+  = \frac{1}{1 + \textrm{sum}(z)} \mathbb{I}_{N-1}
+  - \left(\frac{1}{(1 + \textrm{sum}(z))^2} \beta \right)
+  \textrm{vector}_{N-1}(1)^{\top},
+\]
+where $\mathbb{I}_{N-1}$ is the $(N - 1) \times (N - 1)$ unit matrix and
+$\textrm{vector}_{N-1}(1)$ is the $N - 1$-vector with values 1.  Using
+the matrix determinant lemma,\footnote{The matrix determinant lemma
+  is \[\textrm{det}(A + u v^{\top}) = (1 + v^{\top} A^{-1} u)
+    \textrm{det}(A).\]}
+we have
+\begin{eqnarray*}
+  \textrm{absdet}(J_{\textrm{norm}}(z))
+  & = &
+  \left(
+    1
+    + \textrm{vector}_{N-1}(1)^{\top}
+    \left(\frac{1}{1 + \textrm{sum}(z)} \mathbb{I} \right)^{-1}
+    \frac{-z}{(1 + \textrm{sum}(z))^2}
+    \right)
+    \ \textrm{det}\left(\frac{1}{1 + \textrm{sum}(z)} \mathbb{I}
+        \right)
+  \\[6pt]
+  & = &
+  \left(
+    1 
+    + \textrm{sum}\left( \frac{-(1 + \textrm{sum}(z)) z}{(1 +
+        \textrm{sum}(z))^2} \right)
+  \right)
+        \ \left( \frac{1}{1 + \textrm{sum}(z)} \right)^{N-1}
+  \\[6pt]
+  & = &
+        \left(1 + \textrm{sum}\left(\frac{-z}{1 + \textrm{sum}(z)} \right)\right)        
+        \ \left( \frac{1}{1 + \textrm{sum}(z)} \right)^{N-1}
+  \\[6pt]
+  & = & \left( 1 - \textrm{sum}(\textrm{norm}(z)) \right) 
+        \ \left( \frac{1}{1 + \textrm{sum}(z)} \right)^{N-1}
+  \\[6pt]
+  & = & \left( \frac{1}{1 + \textrm{sum}(z)} \right)^N.
+\end{eqnarray*}
+Thus the entire absolute determinant of the Jacobian is defined by the
+product, 
+\[
+  \absdet{J_s(y)}
+  \ = \
+  \textrm{prod}(\exp(y))
+  \, \left( \frac{1}{1 + \textrm{sum}(\exp(y))} \right)^N.
+\]
+and our final expression for densities for unconstrained $y \in
+\mathbb{R}^{N-1}$ is
+\[
+  p_Y(y)
+  = p_X(\textrm{alr}^{-1}(y))
+  \, \textrm{prod}(\exp(y))
+  \left( \frac{1}{1 + \textrm{sum}(\exp(y))} \right)^N
+\]  
+
+\subsection{Softmax Transform}
 
 The softmax function can be understood from Multinomial Logistic
 Regression employed for predicting probabilities of a Categorically
@@ -359,8 +459,8 @@ for $p > 0$, which corresponds to $r \sim \text{Generalized-Gamma}(1, n, p)$.
 
 \subsubsection*{Acknowledgements}
 
-We would like to thank $\ldots$.
-
+We would like to thank \url{matrixcalculus.org} for providing an
+easy-to-use symbolic matrix derivative calculator.
 
 
 
