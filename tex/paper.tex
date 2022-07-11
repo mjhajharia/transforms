@@ -149,7 +149,42 @@ $\begin{bmatrix}1 & 0 & 0 \end{bmatrix},
 \begin{bmatrix} 0 & 1 & 0 \end{bmatrix}$,
 and $\begin{bmatrix} 0 & 0 & 1 \end{bmatrix}$.
 
+\subsection{StickBreaking Transform}
 
+The StickBreaking transform ican be be understood from the stick-breaking construction for Dirichlet \cite{sethurman}. Intuitively, this comprises of recursively breaking a piece $x_i$ from a stick of unit length, where the leftover stick in the $i^{th}$ iteration is $ 1 - \sum_{1}^{i}x$. Let $y = f(x)$, then we define the stick-breaking mapping $ f \colon \Delta^{N-1} \xrightarrow{\makebox[0.4cm]{$\sim$}}  R^{N-1}$, for $1 \leq i \leq N$ as:	
+\[
+y_i
+= \mathrm{logit}(z_i) - \mbox{log}\left(\frac{1}{N-i}
+   \right) \text{for break proportion} \, 
+   z_i = \frac{x_i}{1 - \sum_{i' = 1}^{i-1} x_{i'}}.
+\]
+
+The inverse transform $ f^{-1} \colon R^{N-1} \xrightarrow{\makebox[0.4cm]{$\sim$}}  \Delta^{N-1}$ is defined as:
+\[
+x_i =
+\left( 1 - \sum_{i'=1}^{i-1} x_{i'} \right) \text{for break proportion} \, z_i = \mathrm{logit}^{-1} \left( y_i
+                             + \log \left( \frac{1}{N - i}
+                                            \right)\right).
+                                            \]
+                            
+An $N$ dimensional unit simplex $\Delta^{N-1}$ has $N-1$ degrees of freedom (Notice that this inverse transform only maps the first $N-1$ elements, the last element of the simplex $x_{N} = 1 - \sum_1^{N-1}{x_i}$). The Jacobian matrix for $f^{-1}$ is a lower-triangular diagonal matrix. Much like the alr transform, for the change of variables we evaluate $\mathbf{J}_{i, i}$ where $i \in 1:N-1$.
+\begin{align*}
+\mathbf{J}_{i, i} &= \frac{\partial x_i}{\partial y_i}
+=
+\frac{\partial x_i}{\partial z_i} \,
+\frac{\partial z_i}{\partial y_i}\\
+\mathbf{J}_{i, i} &= \left(
+  1 - \sum_{k' = 1}^{k-1} x_{k'}
+   \right) z_k (1 - z_k),
+\end{align*}
+
+Absolute determinant of the diagonal matrix $\mathbf{J}$ is the product of its diagonal entries:
+\begin{align*}
+	\abs{\, det \, \textbf{J} \,} = \prod_{i=1}^{N-1} \textbf{J}_{i,i}
+\end{align*}
+
+The correction term $p_Y(y) = p_X(f^{-1}(y))\,
+\prod_{i=1}^{N-1}z_i\,(1 - z_i)\left(1 - \sum_{i'=1}^{i-1} x_{i'}\right).$
 \subsection{Additive log ratio transform}
 
 The unconstraining transform for the identified softmax is known as
@@ -200,6 +235,9 @@ for the change of variables, which yields
 \]
 where $J_{s}(y)$ is the Jacobian of the function $s$ evaluated at $y$
 and $\absdet{J_s(y)}$ is the absolute value of its determinant.
+
+
+\subsubsection{Softmax Transform}
 
 To calculate the determinant of the Jacobian of the inverse transform,
 we start by noting that $s = \textrm{exp} \circ \textrm{norm}$, where
