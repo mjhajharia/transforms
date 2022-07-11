@@ -2,7 +2,6 @@
 
 # Directory Structure
 ```
-
 ├── cmdstan
 ├── figures
 │   └── figure.png
@@ -11,27 +10,33 @@
 │   └── simplex
 │       ├── softmax
 │       │   └── dirichlet_symmetric
+│       │       └── 4_1.json
 │       ├── softmax-augmented
-│       │   ├── dirichlet
 │       │   └── dirichlet_symmetric
+│       │       └── 4_1.json
 │       ├── stan
-│       │   ├── dirichlet
 │       │   └── dirichlet_symmetric
+│       │       └── 4_1.json
 │       └── stickbreaking
-│           ├── dirichlet
 │           └── dirichlet_symmetric
+│               └── 4_1.json
 ├── tex
-│   ├── aistats2021.sty
-│   ├── fancyhdr.sty
-│   ├── mybib.bib
-│   ├── notes.tex
-│   ├── sample_paper.pdf
-│   ├── sample_paper.tex
-│   └── supplement.tex
+│   ├── all.bib
+│   ├── makefile
+│   ├── paper.pdf
+│   └── paper.tex
 ├── transforms
+│   ├── bounded
+│   │   ├── constraint-stan
+│   │   ├── constraint-stan.hpp
+│   │   ├── constraint-stan.stan
+│   │   ├── exp_transform
+│   │   ├── exp_transform.hpp
+│   │   ├── exp_transform.stan
+│   │   └── whatever.ipynb
 │   └── simplex
-│       ├── dirichlet_symmetric.json
-│       ├── parameters.json
+│       ├── dirichlet_symmetric_map.json
+│       ├── dirichlet_symmetric_parameters.json
 │       ├── softmax
 │       │   ├── dirichlet_symmetric
 │       │   ├── dirichlet_symmetric.hpp
@@ -43,21 +48,16 @@
 │       ├── stan
 │       │   ├── dirichlet_symmetric
 │       │   ├── dirichlet_symmetric.hpp
-│       │   ├── dirichlet_symmetric.stan
-│       │   ├── output-simplex-stan_1.csv
-│       │   ├── output-simplex-stan_2.csv
-│       │   ├── output-simplex-stan_3.csv
-│       │   └── output-simplex-stan_4.csv
+│       │   └── dirichlet_symmetric.stan
 │       └── stickbreaking
-│           ├── dirichlet
-│           ├── dirichlet.hpp
 │           ├── dirichlet_symmetric
 │           ├── dirichlet_symmetric.hpp
 │           └── dirichlet_symmetric.stan
-├── transforms.code-workspace
 └── utils
     ├── dirichlet_symmetric_utils.py
-    ├── evaluate r-hat.ipynb
-    ├── plots.ipynb
+    ├── ess_plot.py
+    ├── rhat_eval.py
+    ├── rmse_plot.py
+    ├── script.py
     └── utils.py
 ```
