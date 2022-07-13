@@ -4,3 +4,5 @@ tex/*pdf
 utils/__pycache__/*
 utils/.ipynb_checkpoints/*
 *.json
+.ipynb_checkpoints/*
+__pycache__/*
