@@ -6,7 +6,7 @@ from tqdm import tqdm
 import arviz as az
 
 def get_ess_leapfrog_ratio(transform_category, transform, evaluating_model, params, var_name, var_dim, repeat=100, return_ess=False):
-    model = CmdStanModel(stan_file = f'transforms/{transform_category}/{transform}/{evaluating_model}.stan', cpp_options = {'STAN_THREADS':'true'})
+    model = CmdStanModel(stan_file = f'stan_models/{transform}_{evaluating_model}.stan', cpp_options = {'STAN_THREADS':'true'})
     x=[]
     for i in tqdm(range(repeat)):
         idata = az.from_cmdstanpy(model.sample(data=params,show_progress=False ))

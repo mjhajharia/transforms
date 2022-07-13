@@ -18,6 +18,6 @@ model {
   for (n in 1:N-1) {
       target += log(z[n]) + log1m(z[n]) + log1m(sum(x[1:n-1]));
     }
-   target += dirichlet_lupdf(x | alpha);
+ target += target_density_lp(x, alpha);
 }
 

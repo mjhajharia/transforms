@@ -1,12 +1,3 @@
-functions{
-    real f_lp(int eval_model, vector x, vector alpha)
-    {
-        if (eval_model==1)
-            return dirichlet_lpdf(x | alpha);
-        else
-            return 0; 
-            }
-}
 data {
  int<lower=0> N;
  vector<lower=0>[N] alpha;
@@ -21,5 +12,5 @@ transformed parameters {
 }
 model {
  target += sum(y) - exp(0.5 * logr) / 0.5;
- target += f_lp(eval_model, x, alpha);
+ target += target_density_lp(x, alpha);
 }

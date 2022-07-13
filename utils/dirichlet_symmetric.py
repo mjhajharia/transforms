@@ -27,7 +27,7 @@ def get_dirichlet_symmetric_rmse(transforms, transform_category, parameters, fig
 
         ax.set_title(f'alpha={alpha[0]}, N = {N}')
     fig.legend(labels=transforms,bbox_to_anchor = (0.6, -0.05));
-    fig.savefig(f'{fig_name}', dpi=300)
+    fig.savefig(f'figures/{fig_name}', dpi=300)
 
 def create_param_map():
     alphas = [0.1, 1, 10]

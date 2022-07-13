@@ -57,10 +57,10 @@ def sample(transform_category, transform, evaluating_model, parameters, output_f
 
     Note
     ----
-    The directory structure for storing stan files is: tramsforms/transform_category/transform/evaluating_model.stan
-    The directory structure for storing the results is: sampling_results/transform_category/transform/evaluating_model/param_keyword*.json
+    The directory structure for storing stan files is: stan_models/{transform}_{evaluating_model}.stan
+    The directory structure for storing the results is: sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_mapping}.json
     '''
-    with open(f'transforms/{transform_category}/param_map_{evaluating_model}.json', 'rb') as f:
+    with open(f'target_densities/param_map_{evaluating_model}.json', 'rb') as f:
         param_map = pickle.load(f)
 
     if resample==False:
@@ -70,18 +70,17 @@ def sample(transform_category, transform, evaluating_model, parameters, output_f
     else:
 
         if auto_eval_all_params:
-            with open(f'transforms/{transform_category}/{evaluating_model}_parameters.json', 'rb') as f:
+            with open(f'target_densities/{evaluating_model}_parameters.json', 'rb') as f:
                 parameters = pickle.load(f)
         
 
 
-        path=f'sampling_results/{transform_category}/{transform}/{evaluating_model}'
-        os.makedirs(path, exist_ok=True)
+        filename=f'stan_models/{transform}_{evaluating_model}.json'
         
         if type(parameters)==dict:
             parameters = [parameters]
         for params in tqdm(parameters):
-            model = CmdStanModel(stan_file = f'transforms/{transform_category}/{transform}/{evaluating_model}.stan', cpp_options = {'STAN_THREADS':'true'})
+            model = CmdStanModel(stan_file = filename, cpp_options = {'STAN_THREADS':'true'})
             idata = az.from_cmdstanpy(model.sample(data = params, show_progress = show_progress, iter_sampling = n_iter, chains = n_chains))
 
             for i in range(n_repeat-1):
@@ -89,8 +88,7 @@ def sample(transform_category, transform, evaluating_model, parameters, output_f
                 idata = az.concat(idata, az.from_cmdstanpy(fit), dim="chain")
 
             filename = output_file if output_file else f'{param_map[tuple(list(params.values())[0])]}_{n_repeat}.json'
-            Path(f'{path}{filename}').unlink(missing_ok=True)
-            idata.to_json(f'{path}/{filename}')
+            idata.to_json(f'sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.json')
             return idata
 
         pass
