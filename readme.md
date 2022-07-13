@@ -2,62 +2,47 @@
 
 # Directory Structure
 ```
-├── cmdstan
+├── example.ipynb
 ├── figures
-│   └── figure.png
+│   ├── ess_arviz_example.png
+│   ├── ess_matplotlib_example.png
+│   └── rmse_example.png
 ├── readme.md
 ├── sampling_results
 │   └── simplex
 │       ├── softmax
-│       │   └── dirichlet_symmetric
-│       │       └── 4_1.json
-│       ├── softmax-augmented
-│       │   └── dirichlet_symmetric
-│       │       └── 4_1.json
 │       ├── stan
-│       │   └── dirichlet_symmetric
-│       │       └── 4_1.json
 │       └── stickbreaking
-│           └── dirichlet_symmetric
-│               └── 4_1.json
+├── stan_models
+│   ├── softmax-augmented_dirichlet_symmetric.stan
+│   ├── softmax_dirichlet_symmetric.stan
+│   ├── stan_dirichlet_symmetric.stan
+│   └── stickbreaking_dirichlet_symmetric.stan
+├── target_densities
+│   ├── dirichlet_symmetric.stan
+│   ├── dirichlet_symmetric_parameters.json
+│   └── param_map_dirichlet_symmetric.json
 ├── tex
 │   ├── all.bib
 │   ├── makefile
-│   ├── paper.pdf
 │   └── paper.tex
 ├── transforms
 │   ├── bounded
 │   │   ├── constraint-stan
-│   │   ├── constraint-stan.hpp
 │   │   ├── constraint-stan.stan
 │   │   ├── exp_transform
-│   │   ├── exp_transform.hpp
-│   │   ├── exp_transform.stan
-│   │   └── whatever.ipynb
+│   │   └── exp_transform.stan
 │   └── simplex
-│       ├── dirichlet_symmetric_map.json
-│       ├── dirichlet_symmetric_parameters.json
-│       ├── softmax
-│       │   ├── dirichlet_symmetric
-│       │   ├── dirichlet_symmetric.hpp
-│       │   └── dirichlet_symmetric.stan
-│       ├── softmax-augmented
-│       │   ├── dirichlet_symmetric
-│       │   ├── dirichlet_symmetric.hpp
-│       │   └── dirichlet_symmetric.stan
-│       ├── stan
-│       │   ├── dirichlet_symmetric
-│       │   ├── dirichlet_symmetric.hpp
-│       │   └── dirichlet_symmetric.stan
-│       └── stickbreaking
-│           ├── dirichlet_symmetric
-│           ├── dirichlet_symmetric.hpp
-│           └── dirichlet_symmetric.stan
+│       ├── softmax-augmented.stan
+│       ├── softmax.stan
+│       ├── stan_simplex.stan
+│       └── stickbreaking.stan
 └── utils
-    ├── dirichlet_symmetric_utils.py
-    ├── ess_plot.py
-    ├── rhat_eval.py
-    ├── rmse_plot.py
-    ├── script.py
-    └── utils.py
+    ├── dirichlet_symmetric.py
+    ├── ess.py
+    ├── rhat.py
+    ├── rmse.py
+    ├── sample.py
+    └── script_simplex.py
+
 ```
