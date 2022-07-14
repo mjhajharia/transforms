@@ -1,14 +1,25 @@
+<<<<<<< HEAD
 #include transform_functions.stan
+=======
+>>>>>>> 6094357 (add stan's version of cholesky constrain)
 data {
   int<lower=0> K;
 }
 parameters {
+<<<<<<< HEAD
   // y is a vector K-choose-2 unconstrained parameters
   vector[choose_2(K)] y;
 }
 transformed parameters {
   // L is a Cholesky factor of a K x K correlation matrix
   cholesky_factor_corr[K] L = diag_matrix(rep_vector(1, K));
+=======
+  vector[(K*(K-1)) %/% 2] y;
+}
+transformed parameters {
+  matrix[K, K] L = diag_matrix(rep_vector(1, K));
+  vector<lower=-1, upper=1>[(K*(K-1)) %/% 2] z = tanh(y);
+>>>>>>> 6094357 (add stan's version of cholesky constrain)
   real log_det_jacobian = 0;
   {
     int counter = 1;
