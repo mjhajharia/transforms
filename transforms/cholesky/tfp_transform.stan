@@ -1,28 +1,27 @@
 data {
   int<lower=0> K;
 }
+transformed data {
+   
+}
 parameters {
   vector[(K*(K-1)) %/% 2] y;
 }
 transformed parameters {
   matrix[K, K] L = diag_matrix(rep_vector(1, K));
-  vector<lower=-1, upper=1>[(K*(K-1)) %/% 2] z = tanh(y);
-  real log_det_jacobian = 0;
+  real log_det_jacobian;
   {
     int counter = 1;
-    real sum_sqs;
 
     for (i in 2:K) {
-      L[i, 1] = z[counter];
+      L[i, 1] = y[counter];
       counter += 1;
-      sum_sqs = square(L[i, 1]);
       for (j in 2:(i-1)) {
-        log_det_jacobian += 0.5 * log1m(sum_sqs);
-        L[i, j] = z[counter] * sqrt(1 - sum_sqs);
+        L[i, j] = y[counter];
         counter += 1;
-        sum_sqs = sum_sqs + square(L[i, j]);
       }
-      L[i, i] = sqrt(1 - sum_sqs);
+      L[i , :i] = L[i , :i] / sqrt(sum(square(L[i , :i ])));
+      log_det_jacobian += (K - i + 1) * log(L[i,i]);
     }
   }
 }
