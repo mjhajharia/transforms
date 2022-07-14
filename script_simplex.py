@@ -1,11 +1,7 @@
-from utils import sample, retrieve, cumulative_mean, rmse
-from dirichlet_symmetric_utils import get_dirichlet_symmetric_rmse, get_dirichlet_symmetric_params
-import pickle
-import numpy as np
-import matplotlib.pyplot as plt
+import sys
+sys.path.insert(1, 'utils')
 
-import os
-os.chdir('..')
+from sample import sample
 
 transforms = ['stan', 'stickbreaking', 'softmax', 'softmax-augmented']
 for transform in transforms:
