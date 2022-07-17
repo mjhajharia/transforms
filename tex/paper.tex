@@ -14,7 +14,9 @@
 \newcommand{\abs}[1]{\left| #1 \right|}
 \newcommand{\absdet}[1]{\abs{#1}}
 
-
+% transforms -> change of variables
+% two kinds of transforms
+% pragprg
 \begin{document}
 
 
@@ -55,15 +57,15 @@ the constrained values to unconstrained values before sampling
 \cite{}.  This presents the issue of selecting which transform to use
 among an infinite set of options, which is the topic of this paper.
 
-Sampling algorithms play an important role in Statistics, in this case
-we refer to drawing samples from a probability density or distribution
-(not survey sampling). Monte Carlo Markov chain methods are commonly
-used for high dimensional sampling. In this paper, we look at
-Hamiltonian Monte Carlo, which uses hamiltonian dynamics to propose
-samples for the Metropolis algorithm. Bayesian Inference often uses
-parameters with constraints, but HMC optimizes on the unconstrained
-space. It is difficult to use Monte Carlo estimation on a constrained
-domain ~\cite{neal2008optimal}
+%Sampling algorithms play an important role in Statistics, in this case
+%we refer to drawing samples from a probability density or distribution
+%(not survey sampling). Monte Carlo Markov chain methods are commonly
+%used for high dimensional sampling. In this paper, we look at
+%Hamiltonian Monte Carlo, which uses hamiltonian dynamics to propose
+%samples for the Metropolis algorithm. Bayesian Inference often uses
+%parameters with constraints, but HMC optimizes on the unconstrained
+%space. It is difficult to use Monte Carlo estimation on a constrained
+%domain ~\cite{neal2008optimal}
 
 
 \section{Changes of Variables}
@@ -318,17 +320,17 @@ and our final expression for densities for unconstrained $y \in
   \left( \frac{1}{1 + \textrm{sum}(\exp(y))} \right)^N
 \]  
 
-\subsection{Softmax Transform}
-
-The softmax function can be understood from Multinomial Logistic
-Regression employed for predicting probabilities of a Categorically
-distributed variable. Geometrically it maps $R^K$ to the boundary of a
-unit K-simplex(it is simply the convex hull of $k+1$ affinely
-independent points in $R^K$. Essentially it transforms a vector of
-size K to another vector of size K where the outputs sum to 1. It is
-worth noting that the mapping is actually from $R^K$ to $R^{K-1}$, so
-when a vector of size $K$ is transformed the $K_th$ vector is simply
-$1$- sumof k-1 vectors
+%\subsection{Softmax Transform}
+%
+%The softmax function can be understood from Multinomial Logistic
+%Regression employed for predicting probabilities of a Categorically
+%distributed variable. Geometrically it maps $R^K$ to the boundary of a
+%unit K-simplex(it is simply the convex hull of $k+1$ affinely
+%independent points in $R^K$. Essentially it transforms a vector of
+%size K to another vector of size K where the outputs sum to 1. It is
+%worth noting that the mapping is actually from $R^K$ to $R^{K-1}$, so
+%when a vector of size $K$ is transformed the $K_th$ vector is simply
+%$1$- sumof k-1 vectors
 
 
 \subsection{Simplex softmax parameterization}

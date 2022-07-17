@@ -14,7 +14,7 @@ from tqdm import tqdm
 # logger.addHandler(logging.NullHandler())
 
 def sample(transform_category, transform, evaluating_model, parameters, output_file=None, 
-                auto_eval_all_params=False, n_iter = 1000, n_chains = 4, n_repeat = 1, show_progress = True, resample=False):
+                auto_eval_all_params=False, n_iter = 1000, n_chains = 4, n_repeat = 1, show_progress = True, resample=False, return_idata=True):
     '''
     Sample from the given dictionary containing the models, transform_categories, and parameters.
     It saves the results in a json file which is named with n_repeat, n_chains and n_iter.
@@ -55,6 +55,12 @@ def sample(transform_category, transform, evaluating_model, parameters, output_f
     retrieve: bool (default = False)
         Whether to retrieve the results from the json file.
 
+    resample: bool (default = False)
+        Whether to resample the data.
+    
+    return_idata: bool (default = True)
+        Whether to return the idata.
+
     Note
     ----
     The directory structure for storing stan files is: stan_models/{transform}_{evaluating_model}.stan
@@ -75,20 +81,21 @@ def sample(transform_category, transform, evaluating_model, parameters, output_f
         
 
 
-        filename=f'stan_models/{transform}_{evaluating_model}.json'
+        stan_filename=f'stan_models/{transform}_{evaluating_model}.json'
         
         if type(parameters)==dict:
             parameters = [parameters]
         for params in tqdm(parameters):
-            model = CmdStanModel(stan_file = filename, cpp_options = {'STAN_THREADS':'true'})
+            model = CmdStanModel(stan_file = stan_filename, cpp_options = {'STAN_THREADS':'true'})
             idata = az.from_cmdstanpy(model.sample(data = params, show_progress = show_progress, iter_sampling = n_iter, chains = n_chains))
 
             for i in range(n_repeat-1):
                 fit = model.sample(data = params, show_progress = show_progress, iter_sampling = n_iter, chains = n_chains)
                 idata = az.concat(idata, az.from_cmdstanpy(fit), dim="chain")
 
-            filename = output_file if output_file else f'{param_map[tuple(list(params.values())[0])]}_{n_repeat}.json'
-            idata.to_json(f'sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.json')
-            return idata
+            filename = output_file if output_file else f'sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.json'
+            idata.to_json(filename)
+            if return_idata==True:
+                return idata
 
         pass

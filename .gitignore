@@ -3,6 +3,6 @@ tex/*pdf
 *.hpp
 utils/__pycache__/*
 utils/.ipynb_checkpoints/*
-*.json
+sampling_results/*
 .ipynb_checkpoints/*
 __pycache__/*
