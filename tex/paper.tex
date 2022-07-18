@@ -13,6 +13,9 @@
 \newcommand{\rngto}[1]{1{:}#1}
 \newcommand{\abs}[1]{\left| #1 \right|}
 \newcommand{\absdet}[1]{\abs{#1}}
+\newcommand{\dv}[1]{\mathrm{d}{#1}}
+\newcommand{\vect}{\mathrm{vec}}
+\newcommand{\vectu}{\mathrm{vecu}}
 
 % transforms -> change of variables
 % two kinds of transforms
@@ -126,6 +129,72 @@ This warps the volume around the singularity, which causes $|J_y(y)|$ to smoothl
 If $m$ is large, this is generally not a problem, as the "curse of dimensionality" works in our favor, and there is exponentially more volume away from the singularity than near the singularity.
 However, for low $m$, it is necessary that $p_{X,Z}$ goes to 0 near the singularity faster than $|J_y(y)|$ goes to infinity.
 While $p_X$ is generally fixed by the user-specified model and may not have this necessary property, the user may then choose a $p_Z$ that has this property.
+
+\section{Preliminaries}
+
+[SA: TODO: eliminate or merge with following section]
+
+To compute Jacobians of functions with matrix-valued inputs or outputs, we need to implicitly or explicitly choose for the inputs and outputs a set of coordinates with dimension equal to the number of degrees of freedom of the matrix
+Unless otherwise specified, we choose the coordinates to be the vectorization of the matrix.
+
+We define the (bijective) vectorization of a matrix $X \in \mathbb{R}^{N \times K}$ with columns $x_k$ for $k \in \{1, ..., K\}$ as the vector
+\[\vect(X) = \begin{bmatrix}x_1 \\ x_2 \\ \vdots \\ x_M\end{bmatrix}\]
+formed by stacking the columns of $X$.
+
+For $X \in \mathbb{R}^{N \times K}$, let $\vectu(X)$ be the map that stacks only the parts of the columns of $X$ above and including the diagonal.
+This map is sometimes called the half-vectorization and is bijective for upper-triangular or symmetric $X$.
+
+Similarly, $\vectu_-(X)$ extracts the same elements except the diagonal.
+When $X$ is strictly upper-triangular or skew-symmetric (i.e. $X = -X^\top$), then this map is bijective.
+
+\section{Computing Jacobian determinants}
+
+[SA: TODO: remove everything we do not use later, add strategy for making non-square Jacobian square]
+
+Here we introduce several strategies for computing Jacobian determinants.
+
+The vectorization has the useful property that for all matrices $A$, $X$, and $B$, $\vect(AYB) = (B^\top \otimes A) \vect(Y)$, where $\otimes$ is the Kronecker product.
+This allows us to convert expressions of matrices to expressions of vectors, from which the Jacobian can be read off.
+For example, let $X = AYB$. Then $\dv{X} = A \dv{Y} B$, and $\vect(\dv{X}) = (B^\top \otimes A) \vect(\dv{Y})$, and the Jacobian is $J = B^\top \otimes A$.
+
+When the previously discussed strategies are insufficient to compute the Jacobian, we bypass the Jacobian computation entirely and use the exterior product $\wedge$.
+For example, let $X \in \mathbb{R}^{N \times K}$.
+The exterior product
+\[
+  \dv{X_{11} }\wedge \dv{X_{21}} \wedge \ldots \wedge \dv{X_{NK}} = \bigwedge_{j=1}^K \bigwedge_{i=1}^N \dv{X}_{ij}
+\]
+is another more explicit way of writing the integration measure $\dv{X_{11}} \dv{X_{21}} \dots \dv{X_{NK}}$ that has useful properties for computing Jacobian determinants.
+The basic properties we will use are
+
+\begin{itemize}
+  \item $a\dv{x} \wedge b\dv{y} = (ab)(\dv{x} \wedge \dv{y})$ for $a,b \in \mathbb{R}$
+  \item $(\dv{x} + \dv{y}) \wedge \dv{z} = \dv{x} \wedge \dv{z} + \dv{y} \wedge \dv{z}$
+  \item $\dv{x} \wedge \dv{y} = - \dv{y} \wedge \dv{x}$
+  \item $\dv{x} \wedge \dv{x} = 0$
+\end{itemize}
+
+The connection between the exterior product and the Jacobian determinant is given by the following expression.
+Given $f: y \mapsto x$ for $x,y \in \mathbb{R}^N$,
+\[\bigwedge_{i=1}^N \dv{x_i} = \det(J_f(y)) \bigwedge_{i=1}^N \dv{y_i}.\]
+
+We can then find the Jacobian determinant by first writing all differential forms $\dv{x_i}$ or $\dv{y_i}$ and then computing the exterior product until the expression looks like the above.
+For our purposes, we will ignore the sign of the Jacobian determinant.
+
+A related useful property is that for $X,Y,B \in \mathbb{R}^{N \times K}$, if $\dv{X} = B \dv{Y}$, then
+\[\bigwedge_{j=1}^K \bigwedge_{i=1}^N \dv{X_i} = \det(B)^K \bigwedge_{j=1}^K \bigwedge_{i=1}^N \dv{Y_i}\]
+
+Following [REF, Edelman], we use the notation $(\cdot)^\wedge$ as a shorthand to represent the exterior product of the unique elements of $\cdot$.
+
+For example,
+\begin{itemize}
+  \item Rectangular matrix $\{X \in \mathbb{R}^{N \times K}\}$: $(\dv{X})^\wedge = \bigwedge_{j=1}^K \bigwedge_{i=1}^N \dv{X_{ij}}$
+  \item Upper-triangular rectangular matrix $\{X \in \mathbb{R}^{N \times K} | X_{ij} = 0\ \forall\ i > j\}$: $(\dv{X})^\wedge = \bigwedge_{j=1}^K \bigwedge_{i=1}^{\min(j, N)} \dv{X_{ij}}$
+  \item Diagonal matrix $\{X \in \mathbb{R}^{N \times K} | X_{ij} = 0\ \forall\ i \ne j\}$: $(\dv{X})^\wedge = \bigwedge_{i=1}^{\min(N, K)} \dv{X_{ii}}$
+  \item Symmetric matrix $\{X \in \mathbb{R}^{N \times N} | X_{ij} = X_{ji}\}$: $(\dv{X})^\wedge = \bigwedge_{j=1}^K \bigwedge_{i=1}^{j} \dv{X_{ij}}$
+  \item Skew-symmetric matrix $\{X \in \mathbb{R}^{N \times N} | X_{ij} = -X_{ji}, X_{ii} = 0\}$: $(\dv{X})^\wedge = \bigwedge_{j=1}^K \bigwedge_{i=1}^{j-1} \dv{X_{ij}}$
+\end{itemize}
+
+Using this notation, for example, $(B \dv{X})^\wedge = \det(B)^K (\dv{X})^\wedge$
 
 \section{Unit simplex}
 
