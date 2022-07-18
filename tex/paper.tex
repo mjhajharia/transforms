@@ -527,6 +527,49 @@ Both of these corrections can be captured with the generalization
 \]
 for $p > 0$, which corresponds to $r \sim \text{Generalized-Gamma}(1, n, p)$.
 
+\subsection{Semi-orthogonal matrices (Stiefel manifold)}
+
+A matrix $X \in \mathbb{R}^{N \times K}$ for $K \le N$ is semi-orthogonal if and only if $X^\top X = I_K$.
+The semi-orthogonal matrices form a space called the Stiefel manifold.
+When $K=N$, $X \in O(N)$ is an orthogonal matrix and also satisfies $X X^\top = I_N$ and $\det(X) = \pm 1$.
+When $K=1$, $X$ is a point on the $(N-1)$-sphere $\mathbb{S}^{N-1} \subset \mathbb{R}^N$.
+
+By choosing a set of rules such as Gram-Schmidt orthonormalization of the canonical basis in $\mathbb{R}^{N \times N}$, it is possible to analytically compute from $X$ an orthogonal complement $X^\perp \in \mathbb{R}^{N \times (N - K)}$, such that $\tilde{X}^\top \tilde{X} = I_N$, where $\tilde{X} = \begin{bmatrix}X & X^\perp \end{bmatrix} \in O(N)$.
+
+Note that if we differentiate both sides of the constraint $X^\top X = I_K$, we get $\dv{X}^\top X + X^\top \dv{X} = 0$, which leads to $(X^\top \dv{X})^\top = - X^\top \dv{X}$.
+Therefore, $X^\top \dv{X}$ is a $K \times K$ skew-symmetric matrix with $\frac{K(K-1)}{2}$ unique entries in the strict upper triangle.
+
+Densities of distributions on the Stiefel manifold are usually written with respect to the invariant metric on the Stiefel manifold, which we will define separately for the two cases $K=N$ and $K < N$.
+
+For $X \in O(N)$ with the $i$th column written $x_i$, we define the invariant measure as the exterior product of the unique elements of this skew-symmetric matrix:
+\[
+  (X^\top \dv{X})^\wedge \equiv \bigwedge_{j=1}^N \bigwedge_{i=j+1}^N (X^\top \dv{X})_{ij} = \bigwedge_{j=1}^N \bigwedge_{i=j+1}^N x_i^\top \dv{x}_j.
+\]
+This measure is called invariant because if $f(X) = A X B$ for $A,B \in O(N)$ and $\mathcal{S} \subset O(N)$ then $\int_{\mathcal{S}} (X^\top \dv{X}) = \int_{f(\mathcal{S})} (X^\top \dv{X})$.
+It is also called the Haar measure on $O(N)$ \cite{muirhead2009aspects}..
+
+To choose an invariant measure for $K < N$, we first choose an $X^\perp$ analytically computed from $X$.
+Because $X^\perp$ is analytically computed, $\dv{X^\perp_{ij}} = 0$.
+We can then construct the invariant measure for $K<N$ from the invariant measure for $O(N)$:
+
+\[
+  (X^\top \dv{X})^\wedge \equiv \bigwedge_{j=1}^N \bigwedge_{i=j+1}^N x_i^\top \dv{x}_j = \bigwedge_{j=1}^K \bigwedge_{i=j+1}^N x_i^\top \dv{x}_j,
+\]
+
+Though we needed to choose a $X^\perp$, the invariant measure does not depend on the choice of $X^\perp$.
+Moreover, this measure is invariant to left-actions by $O(N)$ and right-actions by $O(K)$.
+For more details, see \cite{muirhead2009aspects}.
+
+When $K=1$, the invariant measure is equivalent to the usual Hausdorff measure on the sphere.
+
+\subsubsection{Givens parameterization of Stiefel manifold}
+
+\subsubsection{Cayley parameterization of Stiefel manifold}
+
+\subsubsection{Householder parameterization of Stiefel manifold}
+
+\subsubsection{Matrix exponential parameterization of Orthogonal group}
+
 
 \subsubsection*{Acknowledgements}
 
