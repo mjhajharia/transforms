@@ -14,6 +14,7 @@
 \newcommand{\abs}[1]{\left| #1 \right|}
 \newcommand{\absdet}[1]{\abs{#1}}
 \newcommand{\dv}[1]{\mathrm{d}{#1}}
+\newcommand{\Exp}{\mathrm{Exp}}
 \newcommand{\vect}{\mathrm{vec}}
 \newcommand{\vectu}{\mathrm{vecu}}
 
@@ -491,6 +492,149 @@ When $K=1$, the invariant measure is equivalent to the usual Hausdorff measure o
 
 \subsubsection{Matrix exponential parameterization of Orthogonal group}
 
+\subsection{Positive definite matrices}
+
+[SA: all transformations below can be generalized to SPD matrices of fixed rank, but we'd need to know what the common reference measure is for densities of SPD matrices, and I can't recall seeing one.]
+
+An $N \times N$ positive definite (PD) matrix $X$ is a symmetric matrix that satisfies $v^\top X v \ge 0$ for all non-zero vectors $v$.
+Covariance matrices are examples of PD matrices.
+
+Density functions for distributions of PD matrices, such as the Wishart distribution, are generally defined with respect to the Lebesgue measure of the upper triangular elements $(\dv{X})^\wedge$.
+
+\subsubsection{Cholesky parameterization}
+
+Given a positive (semi-)definite $X$ of rank $K$, we can uniquely decompose it as $X = Z^\top Z$ where $Z$ is an $N \times N$ upper triangular matrix where $Z_{ii} > 0$ for all $i \le K$ and $Z_{ij} = 0$ for all $i > K$.
+$Z$ has $\frac{K(K+1)}{2} + (N - K)K$ degrees of freedom.
+When $K=N$, $X$ is positive-definite.
+
+We can construct $X$ by composing 2 bijective maps.
+The first, $f_1$, enforces the constraint of the positive diagonal:
+
+\[Z_{ij} = f_1(Y)_{ij} = \begin{cases} \exp(Y_{ij}) & \text{ if } i = j \le K \\ Y_{ij} & \text{otherwise} \end{cases}\]
+
+The density correction for this map is $\absdet{J_{f_1}(Y)} = \exp(\sum_{i=1}^K Y_{ii})$.
+
+The second map is $f_2: Z \mapsto Z^\top Z = X$.
+To compute the Jacobian of the map, we use the half-vectorization $\vectu(X)$.
+Note that $X_{ij} = \sum_{k=1}^{\min(i, j)} Z_{ki} Z_{kj}$.
+$X_{ij}$ is thus only dependent on elements of $Z$ that are above and to the left of the $(i, j)$ position.
+As a result, the Jacobian of $\vectu \circ f_2 \circ \\vectu^{-1}$ is lower-triangular, and its determinant is only the product of its diagonal elements: $\absdet{J_{f_2}} = \prod_{1 \le i \le j \le N} \frac{\partial X_{ij}}{\partial Z_{ij}}$.
+
+In this index range, $\frac{\partial X_{ij}}{\partial Z_{ij}} = (1 + \delta_{ij}) Z_{ii}$.
+As a result
+
+\[
+  \absdet{J_{f_2}(Z)} = 2^N \prod_{j = 1}^N \prod_{i = 1}^j Z_{ii} = 2^N \prod_{i=1}^N |Z_{ii}|^{N - i + 1} \\
+\]
+
+Combining the two bijective maps as $f = f_2 \circ f_1$, the combined density correction is
+
+\[
+  \absdet{J_{f}(Y)} = 2^N \exp\left( \sum_{i=1}^N (N - i + 2) Y_{ii}\right).
+\]
+
+\subsubsection{Matrix exponential parameterization}
+
+For every PD matrix $X \in \mathbb{R}^{N \times N}$, there is a unique symmetric matrix $Y$ such that $X = \Exp(Y)$, where $\operatorname{Exp}(\cdot)$ is the matrix exponential, defined as
+\[\Exp(Y) = \sum_{k=0}^\infty \frac{1}{k!} Y^k.\]
+
+Let $Y = U \Lambda U^\top$ be the symmetric eigendecomposition of $Y$, where the matrix of eigenvectors $U$ is orthogonal, and the $\Lambda = \operatorname{diag}(\lambda)$ for $\lambda \in \mathbb{R}^N$.
+Then $Y^2 = U \Lambda U^\top U \Lambda U^\top = U \Lambda^2 U^\top$.
+In fact, $Y^c = U \Lambda^c U^\top$ for all real $c$.
+As a result,
+\[\Exp(Y) = U \Exp(\Lambda) U^\top,\]
+where $\Exp(\Lambda)_{ij} = e^{\lambda_i} \delta_{ij}$.
+
+$\Exp(Y)$ is one example of a matrix function $f$, which we can roughly define for symmetric matrices as any function that obeys
+\[f(Y) = U f(\Lambda) U^\top,\]
+where $f(\Lambda)_{ij} = f(\lambda_i)\delta_{ij}$.
+\footnote{
+  In a similar way, we can generalize other scalar functions like the inverse, trigonometric, and hyperbolic functions to functions of matrices.
+  All results in this section apply to these functions as well.
+}
+
+For such functions $f$, we can compute a common form of the Jacobian determinant.
+Differentiating the expression, we find
+\[
+\begin{aligned}
+  \dv{(f(Y))} &= \dv{U} f(\Lambda) U^\top + U f'(\Lambda) \dv{\Lambda} U^\top + U f(\Lambda) \dv{U}^\top\\
+  U^\top \dv{(f(Y))} U &= U^\top \dv{U} f(\Lambda) + f(\Lambda) \dv{U}^\top U + f'(\Lambda)\dv{\Lambda},
+\end{aligned}
+\]
+where $f'(\Lambda)_{ij} = \frac{\dv{(f(\lambda_i))}}{\dv{\lambda_i}}$.
+
+Recall that $U^\top \dv{U}$ is skew-symmetric.
+Note also that for skew-symmetrix $Z = -Z^\top$ and diagonal matrix $\operatorname{diag}(v)$,
+\[(Z\operatorname{diag}(v) + \operatorname{diag}(v)Z^\top)_{ij} = Z_{ij} v_j + v_i Z_{ji} = Z_{ij} v_j - v_i Z_{ij} = Z_{ij} (v_j - v_i) = Z \circ V,\]
+where $V_{ij} = v_j - v_i$ and $\circ$ is the Hadamard (elementwise) product.
+
+From the right-hand side, note then that
+\[(U^\top \dv{(f(Y))} U)_{ij} = \begin{cases} (U^\top \dv{U})_{ij} (f(\lambda_j) - f(\lambda_i)) & \text{ if } i \ne j \\ f'(\lambda_i) \dv{f(\lambda_i)} &\text{ if } i = j \end{cases}\]
+
+The exterior product of the diagonal part is
+\[
+  \bigwedge_{i=1}^N f'(\lambda_i) \dv{\lambda_i} = \left(\prod_{i=1}^N f'(\lambda_i)\right) (\dv{\Lambda})^\wedge,
+\]
+while the exterior product of the super-diagonal part is
+\[
+  \bigwedge_{j=1}^N \bigwedge_{i=j+1}^N (U^\top \dv{U})_{ij} (f(\lambda_j) - f(\lambda_i)) = \left( \prod_{j=1}^N \prod_{i=1}^{j-1} (f(\lambda_j) - f(\lambda_i)) \right) \left(U^\top \dv{U} \right)^\wedge
+\]
+
+Lastly, note for any symmetric $Z$ and orthogonal matrix $U$,
+\[(U^\top \dv{Z} U)^\wedge = \det(U^\top)^N \det(U)^N (\dv{Z})^\wedge = (\dv{Z})^\wedge.\]
+
+As a result, we can compute $(\dv(f(Y)))^\wedge$ by taking the exterior product of the super-diagonal and diagonal parts: 
+\[(\dv{(f(Y))})^\wedge = \left(\prod_{j=1}^N f'(\lambda_j) \prod_{i=1}^{j-1} (f(\lambda_j) - f(\lambda_i))\right) ((U^\top \dv{U})^\wedge \wedge \dv{\Lambda})\]
+
+If $f$ is the identity map $f(Y) = Y$, then
+\[ (\dv{Y})^\wedge = \left(\prod_{j=1}^N \prod_{i=1}^{j-1} (\lambda_j - \lambda_i)\right) \left((U^\top \dv{U})^\wedge \wedge \dv{\Lambda}\right)\]
+
+Combining the latter two expressions:
+\[(\dv{(f(Y))})^\wedge = \left(\prod_{j=1}^N f'(\lambda_j) \prod_{i=1}^{j-1} \frac{f(\lambda_j) - f(\lambda_i)}{\lambda_j - \lambda_i}\right) (\dv{Y})^\wedge\]
+
+[REF, Edelman's notes] previously found this result.
+
+For $X = f(Y) = \Exp(Y)$ then,
+\[ (\dv{X})^\wedge = \left(\prod_{j=1}^N e^{\lambda_j} \prod_{i=1}^{j-1} \frac{e^{\lambda_j} - e^{\lambda_i}}{\lambda_j - \lambda_i}\right) (\dv{Y})^\wedge,\]
+
+so the Jacobian determinant of the exponential map is $\absdet{J_{\Exp}(Y)} = \prod_{j=1}^N e^{\lambda_j} \prod_{i=1}^{j-1} \left|\frac{e^{\lambda_j} - e^{\lambda_i}}{\lambda_j - \lambda_i}\right|$.
+
+Note that this expression is undefined when any eigenvalues are repeated.
+This is not a problem for MCMC, since the eigenvalues are non-unique with probability 0, but non-unique eigenvalues could occur when maximizing a log-density.
+
+Because $\lim_{h \to 0} \frac{f(x) - f(x + h)}{h} = f'(x)$, we can then modify the expression to handle such cases:
+\[
+  \absdet{J_{\Exp}(Y)} = \prod_{j=1}^N \prod_{i=1}^j \begin{cases}
+    \left|\frac{e^{\lambda_j} - e^{\lambda_i}}{\lambda_j - \lambda_i}\right| &\text{ if } \lambda_i \ne \lambda_j \\ 
+    e^{\lambda_i} &\text{ if } \lambda_i = \lambda_j
+  \end{cases}.
+\]
+
+While the cost of computing the Jacobian determinant is $O(N^2)$, the cost of computing the eigendecomposition naively is $O(N^3)$, so this transformation is expensive.
+An attractive alternative would be to define the transform directly from the eigendecomposition of $X$.
+
+\subsubsection{Eigendecomposition parameterization}
+
+To define a transform directly from the symmetric eigendecomposition of $X$, we first need to note that the eigendecomposition is not unique; if we swap any two columns $i$ and $j$ of $U$ as well as swapping the eigenvalues $\lambda_i$ and $\lambda_j$, the result is the same matrix.
+
+When the eigenvalues are all unique, we can make the eigendecomposition also unique by enforcing the ordering of eigenvalues $\lambda_i > \lambda_j > 0$ for $j > i$.
+This is the ordering generally used for symmetric singular value decomposition.
+
+So we can construct a bijective map with the maps $f_1$ that produces an ordered vector of positive eigenvalues and $f_2$ that produces an orthogonal matrix.
+Consider $\lambda = f_1(y_1)$ and $U = f_2(y_2)$.
+
+Let $f_1$ be the map that computes each $\lambda_i$ as
+\[
+  \lambda_i = \begin{cases}
+    e^{(y_1)_N} &\text{ if } i = N\\
+    \lambda_{i-1} + e^{(y_1)_i} &\text{ if } 1 \le i < N
+  \end{cases}
+\]
+The Jacobian determinant of this map is $\absdet{J_{f_1}(y_1)} = \exp\left(\sum_{i=1}^N (y_1)_i\right)$.
+
+We can then choose for $f_2$ any of the transforms to the orthogonal matrices previously discussed.
+The combined Jacobian determinant of $f: (y_1, y_2) \mapsto f_2(y_2) \operatorname{diag}(f_1(y_1)) f_2(y_2)^\top = X$ is then 
+\[ \absdet{J_{f}(y_1, y_2)} = \absdet{J_{f_2}(y_2)} \exp\left(\sum_{i=1}^N (y_1)_i\right).\]
 
 \subsubsection*{Acknowledgements}
 
