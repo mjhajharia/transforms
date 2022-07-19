@@ -6,11 +6,11 @@ parameters {
   vector[length_tri(N)] y;
 }
 transformed parameters {
-  real logJ = 0;
   matrix[N,N] Y = symmetrize_from_vec(y, N);
   vector[N] lambda = eigenvalues_sym(Y);
   matrix[N,N] U = eigenvectors_sym(Y);
   vector<lower=0>[N] exp_lambda;
+  real log_det_jacobian = 0;
   {
     real lambda_i;
     real lambda_j;
@@ -18,12 +18,12 @@ transformed parameters {
     for (j in 1:N) {
       lambda_j = lambda[j];
       exp_lambda[j] = exp(lambda_j);
-      logJ += j * lambda_j;
+      log_det_jacobian += j * lambda_j;
       for (i in 1:(j - 1)) {
         lambda_i = lambda[i];
         if (lambda_i != lambda_j) {
           lambda_diff = lambda_j - lambda_i;
-          logJ += log1m_exp(-lambda_diff) - log(lambda_diff);
+          log_det_jacobian += log1m_exp(-lambda_diff) - log(lambda_diff);
         }
       }
     }
@@ -31,5 +31,5 @@ transformed parameters {
   cov_matrix[N] X = quad_form_sym(diag_matrix(exp_lambda), U');
 }
 model {
-  target += logJ;
+  target += log_det_jacobian;
 }

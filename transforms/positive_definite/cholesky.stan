@@ -6,7 +6,7 @@ parameters {
   vector[length_tri(N)] y;
 }
 transformed parameters {
-  real logJ = 0;
+  real log_det_jacobian = 0;
   cholesky_factor_cov[N] L;
   {
     int s = N + 1;
@@ -19,8 +19,8 @@ transformed parameters {
       }
       yii = y[k];
       L[i,i] = exp(yii);
-      logJ += s * yii;
       k += 1;
+      log_det_jacobian += s * yii;
       s -= 1;
       for (j in (i+1):N)
         L[i,j] = 0;
@@ -29,5 +29,5 @@ transformed parameters {
   cov_matrix[N] X = multiply_lower_tri_self_transpose(L);
 }
 model {
-  target += logJ;
+  target += log_det_jacobian;
 }
