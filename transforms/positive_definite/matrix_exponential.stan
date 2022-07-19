@@ -7,9 +7,9 @@ parameters {
 }
 transformed parameters {
   matrix[N,N] Y = symmetrize_from_vec(y, N);
-  vector[N] lambda = eigenvalues_sym(Y);
+  ordered[N] lambda = eigenvalues_sym(Y);
   matrix[N,N] U = eigenvectors_sym(Y);
-  vector<lower=0>[N] exp_lambda;
+  positive_ordered[N] exp_lambda;
   real log_det_jacobian = 0;
   {
     real lambda_i;
