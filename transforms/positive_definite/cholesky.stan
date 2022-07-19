@@ -7,11 +7,12 @@ parameters {
 }
 transformed parameters {
   real log_det_jacobian = 0;
+  // L is the lower Cholesky factor of a positive definite matrix
   cholesky_factor_cov[N] L;
   {
     int s = N + 1;
-    int k = 1;
     real yii;
+    int k = 1;
     for (i in 1:N) {
       for (j in 1:(i-1)) {
         L[i,j] = y[k];
@@ -19,9 +20,10 @@ transformed parameters {
       }
       yii = y[k];
       L[i,i] = exp(yii);
-      k += 1;
       log_det_jacobian += s * yii;
       s -= 1;
+      k += 1;
+      // We need to explicitly zero out the super-diagonal
       for (j in (i+1):N)
         L[i,j] = 0;
     }
