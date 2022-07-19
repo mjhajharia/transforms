@@ -5,7 +5,7 @@ from rmse import rmse_leapfrog
 from sample import sample
 
 def get_dirichlet_symmetric_rmse(transforms, transform_category, parameters, fig_name, n_repeat=1, n_iter=1000, 
-                                n_chains=4, show_progress=True, resample=False):
+                                n_chains=4, show_progress=True, resample=True):
     
     plt.rcParams["figure.figsize"] = [20,10]
     plt.rcParams['figure.dpi'] = 300
@@ -16,7 +16,7 @@ def get_dirichlet_symmetric_rmse(transforms, transform_category, parameters, fig
     for ax, params in zip(axes.flatten() if len(parameters)>1 else [axes],  parameters):
         for transform in transforms:            
             idata = sample(transform_category=transform_category, transform=transform, 
-                evaluating_model='dirichlet_symmetric', parameters=[params], output_file=None, 
+                evaluating_model='dirichlet_symmetric', parameters=[params], 
                 auto_eval_all_params=False, n_iter = n_iter, n_chains = n_chains, n_repeat = n_repeat, 
                                         show_progress = show_progress, resample=resample)
             alpha = params['alpha']
