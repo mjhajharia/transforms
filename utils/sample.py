@@ -20,7 +20,7 @@ def sample(
     transform,
     evaluating_model,
     parameters,
-    output_file=None,
+    output_dir='/mnt/sdceph/users/mjhajaria',
     auto_eval_all_params=False,
     n_iter=1000,
     n_chains=4,
@@ -120,7 +120,7 @@ def sample(
                 )
                 idata = az.concat(idata, az.from_cmdstanpy(fit), dim="chain")
 
-            filename = output_file if output_file else f'sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
+            filename = f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
             idata.to_netcdf(filename)
         if return_idata==True:
             return idata
