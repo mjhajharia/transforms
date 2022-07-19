@@ -7,14 +7,12 @@ parameters {
 }
 transformed parameters {
   matrix[N,N] Y = symmetrize_from_vec(y, N);
-  ordered[N] lambda = eigenvalues_sym(Y);
   matrix[N,N] U = eigenvectors_sym(Y);
+  ordered[N] lambda = eigenvalues_sym(Y);
   positive_ordered[N] exp_lambda;
   real log_det_jacobian = 0;
   {
-    real lambda_i;
-    real lambda_j;
-    real lambda_diff;
+    real lambda_i, lambda_j, lambda_diff;
     for (j in 1:N) {
       lambda_j = lambda[j];
       exp_lambda[j] = exp(lambda_j);
