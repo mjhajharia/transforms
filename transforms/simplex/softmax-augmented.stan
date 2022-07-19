@@ -1,7 +1,6 @@
 data {
  int<lower=0> N;
  vector<lower=0>[N] alpha;
- int eval_model;
 }
 parameters {
  vector[N] y;
