@@ -1,10 +1,11 @@
+#include transform_functions.stan
 data {
   int<lower=1> N;
   real<lower=N-1> nu;
   cov_matrix[N] Sigma;
 }
 parameters {
-  vector[N*(N+1) %/% 2] y;
+  vector[length_tri(N)] y;
 }
 transformed parameters {
   real logJ = 0;

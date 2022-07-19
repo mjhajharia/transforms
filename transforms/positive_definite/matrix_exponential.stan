@@ -1,28 +1,11 @@
-functions {
-  matrix symmetrize_from_vec(vector x, int N) {
-    matrix[N,N] S;
-    int k = 1;
-    real xk;
-    for (i in 1:N) {
-      for (j in 1:(i-1)) {
-        xk = x[k];
-        S[i,j] = xk;
-        S[j,i] = xk;
-        k += 1;
-      }
-      S[i,i] = x[k];
-      k += 1;
-    }
-    return S;
-  }
-}
+#include transform_functions.stan
 data {
   int<lower=1> N;
   real<lower=N-1> nu;
   cov_matrix[N] Sigma;
 }
 parameters {
-  vector[N*(N+1) %/% 2] y;
+  vector[length_tri(N)] y;
 }
 transformed parameters {
   real logJ = 0;
