@@ -20,7 +20,7 @@ def sample(
     transform,
     evaluating_model,
     parameters,
-    output_file=None,
+    output_dir='/mnt/sdceph/users/mjhajaria',
     auto_eval_all_params=False,
     n_iter=1000,
     n_chains=4,
@@ -85,8 +85,8 @@ def sample(
 
     if resample == False:
         for params in parameters:
-            filename = f"sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.json"
-            return az.from_json(filename)
+            filename = f'sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
+            return az.load_arviz_data(filename)
     else:
 
         if auto_eval_all_params:
@@ -94,10 +94,9 @@ def sample(
                 f"target_densities/{evaluating_model}_parameters.json", "rb"
             ) as f:
                 parameters = pickle.load(f)
-
-        stan_filename = f"stan_models/{transform}_{evaluating_model}.json"
-
-        if type(parameters) == dict:
+        stan_filename=f'stan_models/{transform}_{evaluating_model}.stan'
+        
+        if type(parameters)==dict:
             parameters = [parameters]
         for params in tqdm(parameters):
             model = CmdStanModel(
@@ -121,13 +120,9 @@ def sample(
                 )
                 idata = az.concat(idata, az.from_cmdstanpy(fit), dim="chain")
 
-            filename = (
-                output_file
-                if output_file
-                else f"sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.json"
-            )
-            idata.to_json(filename)
-            if return_idata == True:
-                return idata
+            filename = f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
+            idata.to_netcdf(filename)
+        if return_idata==True:
+            return idata
 
         pass
