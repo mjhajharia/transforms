@@ -1,8 +1,6 @@
 #include transform_functions.stan
 data {
   int<lower=1> N;
-  real<lower=N-1> nu;
-  cov_matrix[N] Sigma;
 }
 parameters {
   vector[length_tri(N)] y;
@@ -34,5 +32,4 @@ transformed parameters {
 }
 model {
   target += logJ;
-  target += wishart_lupdf(X | nu, Sigma);
 }
