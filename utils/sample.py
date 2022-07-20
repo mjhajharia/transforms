@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
+import time
 import json
 import sys
 import pickle
@@ -94,10 +95,15 @@ def sample(
                 f"target_densities/{evaluating_model}_parameters.json", "rb"
             ) as f:
                 parameters = pickle.load(f)
+       
         stan_filename=f'stan_models/{transform}_{evaluating_model}.stan'
-        
+        start_time = time.time()
         if type(parameters)==dict:
             parameters = [parameters]
+        
+        stan_filename=f'stan_models/{transform}_{evaluating_model}.stan'
+        start_time = time.time()
+
         for params in tqdm(parameters):
             model = CmdStanModel(
                 stan_file=stan_filename, cpp_options={"STAN_THREADS": "true"}
@@ -110,18 +116,25 @@ def sample(
                     chains=n_chains,
                 )
             )
-
-            for i in range(n_repeat - 1):
+	    
+            for i in tqdm(range(n_repeat - 1)):
                 fit = model.sample(
                     data=params,
                     show_progress=show_progress,
                     iter_sampling=n_iter,
                     chains=n_chains,
+                    seed=i
                 )
                 idata = az.concat(idata, az.from_cmdstanpy(fit), dim="chain")
 
             filename = f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
             idata.to_netcdf(filename)
+<<<<<<< HEAD
+	    with open(f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/time_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.txt', 'w') as f:
+=======
+        with open(f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/time_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.txt', 'w') as f:
+>>>>>>> b0b57e1 (fix indent)
+	        f.write(str(time.time() - start_time))
         if return_idata==True:
             return idata
 
