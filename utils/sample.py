@@ -117,6 +117,7 @@ def sample(
                     show_progress=show_progress,
                     iter_sampling=n_iter,
                     chains=n_chains,
+                    seed=i
                 )
                 idata = az.concat(idata, az.from_cmdstanpy(fit), dim="chain")
 
