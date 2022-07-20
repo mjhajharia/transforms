@@ -22,7 +22,7 @@ parameters = [{'alpha': [0.1]*10, 'N': 10}, {'alpha': [0.1]*100, 'N': 100}, {'al
 {'alpha': [1]*10, 'N': 10}, {'alpha': [1]*100, 'N': 100}, {'alpha': [1]*1000, 'N': 1000},
 {'alpha': [1]*10, 'N': 10}, {'alpha': [1]*100, 'N': 100}, {'alpha': [1]*1000, 'N': 1000}]
 
-transforms = ['stan', 'softmax-augmented','stickbreaking', 'softmax']
+transforms = ['softmax', 'softmax-augmented','stickbreaking', 'stan']
 
 get_dirichlet_symmetric_rmse(transforms, transform_category, 
                              parameters, fig_name='rmse_example.png')
