@@ -8,16 +8,12 @@ parameters {
 transformed parameters {
   simplex[N] x;
   vector[N-1] z;
-  for (n in 1:N-1) {
-      z[n] = inv_logit(y[n] - log(N-n));
-      x[n] = (1-sum(x[1:n-1]))*z[n];
-      }   
+  z[1:N-1] = inv_logit(y[1:N-1] - reverse(log(1:N-1)));
+  x[1:N-1] = (1-cumulative_sum(x[1:N-2]))*z[1:N-1];
   x[N] = 1-sum(x[1:N-1]);
 }
 model {
-  for (n in 1:N-1) {
-      target += log(z[n]) + log1m(z[n]) + log1m(sum(x[1:n-1]));
-    }
+ target += log(z[1:N-1]) + log1m(z[1:N-1]) + log1m(cumulative_sum(x[1:N-2]));
  target += target_density_lp(x, alpha);
 }
 
