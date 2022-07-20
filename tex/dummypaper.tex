@@ -54,9 +54,9 @@ constrained values such as upper- and/or lower-bounds
 \cite{neal2011mcmc} or unit vectors \cite{byrne2013geodesic}, it is
 far more challenging to do the same for complex constraints such as
 simplices or positive definite matrices or for densities involving
-multiple constrained values.  Instead, usually constrained values are mapped to unconstrained values before sampling
-\cite{}.  A change of variables adjustment is made to the target density for these transforms to work. The tricky part is- there can be more than one suitable mapping for every constraint. This leads us to the issue of selecting a transform. 
+multiple constrained values.  Instead, usually constrained values are mapped to unconstrained values before sampling. These transform mappings are formed out of the constraints on the model parameters. A change of variables adjustment is made to the target density for these transforms to work. The tricky part is- there can be more than one suitable mapping for every constraint. This leads us to the issue of selecting a transform. 
 
+We evaluate the efficiency of unconstraining parameter transforms using metrics like effective sample size, leapfrog steps and squared error. Different transforms work well for different models, this paper aims to provide a useful analysis of the same, so practitioners can choose transforms that work well for their models.
 
 \section{Transforms}
 

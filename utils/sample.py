@@ -9,13 +9,27 @@ import argparse
 import arviz as az
 from pathlib import Path
 from tqdm import tqdm
+
 # import logging
 # logger = logging.getLogger('cmdstanpy')
 # logger.addHandler(logging.NullHandler())
 
-def sample(transform_category, transform, evaluating_model, parameters, output_file=None, 
-                auto_eval_all_params=False, n_iter = 1000, n_chains = 4, n_repeat = 1, show_progress = True, resample=False, return_idata=True):
-    '''
+
+def sample(
+    transform_category,
+    transform,
+    evaluating_model,
+    parameters,
+    output_dir='/mnt/sdceph/users/mjhajaria',
+    auto_eval_all_params=False,
+    n_iter=1000,
+    n_chains=4,
+    n_repeat=1,
+    show_progress=True,
+    resample=False,
+    return_idata=True,
+):
+    """
     Sample from the given dictionary containing the models, transform_categories, and parameters.
     It saves the results in a json file which is named with n_repeat, n_chains and n_iter.
 
@@ -23,13 +37,13 @@ def sample(transform_category, transform, evaluating_model, parameters, output_f
     ----------
     transform_category: str
         The transform category to use.
-    
+
     transform: str
         The transform name to use.
-    
+
     evaluating_model: str
         The model to use.
-    
+
     parameters: list of dict
         List of Dictionaries containing the parameters to use.
         e.g. parameters = [{'alpha': [0.1]*10, 'N': 10}, {'alpha': [0.1]*20, 'N': 20}]
@@ -57,7 +71,7 @@ def sample(transform_category, transform, evaluating_model, parameters, output_f
 
     resample: bool (default = False)
         Whether to resample the data.
-    
+
     return_idata: bool (default = True)
         Whether to return the idata.
 
@@ -65,37 +79,50 @@ def sample(transform_category, transform, evaluating_model, parameters, output_f
     ----
     The directory structure for storing stan files is: stan_models/{transform}_{evaluating_model}.stan
     The directory structure for storing the results is: sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_mapping}.json
-    '''
-    with open(f'target_densities/param_map_{evaluating_model}.json', 'rb') as f:
+    """
+    with open(f"target_densities/param_map_{evaluating_model}.json", "rb") as f:
         param_map = pickle.load(f)
 
-    if resample==False:
+    if resample == False:
         for params in parameters:
-            filename = f'sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.json'
-            return az.from_json(filename)
+            filename = f'sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
+            return az.load_arviz_data(filename)
     else:
 
         if auto_eval_all_params:
-            with open(f'target_densities/{evaluating_model}_parameters.json', 'rb') as f:
+            with open(
+                f"target_densities/{evaluating_model}_parameters.json", "rb"
+            ) as f:
                 parameters = pickle.load(f)
-        
-
-
-        stan_filename=f'stan_models/{transform}_{evaluating_model}.json'
+        stan_filename=f'stan_models/{transform}_{evaluating_model}.stan'
         
         if type(parameters)==dict:
             parameters = [parameters]
         for params in tqdm(parameters):
-            model = CmdStanModel(stan_file = stan_filename, cpp_options = {'STAN_THREADS':'true'})
-            idata = az.from_cmdstanpy(model.sample(data = params, show_progress = show_progress, iter_sampling = n_iter, chains = n_chains))
+            model = CmdStanModel(
+                stan_file=stan_filename, cpp_options={"STAN_THREADS": "true"}
+            )
+            idata = az.from_cmdstanpy(
+                model.sample(
+                    data=params,
+                    show_progress=show_progress,
+                    iter_sampling=n_iter,
+                    chains=n_chains,
+                )
+            )
 
-            for i in range(n_repeat-1):
-                fit = model.sample(data = params, show_progress = show_progress, iter_sampling = n_iter, chains = n_chains)
+            for i in range(n_repeat - 1):
+                fit = model.sample(
+                    data=params,
+                    show_progress=show_progress,
+                    iter_sampling=n_iter,
+                    chains=n_chains,
+                )
                 idata = az.concat(idata, az.from_cmdstanpy(fit), dim="chain")
 
-            filename = output_file if output_file else f'sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.json'
-            idata.to_json(filename)
-            if return_idata==True:
-                return idata
+            filename = f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
+            idata.to_netcdf(filename)
+        if return_idata==True:
+            return idata
 
         pass
