@@ -23,5 +23,4 @@ sample(transform_category='simplex', transform=args.transform, evaluating_model=
 parameters={'alpha':alpha, 'N':N}, 
             auto_eval_all_params=False, n_iter = 1000, n_chains = 4, n_repeat = 2, 
                             show_progress = True, resample=True, return_idata=False)
-
-
+                            
