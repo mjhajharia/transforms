@@ -30,7 +30,7 @@ from ess import get_ess_leapfrog_ratio
 transform_category='simplex'
 evaluating_model='dirichlet_symmetric'
 
-transforms = ['softmax', 'softmax-augmented','stickbreaking', 'stan']
+transforms = ['stan', 'softmax-augmented','stickbreaking', 'softmax']
 
 get_dirichlet_symmetric_rmse(transforms, transform_category, 
                              parameters=[{'alpha':alpha, 'N':N}],resample=False, fig_name='rmse_1.png', n_repeat=100)
