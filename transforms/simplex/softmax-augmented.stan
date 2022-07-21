@@ -3,6 +3,7 @@ data {
  vector<lower=0>[N] alpha;
 }
 parameters {
+ real p=1/N;
  vector[N] y;
 }
 transformed parameters {
@@ -10,6 +11,6 @@ transformed parameters {
  simplex[N] x = exp(y - logr);
 }
 model {
- target += sum(y) - exp(0.5 * logr) / 0.5;
+ target += sum(y) - exp(p * logr) / p;
  target += target_density_lp(x, alpha);
 }
