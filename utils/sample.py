@@ -129,11 +129,7 @@ def sample(
 
             filename = f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
             idata.to_netcdf(filename)
-<<<<<<< HEAD
 	    with open(f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/time_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.txt', 'w') as f:
-=======
-        with open(f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/time_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.txt', 'w') as f:
->>>>>>> b0b57e1 (fix indent)
 	        f.write(str(time.time() - start_time))
         if return_idata==True:
             return idata
