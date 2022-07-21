@@ -13,7 +13,7 @@ def get_dirichlet_symmetric_rmse(transforms, transform_category, parameters, fig
     fig.supxlabel('Cumulative Leapfrog Steps')
     fig.supylabel('Root Mean Squared Error')
 
-    for ax, params in zip(axes.flatten() if len(parameters)>1 else [axes],  parameters):
+    for ax, params in zip([axes],  parameters):
         for transform in transforms:            
             idata = sample(transform_category=transform_category, transform=transform, 
                 evaluating_model='dirichlet_symmetric', parameters=[params], 
