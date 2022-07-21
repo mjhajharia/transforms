@@ -9,12 +9,11 @@ def get_dirichlet_symmetric_rmse(transforms, transform_category, parameters, fig
     
     plt.rcParams["figure.figsize"] = [20,10]
     plt.rcParams['figure.dpi'] = 300
-    fig, axes = plt.subplots(3,3)
+    fig, ax = plt.subplots(1)
     fig.supxlabel('Cumulative Leapfrog Steps')
     fig.supylabel('Root Mean Squared Error')
 
-    for ax, params in zip(axes.T.flatten(),  parameters):
-        for transform in transforms:            
+    for transform in transforms:            
             idata = sample(transform_category=transform_category, transform=transform, 
                 evaluating_model='dirichlet_symmetric', parameters=[params], 
                 auto_eval_all_params=False, n_iter = n_iter, n_chains = n_chains, n_repeat = n_repeat, 
@@ -22,7 +21,7 @@ def get_dirichlet_symmetric_rmse(transforms, transform_category, parameters, fig
             alpha = params['alpha']
             N = params['N']
             true_x = [a/sum(alpha) for a in alpha]
-            x, y = rmse_leapfrog(idata=idata, true_var=true_x, var_name='x', var_dim=0)
+    x, y = rmse_leapfrog(idata=idata, true_var=true_x, var_name='x', var_dim=0)
             ax.plot(x,y, label = str(transform))
 
         ax.set_title(f'alpha={alpha[0]}, N = {N}')

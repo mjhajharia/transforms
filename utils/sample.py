@@ -86,7 +86,7 @@ def sample(
 
     if resample == False:
         for params in parameters:
-            filename = f'sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
+            filename = f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
             return az.load_arviz_data(filename)
     else:
 
