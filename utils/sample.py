@@ -81,7 +81,7 @@ def sample(
     The directory structure for storing stan files is: stan_models/{transform}_{evaluating_model}.stan
     The directory structure for storing the results is: sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_mapping}.json
     """
-    with open(f"target_densities/param_map_{evaluating_model}.json", "rb") as f:
+    with open(f"target_densities/param_map_{evaluating_model}.pkl", "rb") as f:
         param_map = pickle.load(f)
 
     if resample == False:

@@ -37,7 +37,7 @@ def create_param_map():
     for alpha in alphas:
         for N in Ns:
             parameters.append({"alpha": [alpha]*N, "N": N})
-
+    
     param_map = dict(zip(keys, parameters))
     param_map.update(dict(zip(parameters, keys)))
 
