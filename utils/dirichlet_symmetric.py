@@ -19,8 +19,8 @@ def get_dirichlet_symmetric_rmse(transforms, transform_category, parameters, fig
             auto_eval_all_params=False, n_iter = n_iter, n_chains = n_chains, n_repeat = n_repeat, 
                                     show_progress = show_progress, resample=resample)
         print(parameters)
-        alpha = parameters['alpha']
-        N = parameters['N']
+        alpha = parameters[0]['alpha']
+        N = parameters[0]['N']
         true_x = [a/sum(alpha) for a in alpha]
         x, y = rmse_leapfrog(idata=idata, true_var=true_x, var_name='x', var_dim=0)
         ax.plot(x,y, label = str(transform))
