@@ -33,13 +33,13 @@ def create_param_map():
     alphas = [0.1, 1, 10]
     Ns = [10, 100, 1000]
     keys = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    params = []
+    parameters = []
     for alpha in alphas:
         for N in Ns:
-            parameters.append({"alpha": [alpha] * N, "N": N})
+            parameters.append({"alpha": [alpha]*N, "N": N})
 
-    param_map = dict(zip(keys, params))
-    param_map.update(dict(zip(params, keys)))
+    param_map = dict(zip(keys, parameters))
+    param_map.update(dict(zip(parameters, keys)))
 
     pickle.dump(param_map, open("param_map_dirichlet_symmmetric.pkl", "wb"))
 
