@@ -37,7 +37,7 @@ def create_param_map():
     for alpha in alphas:
         for N in Ns:
             parameters.append({"alpha": [alpha]*N, "N": N})
-    
+
     param_map = dict(zip(keys, parameters))
     param_map.update(dict(zip(parameters, keys)))
 
@@ -46,3 +46,5 @@ def create_param_map():
 
 def get_dirichlet_symmetric_params():
     return pickle.load(open("param_map_dirichlet_symmmetric.pkl", "rb"))
+
+
