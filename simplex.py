@@ -13,7 +13,7 @@ parser.add_argument('--parameters', type=int, required=True)
 parser.add_argument('--transform', type=str, required=True)
 args = parser.parse_args()
 
-with open(f"target_densities/param_map_dirichlet_symmetric.json", "rb") as f:
+with open(f"target_densities/param_map_dirichlet_symmetric.pkl", "rb") as f:
     param_map = pickle.load(f)
 
 alpha = param_map[args.parameters]
