@@ -14,15 +14,15 @@ def get_dirichlet_symmetric_rmse(transforms, transform_category, parameters, fig
     fig.supylabel('Root Mean Squared Error')
 
     for transform in transforms:            
-            idata = sample(transform_category=transform_category, transform=transform, 
-                evaluating_model='dirichlet_symmetric', parameters=[params], 
-                auto_eval_all_params=False, n_iter = n_iter, n_chains = n_chains, n_repeat = n_repeat, 
-                                        show_progress = show_progress, resample=resample)
-            alpha = params['alpha']
-            N = params['N']
-            true_x = [a/sum(alpha) for a in alpha]
-    x, y = rmse_leapfrog(idata=idata, true_var=true_x, var_name='x', var_dim=0)
-            ax.plot(x,y, label = str(transform))
+        idata = sample(transform_category=transform_category, transform=transform, 
+            evaluating_model='dirichlet_symmetric', parameters=parameters, 
+            auto_eval_all_params=False, n_iter = n_iter, n_chains = n_chains, n_repeat = n_repeat, 
+                                    show_progress = show_progress, resample=resample)
+        alpha = parameters['alpha']
+        N = parameters['N']
+        true_x = [a/sum(alpha) for a in alpha]
+        x, y = rmse_leapfrog(idata=idata, true_var=true_x, var_name='x', var_dim=0)
+        ax.plot(x,y, label = str(transform))
 
         ax.set_title(f'alpha={alpha[0]}, N = {N}')
     fig.legend(labels=transforms,bbox_to_anchor = (0.6, -0.05));
