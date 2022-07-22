@@ -18,22 +18,23 @@
 \newcommand{\vect}{\mathrm{vec}}
 \newcommand{\vectu}{\mathrm{vecu}}
 
-
 \begin{document}
 
 
 \title{Efficient Unconstraining
   Parameter Transforms for Hamiltonian Monte Carlo}
-\author{Meenal Jhajaria \\ \small Flatiron Institute \and Seth Axen \\
-  \small University of T\"ubingen \and Bob
-  Carpenter \\ \small Flatiron Institute}
+\author{Meenal Jhajaria \\ \small Flatiron Institute 
+\and Seth Axen \\ \small University of T\"ubingen 
+\and Adam Haber \\ \small Weizmann Institute 
+\and Sean Pinkney \\ \small Omnicom Media Group
+\and Bob Carpenter \\ \small Flatiron Institute}
 \date{DRAFT: \today}
 \maketitle
 
 
 \begin{abstract}
   \noindent
-  This paper evaluates the the statistical and computational
+  This paper evaluates the statistical and computational
   efficiency of unconstraining parameter transforms for Hamiltonian
   Monte Carlo sampling.
 \end{abstract}
@@ -42,7 +43,7 @@
 
 In statistical computing, we often need to compute high-dimensional
 integrals over densities $\pi(x)$ (e.g., Bayesian estimation or
-prediction, $p$-value calcuations, etc.).  The only black-box
+prediction, $p$-value calculations, etc.).  The only black-box
 techniques that work for general high-dimensional integrals are
 Markov chain Monte Carlo (MCMC) methods.  The most effective MCMC
 method in high dimensions is Hamiltonian Monte Carlo (HMC).  HMC works
@@ -52,11 +53,22 @@ representing the value being sampled coupled with a momentum term.
 Although it's possible to write HMC samplers that work for simply
 constrained values such as upper- and/or lower-bounds
 \cite{neal2011mcmc} or unit vectors \cite{byrne2013geodesic}, it is
-far more challenging to do the same for complex constraints such as
-simplices or positive definite matrices or for densities involving
-multiple constrained values.  Instead, usually constrained values are mapped to unconstrained values before sampling
-\cite{}.  A change of variables adjustment is made to the target density for these transforms to work. The tricky part is- there can be more than one suitable mapping for every constraint. This leads us to the issue of selecting a transform. 
+much more challenging to do the same for complex constraints such as
+simplexes or positive definite matrices or for densities involving
+multiple constrained values.  Instead, it is far more common to map
+the constrained values to unconstrained values before sampling
+\cite{}.  This presents the issue of selecting which transform to use
+among an infinite set of options, which is the topic of this paper.
 
+%Sampling algorithms play an important role in Statistics, in this case
+%we refer to drawing samples from a probability density or distribution
+%(not survey sampling). Monte Carlo Markov chain methods are commonly
+%used for high dimensional sampling. In this paper, we look at
+%Hamiltonian Monte Carlo, which uses hamiltonian dynamics to propose
+%samples for the Metropolis algorithm. Bayesian Inference often uses
+%parameters with constraints, but HMC optimizes on the unconstrained
+%space. It is difficult to use Monte Carlo estimation on a constrained
+%domain ~\cite{neal2008optimal}
 
 \section{Transforms}
 
@@ -75,7 +87,7 @@ While singularities themselves are in general not a problem for sampling with MC
 \subsection{Changes of Variables}
 
 If $X$ is a random variable with density $p_X$ and $Y = f(X)$ for a
-smooth and bijective function $f$, then
+smooth, monotonic, bijection $f$, then
 \[
   p_Y(y) = p_X(f^{-1}(y)) \absdet{J_{f^{-1}}(y)},
 \]
@@ -89,7 +101,20 @@ and
   = \abs{\det J_{f^{-1}}(y)}.
 \]
 
-\subsection{Target Density}
+\section{Transforms}
+
+To draw samples from a distribution $p_X(x)$, defined on a constrained space $\mathcal{X}$ that can be uniquely parameterized by $n$ real degrees of freedom, we instead perform sampling in an unconstrained space $\mathcal{Y}=\mathbb{R}^m$ for $m \ge n$.
+
+Let $f\colon \mathcal{Y} \to \mathcal{X}$ be a smooth and continuous map.
+Only when $m = n$ can $f$ be bijective.
+When $m > n$, multiple values of $y \in \mathcal{Y}$ may map to a given value of $x = f(y)$.
+In this case, to make the function bijective, we consider an additional smooth and continuous map $g\colon \mathcal{Y} \to \mathcal{Z}$, where $\mathcal{Z}$ can be uniquely parameterized by $m - n$ real degrees of freedom.
+We then define $h\colon \mathcal{Y} \to \mathcal{X} \times \mathcal{Z}: y \mapsto (f(y), g(y)) = (x, z)$.
+$f$ and $g$ must be chosen so that $h$ is bijective almost-everywhere;
+that is, the values of $y$ for which $h$ is non-bijective must have no probability mass.
+When $h$ is non-bijective at single points, we call these singularities.
+While singularities themselves are in general not a problem for sampling with MCMC, the region of a target density near the singularity tends to have high curvature.
+
 Given a proper joint distribution with a smooth and continuous density $p_{X,Y}(x, y | \theta)$ for some parameters $\theta$, we can use the usual change of variables formula to write
 
 \[
@@ -176,10 +201,10 @@ Following [REF, Edelman], we use the notation $(\cdot)^\wedge$ as a shorthand to
 For example,
 \begin{itemize}
   \item Rectangular matrix $\{X \in \mathbb{R}^{N \times K}\}$: $(\dv{X})^\wedge = \bigwedge_{j=1}^K \bigwedge_{i=1}^N \dv{X_{ij}}$
-  \item Upper-triangular rectangular matrix $\{X \in \mathbb{R}^{N \times K} | X_{ij} = 0\ \forall\ i > j\}$: $(\dv{X})^\wedge = \bigwedge_{j=1}^K \bigwedge_{i=1}^{\min(j, N)} \dv{X_{ij}}$
+  \item Lower-triangular rectangular matrix $\{X \in \mathbb{R}^{N \times K} | X_{ij} = 0\ \forall\ i < j\}$: $(\dv{X})^\wedge = \bigwedge_{i=1}^N \bigwedge_{j=1}^{\min(i, K)} \dv{X_{ij}}$
   \item Diagonal matrix $\{X \in \mathbb{R}^{N \times K} | X_{ij} = 0\ \forall\ i \ne j\}$: $(\dv{X})^\wedge = \bigwedge_{i=1}^{\min(N, K)} \dv{X_{ii}}$
-  \item Symmetric matrix $\{X \in \mathbb{R}^{N \times N} | X_{ij} = X_{ji}\}$: $(\dv{X})^\wedge = \bigwedge_{j=1}^K \bigwedge_{i=1}^{j} \dv{X_{ij}}$
-  \item Skew-symmetric matrix $\{X \in \mathbb{R}^{N \times N} | X_{ij} = -X_{ji}, X_{ii} = 0\}$: $(\dv{X})^\wedge = \bigwedge_{j=1}^K \bigwedge_{i=1}^{j-1} \dv{X_{ij}}$
+  \item Symmetric matrix $\{X \in \mathbb{R}^{N \times N} | X_{ij} = X_{ji}\}$: $(\dv{X})^\wedge = \bigwedge_{i=1}^N \bigwedge_{j=1}^i \dv{X_{ij}}$
+  \item Skew-symmetric matrix $\{X \in \mathbb{R}^{N \times N} | X_{ij} = -X_{ji}, X_{ii} = 0\}$: $(\dv{X})^\wedge = \bigwedge_{i=1}^N \bigwedge_{j=1}^{i-1} \dv{X_{ij}}$
 \end{itemize}
 
 Using this notation, for example, $(B \dv{X})^\wedge = \det(B)^K (\dv{X})^\wedge$
@@ -210,7 +235,7 @@ and $\begin{bmatrix} 0 & 0 & 1 \end{bmatrix}$.
 
 \subsection{StickBreaking Transform}
 
-The StickBreaking transform can be be understood from the stick-breaking construction for Dirichlet \cite{sethurman}. Intuitively, this comprises of recursively breaking a piece $x_i$ from a stick of unit length, where the leftover stick in the $i^{th}$ iteration is $ 1 - \sum_{1}^{i}x$. Let $y = f(x)$, then we define the stick-breaking mapping $ f \colon \Delta^{N-1} \xrightarrow{\makebox[0.4cm]{$\sim$}}  R^{N-1}$, for $1 \leq i \leq N$ as:	
+The StickBreaking transform ican be be understood from the stick-breaking construction for Dirichlet \cite{sethurman}. Intuitively, this comprises of recursively breaking a piece $x_i$ from a stick of unit length, where the leftover stick in the $i^{th}$ iteration is $ 1 - \sum_{1}^{i}x$. Let $y = f(x)$, then we define the stick-breaking mapping $ f \colon \Delta^{N-1} \xrightarrow{\makebox[0.4cm]{$\sim$}}  R^{N-1}$, for $1 \leq i \leq N$ as:	
 \[
 y_i
 = \mathrm{logit}(z_i) - \mbox{log}\left(\frac{1}{N-i}
@@ -343,6 +368,21 @@ we have
     \ \textrm{det}\left(\frac{1}{1 + \textrm{sum}(z)} \mathbb{I}
         \right)
   \\[6pt]
+  & = &
+  \left(
+    1 
+    + \textrm{sum}\left( \frac{-(1 + \textrm{sum}(z)) z}{(1 +
+        \textrm{sum}(z))^2} \right)
+  \right)
+        \ \left( \frac{1}{1 + \textrm{sum}(z)} \right)^{N-1}
+  \\[6pt]
+  & = &
+        \left(1 + \textrm{sum}\left(\frac{-z}{1 + \textrm{sum}(z)} \right)\right)        
+        \ \left( \frac{1}{1 + \textrm{sum}(z)} \right)^{N-1}
+  \\[6pt]
+  & = & \left( 1 - \textrm{sum}(\textrm{norm}(z)) \right) 
+        \ \left( \frac{1}{1 + \textrm{sum}(z)} \right)^{N-1}
+  \\[6pt]
   & = & \left( \frac{1}{1 + \textrm{sum}(z)} \right)^N.
 \end{eqnarray*}
 Thus the entire absolute determinant of the Jacobian is defined by the
@@ -362,9 +402,60 @@ and our final expression for densities for unconstrained $y \in
   \left( \frac{1}{1 + \textrm{sum}(\exp(y))} \right)^N
 \]  
 
+%\subsection{Softmax Transform}
+%
+%The softmax function can be understood from Multinomial Logistic
+%Regression employed for predicting probabilities of a Categorically
+%distributed variable. Geometrically it maps $R^K$ to the boundary of a
+%unit K-simplex(it is simply the convex hull of $k+1$ affinely
+%independent points in $R^K$. Essentially it transforms a vector of
+%size K to another vector of size K where the outputs sum to 1. It is
+%worth noting that the mapping is actually from $R^K$ to $R^{K-1}$, so
+%when a vector of size $K$ is transformed the $K_th$ vector is simply
+%$1$- sumof k-1 vectors
 
 
-\subsection{Simplex augmented softmax parameterization}
+\subsection{Simplex softmax parameterization}
+
+Let $\Delta^n$ indicate the unit $n$-simplex with $n$ positive
+elements that sum to 1 and $\Delta^n_-$ indicate the first $n-1$
+elements, from which the final element can be uniquely determined.
+
+We define the transformation
+$\phi: \mathbb{R}^{n-1} \to \Delta^n_-: y \mapsto x_-$, where
+$x=\begin{pmatrix}x_- \\ \frac{1}{r}\end{pmatrix} \in \Delta^n$,
+$x_i = \frac{1}{r} e^{y_i}$ for $1 \le i \le n-1$, and
+$r = 1 + \sum_{i=1}^{n-1} e^{y_i}$.
+
+First we compute the scalar derivatives:
+\[
+\begin{aligned}
+  \frac{\mathrm{d} r}{\mathrm{d} y_j}
+  &= e^{y_j} = r x_j\\
+  \frac{\mathrm{d} x_i}{\mathrm{d} y_j}
+  &= \delta_{ij} \frac{1}{r} e^{y_i} - \frac{1}{r^2} e^{y_i}
+  \frac{\mathrm{d} r}{\mathrm{d} y_j}
+  = \delta_{ij} x_i - x_i x_j, \quad 1 \le i \le n-1
+\end{aligned}
+\]
+where
+$\delta_{ij} = \begin{cases} 1 &\text{if } i = j \\ 0
+  &\text{otherwise}\end{cases}$ is the Kronecker delta.
+
+If $\mathrm{diag}(x)$ is the diagonal matrix whose diagonal are the
+elements of $x$, then the Jacobian is
+\[
+  J = (I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top) \operatorname{diag}(x_-),
+\]
+where $\boldsymbol{1}_n$ is the $n$-vector of ones.
+
+Using Sylvester's determinant theorem,
+$|I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top| = 1 -
+\boldsymbol{1}_{n-1}^\top x_- = 1 - \sum_{i=1}^{n-1} x_i = x_n$, so
+$$\mathrm{correction} = |J| = x_n \prod_{i=1}^{n-1} x_i = \prod_{i=1}^{n} x_i = \exp\left(\sum_{i=1}^{n-1} y_i\right) \left(1 + \sum_{i=1}^{n-1} e^{y_i}\right)^{-n}$$
+
+
+\subsection{Simplex softmax parameterization through parameter expansion}
 
 We define the transformation
 $\phi: \mathbb{R}^n \to \Delta^{n-1} \times \mathbb{R}_{>0}: y \mapsto
@@ -389,7 +480,7 @@ which corresponds to the Jacobian
 
 For invertible $A$, the determinant of the block matrix
 $\begin{pmatrix}A & B \\ C & D\end{pmatrix}$ is $|A| |D-CA^{-1}B|$.  A
-square matrix is invertible iff its determinant is non-zero.  From the
+square matrix is invertible iff its determinant is non-yero.  From the
 previous section,
 \[
   |I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top| = x_n > 0,
@@ -449,12 +540,15 @@ Both of these corrections can be captured with the generalization
 \]
 for $p > 0$, which corresponds to $r \sim \text{Generalized-Gamma}(1, n, p)$.
 
-\subsection{Semi-orthogonal matrices (Stiefel manifold)}
+\section{Semi-orthogonal matrices (Stiefel manifold)}
 
 A matrix $X \in \mathbb{R}^{N \times K}$ for $K \le N$ is semi-orthogonal if and only if $X^\top X = I_K$.
 The semi-orthogonal matrices form a space called the Stiefel manifold.
-When $K=N$, $X \in O(N)$ is an orthogonal matrix and also satisfies $X X^\top = I_N$ and $\det(X) = \pm 1$.
 When $K=1$, $X$ is a point on the $(N-1)$-sphere $\mathbb{S}^{N-1} \subset \mathbb{R}^N$.
+We will consider such unit vectors in the next section.
+When $K=N$, $X$ is an element of the orthogonal group $O(N)$ and additionally satisfies $\det(X) = \pm 1$.
+$O(N)$ is comprised of two disconnected submanifolds, one being the Special Orthogonal group $SO(N)$ with $\det(X) = +1$, and the other having $\det(X) = -1$.
+$SO(2)$ and $SO(3)$ are the groups of rotation matrices of 2D and 3D vectors, respectively.
 
 By choosing a set of rules such as Gram-Schmidt orthonormalization of the canonical basis in $\mathbb{R}^{N \times N}$, it is possible to analytically compute from $X$ an orthogonal complement $X^\perp \in \mathbb{R}^{N \times (N - K)}$, such that $\tilde{X}^\top \tilde{X} = I_N$, where $\tilde{X} = \begin{bmatrix}X & X^\perp \end{bmatrix} \in O(N)$.
 
@@ -484,56 +578,345 @@ For more details, see \cite{muirhead2009aspects}.
 
 When $K=1$, the invariant measure is equivalent to the usual Hausdorff measure on the sphere.
 
-\subsubsection{Givens parameterization of Stiefel manifold}
+\subsection{Givens parameterization of Stiefel manifold}
 
-\subsubsection{Cayley parameterization of Stiefel manifold}
+\subsection{Cayley parameterization of Stiefel manifold}
 
-\subsubsection{Householder parameterization of Stiefel manifold}
+\subsection{Polar parameterization of Stiefel manifold}
 
-\subsubsection{Matrix exponential parameterization of Orthogonal group}
+\subsection{Householder parameterization of Stiefel manifold}
 
-\subsection{Positive definite matrices}
+\subsection{Matrix exponential parameterization of Special Orthogonal group}
+
+\section{Unit sphere}
+
+The unit sphere $\mathbb{S}^{N-1} \subset \mathbb{R}^N$ consists of all unit vectors $x$ of length 1, i.e. $x^\top x = 1$.
+It is a special case of the Stiefel manifold.
+
+Densities on the sphere are generally defined with respect to the spherically uniform measure.
+This measure can be defined in many ways that are equivalent to within a constant factor that is not relevant for MCMC.
+We will take the same approach as with the Stiefel manifold and define the spherically uniform measure as the measure that is invariant to transformations by $N \times N$ orthogonal matrices (rotations and reflections).
+As discussed in the previous section, if $\tilde{X} \in O(N)$ is an orthogonal matrix whose first column is $x$, then $\tilde{X}^\top x = e_1$, where $e_1$ is the unit vector whose first element is 1, and $(\tilde{X}^\top \dv{x})_1 = 0$.
+For convenience, we will assume that the rules used to produce $\tilde{X}$ enforce that $\det(\tilde{X}) = +1$.
+The spherically uniform measure is then written
+\[
+    (\dv{x})^\wedge \equiv (\tilde{X}^\top \dv{x})^\wedge = \bigwedge_{i=2}^N (\tilde{X}^\top \dv{x})_i.
+\]
+
+\subsection{Embedding in real space using parameter expansion}
+
+Let $f\colon y \mapsto (r, x)$ for $y \in \mathbb{R}^N$, $r > 0$, and $x \in \mathbb{S}^{N-1}$.
+This map is bijective everywhere except $y=0$.
+
+To compute the Jacobian determinant of the map, we first compute the differential form of $y=rx$:
+
+\[\dv{y} = \dv{r} x + r \dv{x}.\]
+
+Multiplying both sides by $\tilde{X}^\top$, we find
+
+\[
+    \tilde{X}^\top \dv{y} = \dv{r} \tilde{X}^\top x + r \tilde{X}^\top \dv{x} = \dv{r} e_1 + r (\tilde{X}^\top \dv{x}).
+    \]
+
+Then
+
+\[
+    (\tilde{X}^\top \dv{y})_i = \begin{cases}
+        \dv{r} & \text{ if } i = 1 \\
+        r (\tilde{X}^\top \dv{x})_i & \text{ if } i \ne 1
+    \end{cases}.
+\]
+
+Note that $(\tilde{X}^\top \dv{y})^\wedge = \det({\tilde{X}}) (\dv{y})^\wedge = (\dv{y})^\wedge$.
+
+Taking the exterior product of both sides, we then find
+
+\[
+\begin{aligned}
+    (\dv{y})^\wedge &= \dv{r} \wedge \left(\bigwedge_{i=2}^N r (\tilde{X}^\top \dv{x})_i \right) = r^{N-1} \left(\dv{r} \wedge (\dv{x})^\wedge\right)\\
+    \dv{r} \wedge (\dv{x})^\wedge &= r^{1-N} (\dv{y})^\wedge = \lVert y \rVert^{1-N} (\dv{y})^\wedge
+\end{aligned}
+\]
+
+So the absolute Jacobian determinant is $\absdet{J_f(y)} = \lVert y \rVert^{1-N}$.
+
+In the constrained space there is a free radial parameter $r$ that is unconstrained on the positive reals.
+As a result, nothing prevents $r$ from growing arbitrarily large, which would cause the posterior to be improper, i.e. to have infinite mass.
+Thus, we must also specify a prior $\pi(r)$.
+While we may want to customize $\pi(r)$, a reasonable default choice is $r \sim \chi_N$, which has the density $\pi(r) \propto r^{N-1} \exp\left(-\frac{1}{2}r^2\right) $.
+
+The combined log density correction is then
+\[
+  \absdet{J_f(y)} \pi(r) = \absdet{J_f(y)} \pi(\lVert y \rVert) \propto \lVert y \rVert^{1-N} \lVert y \rVert^{N-1} \exp\left(-\frac{1}{2}\lVert y \rVert^2\right) = \exp\left(-\frac{1}{2}\lVert y \rVert^2\right).
+\]
+
+That is, if $x$ is uniformly distributed on the sphere and $r$ follows this prior, then $y$ has a zero-centered standard multivariate normal distribution.
+
+Since HMC is especially efficient at sampling normal distributions, this parameterization is very efficient when the marginal posterior distribution of $x$ is very diffuse on the sphere.
+However, as the target distribution becomes concentrated on $x$, the geometry near the singularity $y=0$ may become problematic.
+
+\subsection{Parameterization using hyperspherical coordinates}
+
+Given $z \in \mathbb{R}^N$, $r > 0$ and angles $\phi=\{\phi_1, \ldots, \phi_{N-1}\}$, where $\phi_{N-1} \in (0, 2\pi]$ and $\phi_i \in (0, \pi]$ for $i < N-1$, we define the relationship between $z$ and $(r, \phi)$ as
+
+\[
+  z_i = \left(r \prod_{j=1}^{i-1} \sin(\phi_j)\right) \begin{cases}
+    1 & \text{ if } i = N\\
+    \cos(\phi_i) & \text{otherwise}
+  \end{cases}.
+\]
+
+For the plane $N=2$ this works out the usual polar coordinate system:
+\[
+    \begin{aligned}
+        z_1 &= r \cos\phi_1\\
+        z_2 &= r \sin\phi_1
+    \end{aligned}
+\]
+
+For $N=3$ this is \footnote{
+    Note that this definition of hyperspherical coordinates differs for $N=3$ from the usual definition of spherical coordinates.
+    It can be made the same through the coordinate permutation $(z_1, z_2, z_3) \to (z_2, z_3, z_1)$.
+}
+\[
+    \begin{aligned}
+        z_1 &= r \cos\phi_1\\
+        z_2 &= r \sin\phi_1\cos\phi_2\\
+        z_3 &= r \sin\phi_1\sin\phi_2
+    \end{aligned}
+\]
+
+Our strategy is to compute the Jacobian determinant of the bijective map $g: (r, \phi) \mapsto z$ and relate it to the Jacobian determinant from the previous section to find the Jacobian determinant of the bijective map $f_2: \phi \mapsto x$ for $x \in \mathbb{S}^{N-1}$.
+
+To do so, note first that
+\[
+  z_i^2 = \left(r^2 \prod_{j=1}^{i-1} \sin^2(\phi_j)\right) \begin{cases}
+    1 & \text{ if } i = N\\
+    \cos^2(\phi_i) & \text{otherwise}
+  \end{cases}.
+\]
+
+Note also that
+\[
+    \begin{aligned}
+        z_N^2 &= r^2 \prod_{j=1}^{N-1} \sin^2(\phi_j)\\
+        z_{N-1}^2 + z_N^2 &= \left(r^2 \prod_{j=1}^{N-2} \sin^2(\phi_j)\right) \cos^2(\phi_{N-1}) + \left(r^2 \prod_{j=1}^{N-2} \sin^2(\phi_j) \right) \sin^2(\phi_{N-1}) = r^2 \prod_{j=1}^{N-2} \sin^2(\phi_j)\\
+        z_{N-2}^2 + z_{N-1}^2 + z_N^2 &= \left(r^2 \prod_{j=1}^{N-3} \sin^2(\phi_j)\right) \cos^2(\phi_{N-2}) + \left(r^2 \prod_{j=1}^{N-3} \sin^2(\phi_j)\right) \sin^2(\phi_{N-2}) = r^2 \prod_{j=1}^{N-3} \sin^2(\phi_j)\\
+        &\vdots \\
+        \sum_{k=1}^i z_{N - i + k}^2 &= r^2 \prod_{j=1}^{N - i} \sin^2(\phi_j)\\
+        &\vdots \\
+        \sum_{k=1}^N z_{N - i + k}^2 &= r^2
+    \end{aligned}
+\]
+
+We then differentiate both sides of this expression to get the differential form:
+
+\[
+    \begin{aligned}
+        2 z_N \dv{z_N} &= 2r\dv{r} + 2 r^2 \left(\prod_{j=1}^{N-1} \sin^2(\phi_j)\right)\left( \sum_{j=1}^{N-1} \cot(\phi_j) \dv{\phi_j} \right)\\
+        2z_{N-1}\dv{z_{N-1}} + 2z_{N}\dv{z_{N}} &= 2r \dv{r} + 2 r^2 \left(\prod_{j=1}^{N-2} \sin^2(\phi_j)\right) \left(\sum_{j=1}^{N-2} \cot(\phi_j)\right)\\
+        2z_{N-2}\dv{z_{N-2}} + 2z_{N-1}\dv{z_{N-1}} + 2z_{N}\dv{z_{N}} &= 2r \dv{r} + 2 r^2 \left(\prod_{j=1}^{N-3} \sin^2(\phi_j)\right) \left(\sum_{j=1}^{N-3} \cot(\phi_j)\right)\\
+        &\vdots \\
+        2\sum_{k=1}^i z_{N - i + k} \dv{z_{N - i + k}} &= 2 r \dv{r} + 2 r^2 \left(\prod_{j=1}^{N - i} \sin^2(\phi_j)\right) \left(\sum_{k=1}^{N-i} \cot(\phi_k) \dv{\phi_k}\right)\\
+        &\vdots \\
+        2\sum_{k=1}^N z_{N - i + k} \dv{z_{N - i + k}} &= 2r\dv{r}
+    \end{aligned}
+\]
+
+For each side separately, we now take the exterior product for all $i \in 1\ldots N$.
+On the left side, we start at the top with $(2z_N dz_n) \wedge (2 z_{N-1} \dv{z_{N-1}} + 2 z_N \dv{z_N}) = 2^2 z_{N} z_{N-1} (\dv{z_N} \wedge \dv{z_{N-1}})$.
+Note that the $\dv{z_N}$ from the second equation is eliminated since the exterior product already contains that term.
+This trend continues as we proceed to the bottom, and the result is
+\[
+    \bigwedge_{i=1}^N 2z_{N-i+1} \dv{z_{N-i+1}} = \bigwedge_{i=1}^N 2z_i \dv{z_i} = 2^N \left(\prod_{i=1}^N z_i \right) (\dv{z})^\wedge
+\]
+
+
+Note that
+
+\[
+  \prod_{i=1}^N z_i = r \prod_{i=1}^{N-1} r \sin(\phi_i) \cos(\phi_i) \prod_{j=1}^{i-1} \sin(\phi_j) = r^N \prod_{i=1}^{N-1} \sin(\phi_i) \cos(\phi_i) \prod_{j=1}^{i-1} \sin(\phi_j)
+\]
+
+On the right side, we start at the bottom instead with
+\[
+(2r\dv{r} + 2 r^2 \sin(\phi_1) \cos(\phi_1) \dv{\phi_1}) \wedge (2r\dv{r}) = 4 r^3 \sin(\phi_1) \cos(\phi_1) (\dv{\phi_1} \wedge \dv{r}).
+\]
+Again, the $\dv{r}$ term in the second-from-bottom equation cancels since $\dv{r}$ is already included in the bottom term.
+This trend also continues as we proceed to the top, and the result is then
+
+\[
+\begin{aligned}
+    \left(\bigwedge_{i=1}^{N - 1} 2 r^2 \left(\prod_{j=1}^{N - i - 1} \sin^2(\phi_j)\right) \sin(\phi_{N-i}) \cos(\phi_{N-i}) \dv{\phi_{N-i}} \right) \wedge (2r\dv{r}) \\
+    = 2^N r^{2N-1} \left(\prod_{i=1}^{N-1} \sin(\phi_{N-i}) \cos(\phi_{N-i}) \prod_{j=1}^{N-i-1} \sin^2(\phi_j)\right) \left((\dv{\phi})^\wedge \wedge \dv{r}\right)\\
+    = 2^N r^{2N-1} \left(\prod_{i=1}^{N-1} \sin(\phi_i) \cos(\phi_i) \prod_{j=1}^{i-1} \sin^2(\phi_j)\right) \left((\dv{\phi})^\wedge \wedge \dv{r}\right)\\
+    = 2^N r^{N-1} \left(\prod_{i=1}^N z_i\right) \left(\prod_{j=1}^{N-2} \sin(\phi_j)^{N-j-1}\right) \left((\dv{\phi})^\wedge \wedge \dv{r}\right)
+\end{aligned}
+\]
+
+Equating the exterior products of each side, we have 
+
+\[
+\begin{aligned}
+    2^N \left(\prod_{i=1}^N z_i \right) (\dv{z})^\wedge &= 2^N r^{N-1} \left(\prod_{i=1}^N z_i\right) \left(\prod_{j=1}^{N-2} \sin(\phi_j)^{N-j-1}\right) \left((\dv{\phi})^\wedge \wedge \dv{r}\right)\\
+    (\dv{z})^\wedge &= r^{N-1} \left(\prod_{j=1}^{N-2} \sin(\phi_j)^{N-j-1}\right) \left((\dv{\phi})^\wedge \wedge \dv{r}\right)
+\end{aligned}
+\]
+
+As a result, the Jacobian determinant is
+
+\[
+    \absdet{J_g(r, \phi)} = r^{N-1} \prod_{i=1}^{N-2} \sin(\phi_i)^{N-i-1}
+\]
+
+As a quick check, for the circle ($N=1$), $\absdet{J_g(r, \phi)} = r$, and for the sphere ($N=2$), $\absdet{J_g(r, \phi)} = r^2 \sin(\phi_1)$, which are the expected results.
+A similar result was given in \cite{muirhead2009aspects}.
+
+Comparing with the previous section, we find
+
+\[
+\begin{aligned}
+    (\dv{z})^\wedge &= r^{N-1} \left(\prod_{i=1}^{N-2} \sin(\phi_i)^{N-i-1}\right) \left((\dv{\phi})^\wedge \wedge \dv{r}\right) = r^{N-1} \left(\dv{r} \wedge (\dv{x})^\wedge \right) \\
+    &= (-1)^{N-1} r^{N-1} \left((\dv{x})^\wedge \wedge \dv{r}\right)\\
+    (\dv{x})^\wedge &= (-1)^{N-1}\left(\prod_{i=1}^{N-2} \sin(\phi_i)^{N-i-1}\right) (\dv{\phi})^\wedge
+\end{aligned},
+\]
+
+so the absolute Jacobian determinant for the bijective map from hyperspherical coordinates to the sphere is
+\[
+    \prod_{i=1}^{N-2} \sin(\phi_i)^{N-i-1}.
+\]
+
+However, we're not done yet.
+Recall that $\phi_j \in (0, \pi]$ for $i < N-1$ and $\phi_{N-1} \in (0, 2\pi]$.
+So far we've essentially changed the problem of sampling on the hypersphere in $N$ dimensions to the problem of sampling on $N-1$ intervals, or, alternatively, $N-2$ hemicircles and 1 circle. 
+
+There are a few considerations when choosing the remaining parameterizations.
+First, and most importantly, we want a smooth geometry.
+Second, we want to avoid unnecessary work.
+For example, if we choose parameter expansion for these parameters, we will end up with $N-1$ extra degrees of freedom.
+Third, we want to avoid costly functions if possible.
+For example, computing $\sin$ and $\cos$ is about 3 times more costly than computing $\exp$ and about 20 times more costly than computing a square.
+
+\section{Cholesky factors of correlation matrices}
+
+A $K \times K$ correlation matrix $\Omega$ is positive definite, has a unit diagonal, and all off-diagonal entries are between -1 and 1 (exclusive). Because it is positive definite, it can be Cholesky factored (see \ref{cholesky}) to a $K \times K$ lower-triangular matrix $L$
+with positive diagonal elements such that $\Omega = L \cdot L^T$. Because the correlation matrix has a unit diagonal,
+
+\[
+  \Omega_{k,k} = L_k \cdot L_k^T = 1
+\]
+
+each row vector $L_k$ of the Cholesky factor is of unit length. The length and positivity
+constraint allow the diagonal elements of L to be calculated from the off-diagonal
+elements, so that a Cholesky factor for a $K \times K$ correlation matrix requires only $\binom{K}{2}$ unconstrained parameters.
+
+\subsection{Hyperbolic tangent transform}
+
+
+Suppose $y$ is a vector of $\binom{K}{2}$ unconstrained values. Let $z$ be a lower-triangular matrix with zero diagonal and below diagonal entries filled by row. For example, in the $3 \times 3$ case,
+\[
+z = \begin{bmatrix}
+0 & 0 & 0\\
+\tanh{y_1} & 0 & 0\\
+\tanh{y_2} & \tanh{y_3} & 0\\
+\end{bmatrix}
+\]
+
+The matrix $z$, with entries in the range $( -1, 1)$, is then transformed to the Cholesky factor $x$, by taking
+\[
+x_{i, j}=\left\{\begin{array}{lll}
+0 & \text { if } i<j & \text { [above diagonal] } \\
+\sqrt{1-\sum_{j^{\prime}<j} x_{i, j^{\prime}}^{2}} & \text { if } i=j & \text { [on diagonal] } \\
+z_{i, j} \sqrt{1-\sum_{j^{\prime}<j} x_{i, j^{\prime}}^{2}} & \text { if } i>j & \text { [below diagonal] }
+\end{array}\right.
+\]
+
+In the $3 \times 3$ case, this yields
+
+\[
+x=\left[\begin{array}{ccc}
+1 & 0 & 0 \\
+z_{2,1} & \sqrt{1-x_{2,1}^{2}} & 0 \\
+z_{3,1} & z_{3,2} \sqrt{1-x_{3,1}^{2}} & \sqrt{1-\left(x_{3,1}^{2}+x_{3,2}^{2}\right)}
+\end{array}\right]
+\]
+
+where the $z_{i,j}\in (-1, 1)$ are the tanh-transformed $y$.
+
+\subsection{Absolute Jacobian determinant of inverse transform}
+
+The Jacobian of the full transform is the product of the Jacobians of its component
+transforms. First, for the inverse transform $z = \tanh{y}$, the derivative is
+\[
+\frac{d}{dy} \tanh y = \frac{1}{(\cosh y)^{2}}
+\]
+Second, for the inverse transform of $z$ to $x$, the resulting Jacobian matrix $J$ is of
+dimension $\binom{K}{2} \times \binom{K}{2}$, with indexes $(i, j)$ for $(i > j)$. The Jacobian matrix is lower
+triangular, so that its determinant is the product of its diagonal entries, of which
+there is one for each $(i, j)$ pair.
+\[
+|\operatorname{det} J|=\prod_{i>j}\left|\frac{d}{d z_{i, j}} x_{i, j}\right|
+\]
+
+where
+
+\[
+\frac{d}{d z_{i, j}} x_{i, j}=\sqrt{1-\sum_{j^{\prime}<j} x_{i, j^{\prime}}^{2}}
+\]
+
+So the combined log Jacobian determinant
+of the complete inverse transform is given by
+
+\[
+\log |\operatorname{det} J|=-2 \sum_{n \leq(\substack{K \\ 2}} \log \cosh y+\frac{1}{2} \sum_{i>j} \log \left(1-\sum_{j^{\prime}<j} x_{i, j^{\prime}}^{2}\right)
+\]
+
+
+
+
+\section{Positive definite matrices}
 
 [SA: all transformations below can be generalized to SPD matrices of fixed rank, but we'd need to know what the common reference measure is for densities of SPD matrices, and I can't recall seeing one.]
 
-An $N \times N$ positive definite (PD) matrix $X$ is a symmetric matrix that satisfies $v^\top X v \ge 0$ for all non-zero vectors $v$.
+An $N \times N$ positive definite (PD) matrix $X$ is a symmetric matrix that satisfies $v^\top X v > 0$ for all non-zero vectors $v$.
 Covariance matrices are examples of PD matrices.
 
-Density functions for distributions of PD matrices, such as the Wishart distribution, are generally defined with respect to the Lebesgue measure of the upper triangular elements $(\dv{X})^\wedge$.
+Density functions for distributions of PD matrices, such as the Wishart distribution, are generally defined with respect to the Lebesgue measure of the unique triangular elements $(\dv{X})^\wedge$.
 
-\subsubsection{Cholesky parameterization}
+\subsection{Cholesky parameterization}\label{cholesky}
 
-Given a positive (semi-)definite $X$ of rank $K$, we can uniquely decompose it as $X = Z^\top Z$ where $Z$ is an $N \times N$ upper triangular matrix where $Z_{ii} > 0$ for all $i \le K$ and $Z_{ij} = 0$ for all $i > K$.
-$Z$ has $\frac{K(K+1)}{2} + (N - K)K$ degrees of freedom.
+Given a positive (semi-)definite matrix $X$ of rank $K$, we can uniquely decompose it as $X = L L^\top$ where $L$ is an $N \times N$ lower triangular matrix with $L_{jj} > 0$ for all $j \le K$ and $L_{ij} = 0$ for all $j > K$.
+$L$ has $\frac{K(K+1)}{2} + (N - K)K$ degrees of freedom.
 When $K=N$, $X$ is positive-definite.
 
 We can construct $X$ by composing 2 bijective maps.
 The first, $f_1$, enforces the constraint of the positive diagonal:
 
-\[Z_{ij} = f_1(Y)_{ij} = \begin{cases} \exp(Y_{ij}) & \text{ if } i = j \le K \\ Y_{ij} & \text{otherwise} \end{cases}\]
+\[L_{ij} = f_1(Y)_{ij} = \begin{cases} \exp(Y_{ij}) & \text{ if } i = j \le K \\ Y_{ij} & \text{otherwise} \end{cases}\]
 
-The density correction for this map is $\absdet{J_{f_1}(Y)} = \exp(\sum_{i=1}^K Y_{ii})$.
+The Jacobian determinant for this map is $\absdet{J_{f_1}(Y)} = \exp(\sum_{i=1}^K Y_{ii})$.
 
-The second map is $f_2: Z \mapsto Z^\top Z = X$.
+The second map is $f_2: L \mapsto L L^\top = X$.
 To compute the Jacobian of the map, we use the half-vectorization $\vectu(X)$.
-Note that $X_{ij} = \sum_{k=1}^{\min(i, j)} Z_{ki} Z_{kj}$.
-$X_{ij}$ is thus only dependent on elements of $Z$ that are above and to the left of the $(i, j)$ position.
-As a result, the Jacobian of $\vectu \circ f_2 \circ \\vectu^{-1}$ is lower-triangular, and its determinant is only the product of its diagonal elements: $\absdet{J_{f_2}} = \prod_{1 \le i \le j \le N} \frac{\partial X_{ij}}{\partial Z_{ij}}$.
+Note that $X_{ij} = \sum_{k=1}^{\min(i, j)} L_{ik} L_{jk}$.
+$X_{ij}$ is thus only dependent on elements of $L$ that are below and to the left of the $(i, j)$ position.
+As a result, the Jacobian of $\vectu \circ f_2 \circ \vectu^{-1}$ is triangular, and its determinant is only the product of its diagonal elements: $\absdet{J_{f_2}} = \prod_{i=1}^N \prod_{j=1}^i \frac{\partial X_{ij}}{\partial L_{ij}}$.
 
-In this index range, $\frac{\partial X_{ij}}{\partial Z_{ij}} = (1 + \delta_{ij}) Z_{ii}$.
+In this index range, $\frac{\partial X_{ij}}{\partial L_{ij}} = (1 + \delta_{ij}) L_{ii}$.
 As a result
 
 \[
-  \absdet{J_{f_2}(Z)} = 2^N \prod_{j = 1}^N \prod_{i = 1}^j Z_{ii} = 2^N \prod_{i=1}^N |Z_{ii}|^{N - i + 1} \\
+  \absdet{J_{f_2}(Z)} = 2^N \prod_{i = 1}^N \prod_{j = 1}^i L_{ii} = 2^N \prod_{i=1}^N |L_{ii}|^{N - i + 1} \\
 \]
 
-Combining the two bijective maps as $f = f_2 \circ f_1$, the combined density correction is
+Composing the two bijective maps as $f = f_2 \circ f_1$, the resulting Jacobian determinant is
 
 \[
   \absdet{J_{f}(Y)} = 2^N \exp\left( \sum_{i=1}^N (N - i + 2) Y_{ii}\right).
 \]
 
-\subsubsection{Matrix exponential parameterization}
+\subsection{Matrix exponential parameterization}
 
 For every PD matrix $X \in \mathbb{R}^{N \times N}$, there is a unique symmetric matrix $Y$ such that $X = \Exp(Y)$, where $\operatorname{Exp}(\cdot)$ is the matrix exponential, defined as
 \[\Exp(Y) = \sum_{k=0}^\infty \frac{1}{k!} Y^k.\]
@@ -543,7 +926,7 @@ Then $Y^2 = U \Lambda U^\top U \Lambda U^\top = U \Lambda^2 U^\top$.
 In fact, $Y^c = U \Lambda^c U^\top$ for all real $c$.
 As a result,
 \[\Exp(Y) = U \Exp(\Lambda) U^\top,\]
-where $\Exp(\Lambda)_{ij} = e^{\lambda_i} \delta_{ij}$.
+where $\Exp(\Lambda)_{ij} = \exp(\lambda_i) \delta_{ij}$.
 
 $\Exp(Y)$ is one example of a matrix function $f$, which we can roughly define for symmetric matrices as any function that obeys
 \[f(Y) = U f(\Lambda) U^\top,\]
@@ -575,66 +958,80 @@ The exterior product of the diagonal part is
 \[
   \bigwedge_{i=1}^N f'(\lambda_i) \dv{\lambda_i} = \left(\prod_{i=1}^N f'(\lambda_i)\right) (\dv{\Lambda})^\wedge,
 \]
-while the exterior product of the super-diagonal part is
+while the exterior product of the sub-diagonal part is
 \[
-  \bigwedge_{j=1}^N \bigwedge_{i=j+1}^N (U^\top \dv{U})_{ij} (f(\lambda_j) - f(\lambda_i)) = \left( \prod_{j=1}^N \prod_{i=1}^{j-1} (f(\lambda_j) - f(\lambda_i)) \right) \left(U^\top \dv{U} \right)^\wedge
+  \bigwedge_{i=1}^N \bigwedge_{j=i+1}^N (U^\top \dv{U})_{ij} (f(\lambda_j) - f(\lambda_i)) = \left( \prod_{i=1}^N \prod_{j=1}^{i-1} (f(\lambda_j) - f(\lambda_i)) \right) \left(U^\top \dv{U} \right)^\wedge
 \]
 
 Lastly, note for any symmetric $Z$ and orthogonal matrix $U$,
 \[(U^\top \dv{Z} U)^\wedge = \det(U^\top)^N \det(U)^N (\dv{Z})^\wedge = (\dv{Z})^\wedge.\]
 
-As a result, we can compute $(\dv(f(Y)))^\wedge$ by taking the exterior product of the super-diagonal and diagonal parts: 
-\[(\dv{(f(Y))})^\wedge = \left(\prod_{j=1}^N f'(\lambda_j) \prod_{i=1}^{j-1} (f(\lambda_j) - f(\lambda_i))\right) ((U^\top \dv{U})^\wedge \wedge \dv{\Lambda})\]
+As a result, we can compute $(\dv(f(Y)))^\wedge$ by taking the exterior product of the sub-diagonal and diagonal parts: 
+\[(\dv{(f(Y))})^\wedge = \left(\prod_{i=1}^N f'(\lambda_i) \prod_{j=1}^{i-1} (f(\lambda_j) - f(\lambda_i))\right) \left((U^\top \dv{U})^\wedge \wedge \dv{\Lambda}\right)\]
 
 If $f$ is the identity map $f(Y) = Y$, then
-\[ (\dv{Y})^\wedge = \left(\prod_{j=1}^N \prod_{i=1}^{j-1} (\lambda_j - \lambda_i)\right) \left((U^\top \dv{U})^\wedge \wedge \dv{\Lambda}\right)\]
+\[ (\dv{Y})^\wedge = \left(\prod_{i=1}^N \prod_{j=1}^{i-1} (\lambda_j - \lambda_i)\right) \left((U^\top \dv{U})^\wedge \wedge \dv{\Lambda}\right)\]
 
 Combining the latter two expressions:
-\[(\dv{(f(Y))})^\wedge = \left(\prod_{j=1}^N f'(\lambda_j) \prod_{i=1}^{j-1} \frac{f(\lambda_j) - f(\lambda_i)}{\lambda_j - \lambda_i}\right) (\dv{Y})^\wedge\]
+\[(\dv{(f(Y))})^\wedge = \left(\prod_{i=1}^N f'(\lambda_i) \prod_{j=1}^{i-1} \frac{f(\lambda_j) - f(\lambda_i)}{\lambda_j - \lambda_i}\right) (\dv{Y})^\wedge\]
 
 [REF, Edelman's notes] previously found this result.
 
 For $X = f(Y) = \Exp(Y)$ then,
-\[ (\dv{X})^\wedge = \left(\prod_{j=1}^N e^{\lambda_j} \prod_{i=1}^{j-1} \frac{e^{\lambda_j} - e^{\lambda_i}}{\lambda_j - \lambda_i}\right) (\dv{Y})^\wedge,\]
+\[ (\dv{X})^\wedge = \left(\prod_{i=1}^N \exp(\lambda_i) \prod_{j=1}^{i-1} \frac{\exp(\lambda_j) - \exp(\lambda_i)}{\lambda_j - \lambda_i}\right) (\dv{Y})^\wedge,\]
 
-so the Jacobian determinant of the exponential map is $\absdet{J_{\Exp}(Y)} = \prod_{j=1}^N e^{\lambda_j} \prod_{i=1}^{j-1} \left|\frac{e^{\lambda_j} - e^{\lambda_i}}{\lambda_j - \lambda_i}\right|$.
+so the Jacobian determinant of the exponential map is $\absdet{J_{\Exp}(Y)} = \prod_{i=1}^N \exp(\lambda_i) \prod_{j=1}^{i-1} \left|\frac{\exp(\lambda_j) - \exp(\lambda_i)}{\lambda_j - \lambda_i}\right|$.
 
 Note that this expression is undefined when any eigenvalues are repeated.
 This is not a problem for MCMC, since the eigenvalues are non-unique with probability 0, but non-unique eigenvalues could occur when maximizing a log-density.
 
 Because $\lim_{h \to 0} \frac{f(x) - f(x + h)}{h} = f'(x)$, we can then modify the expression to handle such cases:
 \[
-  \absdet{J_{\Exp}(Y)} = \prod_{j=1}^N \prod_{i=1}^j \begin{cases}
-    \left|\frac{e^{\lambda_j} - e^{\lambda_i}}{\lambda_j - \lambda_i}\right| &\text{ if } \lambda_i \ne \lambda_j \\ 
-    e^{\lambda_i} &\text{ if } \lambda_i = \lambda_j
+  \absdet{J_{\Exp}(Y)} = \prod_{i=1}^N \prod_{j=1}^i \begin{cases}
+    \left|\frac{\exp(\lambda_j) - \exp(\lambda_i)}{\lambda_j - \lambda_i}\right| &\text{ if } \lambda_i \ne \lambda_j \\ 
+    \exp(\lambda_i) &\text{ if } \lambda_i = \lambda_j
+  \end{cases}.
+\]
+
+If the eigenvalues are sorted in ascending order, then the log Jacobian determinant can be more stably computed as 
+
+\[
+  \log\absdet{J_{\Exp}(Y)} = \sum_{j=1}^N j\lambda_j + \sum_{i=1}^j \begin{cases}
+    \log(1 - \exp(\lambda_i - \lambda_j)) - \log(\lambda_j - \lambda_i) &\text{ if } \lambda_i \ne \lambda_j \\ 
+    0 &\text{ if } \lambda_i = \lambda_j
   \end{cases}.
 \]
 
 While the cost of computing the Jacobian determinant is $O(N^2)$, the cost of computing the eigendecomposition naively is $O(N^3)$, so this transformation is expensive.
 An attractive alternative would be to define the transform directly from the eigendecomposition of $X$.
 
-\subsubsection{Eigendecomposition parameterization}
+\subsection{Eigendecomposition parameterization}
 
 To define a transform directly from the symmetric eigendecomposition of $X$, we first need to note that the eigendecomposition is not unique; if we swap any two columns $i$ and $j$ of $U$ as well as swapping the eigenvalues $\lambda_i$ and $\lambda_j$, the result is the same matrix.
+Moreover, if we reverse the sign of any given eigenvector, it has no effect on the eigenvalues or $X$.
 
-When the eigenvalues are all unique, we can make the eigendecomposition also unique by enforcing the ordering of eigenvalues $\lambda_i > \lambda_j > 0$ for $j > i$.
-This is the ordering generally used for symmetric singular value decomposition.
+When the eigenvalues are all unique, we can make the eigendecomposition also unique by enforcing an ascending order of eigenvalues $0 < \lambda_i < \lambda_j$ for $j > i$ and by forcing the first entry of each eigenvector to be positive.
 
-So we can construct a bijective map with the maps $f_1$ that produces an ordered vector of positive eigenvalues and $f_2$ that produces an orthogonal matrix.
+So we can construct a bijective map with the maps $f_1$ that produces an ordered vector of positive eigenvalues and $f_2$ that produces an orthogonal matrix whose first row contains only positive entries.
 Consider $\lambda = f_1(y_1)$ and $U = f_2(y_2)$.
 
 Let $f_1$ be the map that computes each $\lambda_i$ as
 \[
   \lambda_i = \begin{cases}
-    e^{(y_1)_N} &\text{ if } i = N\\
-    \lambda_{i-1} + e^{(y_1)_i} &\text{ if } 1 \le i < N
+   \exp\bigl((y_1)_1\bigr) &\text{ if } i = 1\\
+    \lambda_{i-1} + \exp\bigl((y_1)_i\bigr) &\text{ if } 1 < i \le N
   \end{cases}
 \]
-The Jacobian determinant of this map is $\absdet{J_{f_1}(y_1)} = \exp\left(\sum_{i=1}^N (y_1)_i\right)$.
+The Jacobian of this map is triangular, so its determinant is $\absdet{J_{f_1}(y_1)} = \exp\left(\sum_{i=1}^N (y_1)_i\right)$.
 
-We can then choose for $f_2$ any of the transforms to the orthogonal matrices previously discussed.
+We can then choose for $f_2$ any of the transforms to the orthogonal matrices previously discussed, though care must be taken to avoid multimodality.
+For example, if the transform covers the entire orthogonal group, then $2^N$ matrices map to the same orthogonal matrix with positive first row, which will manifest as $2^N$ modes in the unconstrained distribution.
+If, however, we can modify one of the transforms to natively produce only matrices with this constraint, then we can eliminate these undesirable modes.
+
 The combined Jacobian determinant of $f: (y_1, y_2) \mapsto f_2(y_2) \operatorname{diag}(f_1(y_1)) f_2(y_2)^\top = X$ is then 
 \[ \absdet{J_{f}(y_1, y_2)} = \absdet{J_{f_2}(y_2)} \exp\left(\sum_{i=1}^N (y_1)_i\right).\]
+
+
 
 \subsubsection*{Acknowledgements}
 
