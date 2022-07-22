@@ -24,7 +24,7 @@ def get_dirichlet_symmetric_rmse(transforms, transform_category, parameters, fig
         true_x = [a/sum(alpha) for a in alpha]
         x, y = rmse_leapfrog(idata=idata, true_var=true_x, var_name='x', var_dim=0)
         ax.plot(x,y, label = str(transform))
-
+        ax.legend()
         ax.set_title(f'alpha={alpha[0]}, N = {N}')
     fig.legend(labels=transforms,bbox_to_anchor = (0.6, -0.05));
     fig.savefig(f'figures/{fig_name}', dpi=300)
