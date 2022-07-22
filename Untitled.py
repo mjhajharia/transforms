@@ -1,6 +1,6 @@
-#!/usr/bin/env python
-# coding: utf-8
 
+import os
+os.chdir('transforms')
 import sys
 sys.path.insert(1, 'utils')
 
@@ -32,7 +32,7 @@ def timer(transform, param):
     sample(transform_category='simplex', transform=transform, evaluating_model='dirichlet_symmetric', 
     parameters={'alpha':alpha, 'N':N}, 
                 auto_eval_all_params=False, n_iter = 1000, n_chains = 4, n_repeat = 10, 
-                                show_progress = True, resample=True, return_idata=False, output_dir='')
+                                show_progress = True, resample=True, return_idata=False)
 
     print(time.time() - start_time)
     return time.time() - start_time
@@ -52,9 +52,9 @@ for param in [1,2,3,4,5,6,7,8,9]:
 
 
 
-# import json
+import json
     
-# with open("time.json", "w") as f:
-#     json.dump(timedict, f)
+with open("time_sb.json", "w") as f:
+    json.dump(timedict, f)
 
 

@@ -18,7 +18,6 @@ def get_dirichlet_symmetric_rmse(transforms, transform_category, parameters, fig
             evaluating_model='dirichlet_symmetric', parameters=parameters, 
             auto_eval_all_params=False, n_iter = n_iter, n_chains = n_chains, n_repeat = n_repeat, 
                                     show_progress = show_progress, resample=resample)
-        print(parameters)
         alpha = parameters[0]['alpha']
         N = parameters[0]['N']
         true_x = [a/sum(alpha) for a in alpha]
