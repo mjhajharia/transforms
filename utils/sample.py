@@ -21,7 +21,7 @@ def sample(
     transform,
     evaluating_model,
     parameters,
-    output_dir='/mnt/sdceph/users/mjhajaria',
+    output_dir='/mnt/sdceph/users/mjhajaria/',
     auto_eval_all_params=False,
     n_iter=1000,
     n_chains=4,
@@ -81,13 +81,13 @@ def sample(
     The directory structure for storing stan files is: stan_models/{transform}_{evaluating_model}.stan
     The directory structure for storing the results is: sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_mapping}.json
     """
-    with open(f"target_densities/param_map_{evaluating_model}.json", "rb") as f:
+    with open(f"target_densities/param_map_{evaluating_model}.pkl", "rb") as f:
         param_map = pickle.load(f)
 
     if resample == False:
         for params in parameters:
-            filename = f'sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
-            return az.load_arviz_data(filename)
+            filename = f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
+            return az.from_netcdf(filename)
     else:
 
         if auto_eval_all_params:
@@ -127,13 +127,10 @@ def sample(
                 )
                 idata = az.concat(idata, az.from_cmdstanpy(fit), dim="chain")
 
-            filename = f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
-            idata.to_netcdf(filename)
-<<<<<<< HEAD
-	    with open(f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/time_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.txt', 'w') as f:
-=======
-        with open(f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/time_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.txt', 'w') as f:
->>>>>>> b0b57e1 (fix indent)
+            filename = f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
+        print(filename)
+        idata.to_netcdf(filename)
+        with open(f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/time_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.txt', 'w') as f:
 	        f.write(str(time.time() - start_time))
         if return_idata==True:
             return idata

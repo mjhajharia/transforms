@@ -10,6 +10,6 @@ transformed parameters {
  simplex[N] x = exp(y - logr);
 }
 model {
- target += sum(y) - exp(0.5 * logr) / 0.5;
+ target += sum(y) - exp((1/N) * logr)*N;
  target += target_density_lp(x, alpha);
 }
