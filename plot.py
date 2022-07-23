@@ -33,5 +33,5 @@ evaluating_model='dirichlet_symmetric'
 transforms = ['stan', 'softmax-augmented','stickbreaking', 'softmax']
 
 get_dirichlet_symmetric_rmse(transforms, transform_category, 
-                             parameters=[{'alpha':alpha, 'N':N}],resample=False, fig_name=f'rmse_{args.parameters}.png', n_repeat=100)
+                             parameters=[{'alpha':alpha, 'N':N}], fig_name=f'rmse_{args.parameters}.png', n_repeat=100)
 
