@@ -1,7 +1,7 @@
 import os
 from tqdm import tqdm
 os.chdir('transforms')
-
+print(os.getcwd())
 import sys
 sys.path.insert(1, 'utils')
 
@@ -21,6 +21,6 @@ N = len(alpha)
 
 sample(transform_category='simplex', transform=args.transform, evaluating_model='dirichlet_symmetric', 
 parameters={'alpha':alpha, 'N':N}, 
-            auto_eval_all_params=False, n_iter = 1000, n_chains = 4, n_repeat = 100, 
+            auto_eval_all_params=False, n_iter = 1000, n_chains = 4, n_repeat=100,
                             show_progress = True, resample=True, return_idata=False)
                             
