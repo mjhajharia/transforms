@@ -42,4 +42,3 @@ def get_ess_leapfrog_ratio(
     dist_space = np.linspace(min(x), max(x), 1000)
     return dist_space, kde(dist_space)
 
-
