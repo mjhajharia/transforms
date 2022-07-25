@@ -3,7 +3,7 @@ import sys
 sys.path.insert(1, 'utils')
 from ess import get_ess_leapfrog_ratio
 
-
+import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 import arviz as az
@@ -20,8 +20,6 @@ evaluating_model='dirichlet_symmetric'
 
 var_name='x'
 var_dim=0
-
-import pickle
 
 plt.rcParams["figure.figsize"] = (20,10)
 fig, axes = plt.subplots(2,3)
