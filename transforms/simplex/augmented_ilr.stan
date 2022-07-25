@@ -12,10 +12,10 @@ parameters {
 }
 transformed parameters {
   vector[N] s = Vinv * y;
-  real alpha = log_sum_exp(s);
-  simplex[N] x = exp(s - alpha);
+  real logr = log_sum_exp(s);
+  simplex[N] x = exp(s - logr);
 }
 model {
-  target += sum(s) - N * alpha + logN;
+  target += sum(s) - N * logr + logN;
   target += target_density_lp(x, alpha);
 }
