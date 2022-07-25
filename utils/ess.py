@@ -19,25 +19,27 @@ def get_ess_leapfrog_ratio(
 ):
     x = []
     idata = sample(
-        transform_category=transform_category,
-        transform=transform,
-        evaluating_model=evaluating_model,
-        parameters=[params],
+        transform_category='simplex',
+        transform='softmax',
+        evaluating_model='dirichlet_symmetric',
+        parameters=[{'alpha': [0.1]*10, 'N': 10}],
         output_dir='/mnt/sdceph/users/mjhajaria',
         auto_eval_all_params=False,
         n_iter=1000,
         n_chains=4,
+        n_repeat=100,
         show_progress=True,
         resample=False,
         return_idata=True)
-    for i in tqdm(range(n_repeat)):
-        x_data = idata.sel(chains=[i],var_names=[str(var_name)], x_dim_0=var_dim)
-        ess = az.ess(x_data)['x'].value
-        print(ess)
-        leapfrog = x_data.sample_stats["n_steps"].sum().values
-        x.append(ess / leapfrog)
-    print(x)
+    
+    with open(f"target_densities/param_map_{evaluating_model}.pkl", "rb") as f:
+        param_map = pickle.load(f)
+
+    ess = np.loadtxt(open('/mnt/sdceph/users/mjhajaria/sampling_results/simplex/softmax/dirichlet_symmetric/ess_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.csv'),delimiter = ",")
+    leapfrog = np.average(idata.sample_stats['n_steps'].sum(axis=1).reshape(-1, 4), axis=1)
+    x=np.divide(ess, leapfrog)
     kde = gaussian_kde(x)
     dist_space = np.linspace(min(x), max(x), 1000)
-    print(dist_space)
     return dist_space, kde(dist_space)
+
+

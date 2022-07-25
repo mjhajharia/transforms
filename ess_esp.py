@@ -1,11 +1,13 @@
 
 import sys
 sys.path.insert(1, 'utils')
+from ess import get_ess_leapfrog_ratio
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import arviz as az
 
-from ess import get_ess_leapfrog_ratio
 
 
 # parameters = [{'alpha':[1]*10, 'N':10}, {'alpha':[1]*100, 'N':100}, {'alpha':[1]*1000, 'N':1000},
