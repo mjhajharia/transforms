@@ -35,8 +35,9 @@ def get_ess_leapfrog_ratio(
     
     with open(f"target_densities/param_map_{evaluating_model}.pkl", "rb") as f:
         param_map = pickle.load(f)
-    ess = np.loadtxt(open(f'/mnt/sdceph/users/mjhajaria/sampling_results/simplex/softmax/dirichlet_symmetric/ess_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.csv'),delimiter = ",")
-    leapfrog = np.average(idata.sample_stats['n_steps'].sum(axis=1).values.reshape(-1, 4), axis=1)
+
+    ess = np.loadtxt(open('/mnt/sdceph/users/mjhajaria/sampling_results/simplex/softmax/dirichlet_symmetric/ess_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.csv'),delimiter = ",")
+    leapfrog = np.average(idata.sample_stats['n_steps'].sum(axis=1).reshape(-1, 4), axis=1)
     x=np.divide(ess, leapfrog)
     kde = gaussian_kde(x)
     dist_space = np.linspace(min(x), max(x), 1000)
