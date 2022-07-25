@@ -6,6 +6,7 @@ os.chdir('transforms')
 import sys
 sys.path.insert(1, 'utils')
 from sample import sample
+from rmse import rmse_leapfrog
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,7 +21,7 @@ parameters = [{'alpha':[0.1]*10, 'N':10}, {'alpha':[0.1]*100, 'N':100},
                {'alpha':[10]*10, 'N':10}, {'alpha':[10]*100, 'N':100}]
 
 plt.rcParams["figure.figsize"] = [20,10]
-fig, ax = plt.subplots(2,3)
+fig, axes = plt.subplots(2,3)
 fig.supxlabel('Cumulative Leapfrog Steps')
 fig.supylabel('Root Mean Squared Error')
 
@@ -42,6 +43,4 @@ plt.legend()
 plt.savefig('figures/rmse.png', dpi=300)
 
     
-get_dirichlet_symmetric_rmse(transforms, transform_category, 
-                             parameters=[{'alpha':alpha, 'N':N}], fig_name=f'rmse_{args.parameters}.png', n_repeat=100)
 
