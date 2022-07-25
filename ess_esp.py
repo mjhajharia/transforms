@@ -10,7 +10,7 @@ import arviz as az
 
 
 
-parameters = [{'alpha':[1]*10, 'N':10}, {'alpha':[1]*100, 'N':100},
+parameters = [{'alpha':[0.1]*10, 'N':10}, {'alpha':[0.1]*100, 'N':100},
                {'alpha':[1]*10, 'N':10}, {'alpha':[1]*100, 'N':100},
                {'alpha':[10]*10, 'N':10}, {'alpha':[10]*100, 'N':100}]
 
