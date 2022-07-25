@@ -20,10 +20,10 @@ def get_ess_leapfrog_ratio(
 ):
     x = []
     idata = sample(
-        transform_category='simplex',
-        transform='softmax',
-        evaluating_model='dirichlet_symmetric',
-        parameters=[{'alpha': [0.1]*10, 'N': 10}],
+        transform_category=transform_category,
+        transform=transform,
+        evaluating_model=evaluating_model,
+        parameters=[params],
         output_dir='/mnt/sdceph/users/mjhajaria',
         auto_eval_all_params=False,
         n_iter=1000,
@@ -35,7 +35,7 @@ def get_ess_leapfrog_ratio(
     
     with open(f"target_densities/param_map_{evaluating_model}.pkl", "rb") as f:
         param_map = pickle.load(f)
-    ess = np.loadtxt(open(f'/mnt/sdceph/users/mjhajaria/sampling_results/simplex/softmax/dirichlet_symmetric/ess_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.csv'),delimiter = ",")
+    ess = np.loadtxt(open(f'/mnt/sdceph/users/mjhajaria/sampling_results/{transform_category}/{transform}/{evaluating_model}/ess_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.csv'),delimiter = ",")
     leapfrog = np.average(idata.sample_stats['n_steps'].sum(axis=1).values.reshape(-1, 4), axis=1)
     x=np.divide(ess, leapfrog)
     kde = gaussian_kde(x)
