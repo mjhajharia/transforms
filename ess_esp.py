@@ -23,12 +23,13 @@ var_dim=0
 
 import pickle
 
+plt.rcParams["figure.figsize"] = (20,10)
 fig, axes = plt.subplots(2,3)
 for ax, params in zip(axes.flatten() if len(parameters)>1 else [axes],  parameters):
     for transform in transforms:
         x, y = get_ess_leapfrog_ratio(transform_category, transform, evaluating_model, params, var_name, var_dim, n_repeat=100)
         ax.plot(x,y, label=transform)
-    ax.set_title(f'alpha = {params["alpha"]}, N = {params["N"]}')
+    ax.set_title(f'alpha = {params["alpha"][0]}, N = {params["N"]}')
 ax.axes.yaxis.set_ticklabels([])
 plt.xlabel('ESS/Leapfrog')
 plt.ylabel('Density')
