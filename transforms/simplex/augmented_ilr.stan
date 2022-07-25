@@ -39,19 +39,20 @@ functions {
     
     if (D != cols(v)) reject("Rows and columns of input matrix must be equal.");
     
-    return inverse(v)[, 1:D - 1];
+    return inverse(v)[1:D - 1, 1:D - 1];
   }
   
   matrix construct_vinv (int N) {
     return make_vinv(make_v_fullrank(helmert_coding(N)));
   }
+
 }
 data {
  int<lower=0> N;
  vector<lower=0>[N] alpha;
 }
 transformed data {
-  matrix[N, N - 1] Vinv = construct_vinv(N);
+  matrix[N - 1, N - 1] Vinv = construct_vinv(N);
   real logN = log(N);
 }
 parameters {
@@ -59,7 +60,7 @@ parameters {
  simplex[N] z;
 }
 transformed parameters {
-  vector[N] s = Vinv * y;
+  vector[N] s = append_row(Vinv * y, 0);
   real logr = log_sum_exp(s);
   simplex[N] x = exp(s - logr);
 }
