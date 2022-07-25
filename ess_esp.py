@@ -23,7 +23,7 @@ var_dim=0
 
 import pickle
 
-fig, axes = plt.subplots(9)
+fig, axes = plt.subplots(2,3)
 for ax, params in zip(axes.flatten() if len(parameters)>1 else [axes],  parameters):
     for transform in transforms:
         x, y = get_ess_leapfrog_ratio(transform_category, transform, evaluating_model, params, var_name, var_dim, n_repeat=100)
