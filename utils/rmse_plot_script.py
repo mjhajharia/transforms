@@ -1,5 +1,5 @@
 import os
-os.chdir('transforms')
+os.chdir('..')
 
 import sys
 sys.path.insert(1, 'utils')
@@ -14,12 +14,13 @@ transform_category='simplex'
 evaluating_model='dirichlet_symmetric'
 
 transforms = ['stan', 'softmax-augmented','stickbreaking', 'softmax']
-parameters = [{'alpha':[0.1]*10, 'N':10}, {'alpha':[0.1]*100, 'N':100},
-               {'alpha':[1]*10, 'N':10}, {'alpha':[1]*100, 'N':100},
-               {'alpha':[10]*10, 'N':10}, {'alpha':[10]*100, 'N':100}]
+
+parameters = [{'alpha':[0.1]*10, 'N':10}, {'alpha':[0.1]*100, 'N':100}, {'alpha': [0.1]*1000, 'N': 1000},
+               {'alpha':[1]*10, 'N':10}, {'alpha':[1]*100, 'N':100},  {'alpha': [1]*1000, 'N': 1000},
+               {'alpha':[10]*10, 'N':10}, {'alpha':[10]*100, 'N':100},  {'alpha': [1]*1000, 'N': 1000}]
 
 plt.rcParams["figure.figsize"] = [20,10]
-fig, axes = plt.subplots(2,3)
+fig, axes = plt.subplots(3,3)
 fig.supxlabel('Cumulative Leapfrog Steps')
 fig.supylabel('Root Mean Squared Error')
 
@@ -37,7 +38,7 @@ for ax, params in zip(axes.flatten() if len(parameters)>1 else [axes],  paramete
         ax.set_title(f'alpha={alpha[0]}, N = {N}')
 ax.axes.yaxis.set_ticklabels([])
 plt.legend()
-plt.savefig('figures/rmse.png', dpi=300)
+plt.savefig('figures/simplex/rmse.png', dpi=300)
 
     
 
