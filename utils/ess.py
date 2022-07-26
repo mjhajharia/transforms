@@ -17,6 +17,7 @@ def get_ess_leapfrog_ratio(
     var_name,
     var_dim,
     n_repeat=100,
+    plot_type='density'
 ):
     x = []
     idata = sample(
@@ -38,7 +39,13 @@ def get_ess_leapfrog_ratio(
     ess = np.loadtxt(open(f'/mnt/sdceph/users/mjhajaria/sampling_results/{transform_category}/{transform}/{evaluating_model}/ess_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.csv'),delimiter = ",")
     leapfrog = np.average(idata.sample_stats['n_steps'].sum(axis=1).values.reshape(-1, 4), axis=1)
     x=np.divide(ess, leapfrog)
-    kde = gaussian_kde(x)
-    dist_space = np.linspace(min(x), max(x), 1000)
-    return dist_space, kde(dist_space)
+    if plot_type=='density':
+    	kde = gaussian_kde(x)
+    	dist_space = np.linspace(min(x), max(x), 1000)
+    	return dist_space, kde(dist_space)
+    if plot_type=='cdf':
+        count, bins_count = np.histogram(x, bins=10)
+        pdf = count / sum(count)
+        cdf = np.cumsum(pdf)
+        return cdf, bins_count[1:]
 
