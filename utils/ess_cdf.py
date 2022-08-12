@@ -31,6 +31,6 @@ for ax, params in zip(axes.flatten() if len(parameters)>1 else [axes],  paramete
     ax.set_title(f'alpha = {params["alpha"][0]}, N = {params["N"]}')
 ax.axes.yaxis.set_ticklabels([])
 fig.supxlabel('ESS/Leapfrog')
-fig.supylabel('Cumulative Density')
+fig.supylabel('Cumulative Probability')
 plt.legend()
 plt.savefig('figures/simplex/ess_cdf.png', dpi=300)
