@@ -43,7 +43,6 @@ ax.axes.yaxis.set_ticklabels([])
 fig.supxlabel('Cumulative Leapfrog Steps')
 fig.supylabel('Root Mean Squared Error')
 plt.legend()
-print("nothing went wrong")
 plt.savefig('figures/simplex/rmse.png', dpi=300)
 
     
