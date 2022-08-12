@@ -7,6 +7,7 @@ import arviz as az
 import sys
 sys.path.insert(1, 'utils')
 from sample import sample
+import pickle
 
 def get_ess_leapfrog_ratio(
     transform_category,
@@ -16,6 +17,7 @@ def get_ess_leapfrog_ratio(
     var_name,
     var_dim,
     n_repeat=100,
+    plot_type='density'
 ):
     x = []
     idata = sample(
@@ -27,17 +29,23 @@ def get_ess_leapfrog_ratio(
         auto_eval_all_params=False,
         n_iter=1000,
         n_chains=4,
+        n_repeat=100,
         show_progress=True,
         resample=False,
         return_idata=True)
-    for i in tqdm(range(n_repeat)):
-        x_data = idata.sel(chains=[i],var_names=[str(var_name)], x_dim_0=var_dim)
-        ess = az.ess(x_data)['x'].value
-        print(ess)
-        leapfrog = x_data.sample_stats["n_steps"].sum().values
-        x.append(ess / leapfrog)
-    print(x)
-    kde = gaussian_kde(x)
-    dist_space = np.linspace(min(x), max(x), 1000)
-    print(dist_space)
-    return dist_space, kde(dist_space)
+    
+    with open(f"target_densities/param_map_{evaluating_model}.pkl", "rb") as f:
+        param_map = pickle.load(f)
+    ess = np.loadtxt(open(f'/mnt/sdceph/users/mjhajaria/sampling_results/{transform_category}/{transform}/{evaluating_model}/ess_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.csv'),delimiter = ",")
+    leapfrog = np.average(idata.sample_stats['n_steps'].sum(axis=1).values.reshape(-1, 4), axis=1)
+    x=np.divide(ess, leapfrog)
+    if plot_type=='density':
+    	kde = gaussian_kde(x)
+    	dist_space = np.linspace(min(x), max(x), 1000)
+    	return dist_space, kde(dist_space)
+    if plot_type=='cdf':
+        count, bins_count = np.histogram(x, bins=10)
+        pdf = count / sum(count)
+        cdf = np.cumsum(pdf)
+        return cdf, bins_count[1:]
+
