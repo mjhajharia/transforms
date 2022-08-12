@@ -22,7 +22,7 @@ transform_label = {'stickbreaking': 'Stick-breaking',
 
 parameters = [{'alpha':[0.1]*10, 'N':10}, {'alpha':[0.1]*100, 'N':100}, {'alpha': [0.1]*1000, 'N': 1000},
                {'alpha':[1]*10, 'N':10}, {'alpha':[1]*100, 'N':100},  {'alpha': [1]*1000, 'N': 1000},
-               {'alpha':[10]*10, 'N':10}, {'alpha':[10]*100, 'N':100},  {'alpha': [1]*1000, 'N': 1000}]
+               {'alpha':[10]*10, 'N':10}, {'alpha':[10]*100, 'N':100},  {'alpha': [10]*1000, 'N': 1000}]
 
 plt.rcParams["figure.figsize"] = [20,10]
 fig, axes = plt.subplots(3,3)
@@ -40,7 +40,8 @@ for ax, params in zip(axes.flatten() if len(parameters)>1 else [axes],  paramete
         true_x = [a/sum(alpha) for a in alpha]
         x, y = rmse_leapfrog(idata=idata, true_var=true_x, var_name='x', var_dim=0)
         ax.plot(x,y, label=transform_label[str(transform)])
-        ax.set_title(f'alpha={alpha[0]}, N = {N}')
+        print(transform_label[str(transform)])
+	ax.set_title(f'alpha={alpha[0]}, N = {N}')
 ax.axes.yaxis.set_ticklabels([])
 plt.legend()
 plt.savefig('figures/simplex/rmse.png', dpi=300)
