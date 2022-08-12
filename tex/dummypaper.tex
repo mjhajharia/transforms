@@ -18,9 +18,7 @@
 \newcommand{\vect}{\mathrm{vec}}
 \newcommand{\vectu}{\mathrm{vecu}}
 
-% transforms -> change of variables
-% two kinds of transforms
-% pragprg
+
 \begin{document}
 
 
@@ -54,25 +52,27 @@ representing the value being sampled coupled with a momentum term.
 Although it's possible to write HMC samplers that work for simply
 constrained values such as upper- and/or lower-bounds
 \cite{neal2011mcmc} or unit vectors \cite{byrne2013geodesic}, it is
-much more challenging to do the same for complex constraints such as
-simplexes or positive definite matrices or for densities involving
-multiple constrained values.  Instead, it is far more common to map
-the constrained values to unconstrained values before sampling
-\cite{}.  This presents the issue of selecting which transform to use
-among an infinite set of options, which is the topic of this paper.
+far more challenging to do the same for complex constraints such as
+simplices or positive definite matrices or for densities involving
+multiple constrained values.  Instead, usually constrained values are mapped to unconstrained values before sampling. These transform mappings are formed out of the constraints on the model parameters. A change of variables adjustment is made to the target density for these transforms to work. The tricky part is- there can be more than one suitable mapping for every constraint. This leads us to the issue of selecting a transform. 
 
-%Sampling algorithms play an important role in Statistics, in this case
-%we refer to drawing samples from a probability density or distribution
-%(not survey sampling). Monte Carlo Markov chain methods are commonly
-%used for high dimensional sampling. In this paper, we look at
-%Hamiltonian Monte Carlo, which uses hamiltonian dynamics to propose
-%samples for the Metropolis algorithm. Bayesian Inference often uses
-%parameters with constraints, but HMC optimizes on the unconstrained
-%space. It is difficult to use Monte Carlo estimation on a constrained
-%domain ~\cite{neal2008optimal}
+We evaluate the efficiency of unconstraining parameter transforms using metrics like effective sample size, leapfrog steps and squared error. Different transforms work well for different models, this paper aims to provide a useful analysis of the same, so practitioners can choose transforms that work well for their models.
 
+\section{Transforms}
 
-\section{Changes of Variables}
+To draw samples from a distribution $p_X(x)$, defined on a constrained space $\mathcal{X}$ that can be uniquely parameterized by $n$ real degrees of freedom, we instead perform sampling in an unconstrained space $\mathcal{Y}=\mathbb{R}^m$ for $m \ge n$.
+
+Let $f\colon \mathcal{Y} \to \mathcal{X}$ be a smooth and continuous map.
+Only when $m = n$ can $f$ be bijective.
+When $m > n$, multiple values of $y \in \mathcal{Y}$ may map to a given value of $x = f(y)$.
+In this case, to make the function bijective, we consider an additional smooth and continuous map $g\colon \mathcal{Y} \to \mathcal{Z}$, where $\mathcal{Z}$ can be uniquely parameterized by $m - n$ real degrees of freedom.
+We then define $h\colon \mathcal{Y} \to \mathcal{X} \times \mathcal{Z}: y \mapsto (f(y), g(y)) = (x, z)$.
+$f$ and $g$ must be chosen so that $h$ is bijective almost-everywhere;
+that is, the values of $y$ for which $h$ is non-bijective must have no probability mass.
+When $h$ is non-bijective at single points, we call these singularities.
+While singularities themselves are in general not a problem for sampling with MCMC, the region of a target density near the singularity tends to have high curvature.
+
+\subsection{Changes of Variables}
 
 If $X$ is a random variable with density $p_X$ and $Y = f(X)$ for a
 smooth and bijective function $f$, then
@@ -89,20 +89,7 @@ and
   = \abs{\det J_{f^{-1}}(y)}.
 \]
 
-\section{Transforms}
-
-To draw samples from a distribution $p_X(x)$, defined on a constrained space $\mathcal{X}$ that can be uniquely parameterized by $n$ real degrees of freedom, we instead perform sampling in an unconstrained space $\mathcal{Y}=\mathbb{R}^m$ for $m \ge n$.
-
-Let $f\colon \mathcal{Y} \to \mathcal{X}$ be a smooth and continuous map.
-Only when $m = n$ can $f$ be bijective.
-When $m > n$, multiple values of $y \in \mathcal{Y}$ may map to a given value of $x = f(y)$.
-In this case, to make the function bijective, we consider an additional smooth and continuous map $g\colon \mathcal{Y} \to \mathcal{Z}$, where $\mathcal{Z}$ can be uniquely parameterized by $m - n$ real degrees of freedom.
-We then define $h\colon \mathcal{Y} \to \mathcal{X} \times \mathcal{Z}: y \mapsto (f(y), g(y)) = (x, z)$.
-$f$ and $g$ must be chosen so that $h$ is bijective almost-everywhere;
-that is, the values of $y$ for which $h$ is non-bijective must have no probability mass.
-When $h$ is non-bijective at single points, we call these singularities.
-While singularities themselves are in general not a problem for sampling with MCMC, the region of a target density near the singularity tends to have high curvature.
-
+\subsection{Target Density}
 Given a proper joint distribution with a smooth and continuous density $p_{X,Y}(x, y | \theta)$ for some parameters $\theta$, we can use the usual change of variables formula to write
 
 \[
@@ -223,7 +210,7 @@ and $\begin{bmatrix} 0 & 0 & 1 \end{bmatrix}$.
 
 \subsection{StickBreaking Transform}
 
-The StickBreaking transform ican be be understood from the stick-breaking construction for Dirichlet \cite{sethurman}. Intuitively, this comprises of recursively breaking a piece $x_i$ from a stick of unit length, where the leftover stick in the $i^{th}$ iteration is $ 1 - \sum_{1}^{i}x$. Let $y = f(x)$, then we define the stick-breaking mapping $ f \colon \Delta^{N-1} \xrightarrow{\makebox[0.4cm]{$\sim$}}  R^{N-1}$, for $1 \leq i \leq N$ as:	
+The StickBreaking transform can be be understood from the stick-breaking construction for Dirichlet \cite{sethurman}. Intuitively, this comprises of recursively breaking a piece $x_i$ from a stick of unit length, where the leftover stick in the $i^{th}$ iteration is $ 1 - \sum_{1}^{i}x$. Let $y = f(x)$, then we define the stick-breaking mapping $ f \colon \Delta^{N-1} \xrightarrow{\makebox[0.4cm]{$\sim$}}  R^{N-1}$, for $1 \leq i \leq N$ as:	
 \[
 y_i
 = \mathrm{logit}(z_i) - \mbox{log}\left(\frac{1}{N-i}
@@ -356,21 +343,6 @@ we have
     \ \textrm{det}\left(\frac{1}{1 + \textrm{sum}(z)} \mathbb{I}
         \right)
   \\[6pt]
-  & = &
-  \left(
-    1 
-    + \textrm{sum}\left( \frac{-(1 + \textrm{sum}(z)) z}{(1 +
-        \textrm{sum}(z))^2} \right)
-  \right)
-        \ \left( \frac{1}{1 + \textrm{sum}(z)} \right)^{N-1}
-  \\[6pt]
-  & = &
-        \left(1 + \textrm{sum}\left(\frac{-z}{1 + \textrm{sum}(z)} \right)\right)        
-        \ \left( \frac{1}{1 + \textrm{sum}(z)} \right)^{N-1}
-  \\[6pt]
-  & = & \left( 1 - \textrm{sum}(\textrm{norm}(z)) \right) 
-        \ \left( \frac{1}{1 + \textrm{sum}(z)} \right)^{N-1}
-  \\[6pt]
   & = & \left( \frac{1}{1 + \textrm{sum}(z)} \right)^N.
 \end{eqnarray*}
 Thus the entire absolute determinant of the Jacobian is defined by the
@@ -390,57 +362,6 @@ and our final expression for densities for unconstrained $y \in
   \left( \frac{1}{1 + \textrm{sum}(\exp(y))} \right)^N
 \]  
 
-%\subsection{Softmax Transform}
-%
-%The softmax function can be understood from Multinomial Logistic
-%Regression employed for predicting probabilities of a Categorically
-%distributed variable. Geometrically it maps $R^K$ to the boundary of a
-%unit K-simplex(it is simply the convex hull of $k+1$ affinely
-%independent points in $R^K$. Essentially it transforms a vector of
-%size K to another vector of size K where the outputs sum to 1. It is
-%worth noting that the mapping is actually from $R^K$ to $R^{K-1}$, so
-%when a vector of size $K$ is transformed the $K_th$ vector is simply
-%$1$- sumof k-1 vectors
-
-
-\subsection{Simplex softmax parameterization}
-
-Let $\Delta^n$ indicate the unit $n$-simplex with $n$ positive
-elements that sum to 1 and $\Delta^n_-$ indicate the first $n-1$
-elements, from which the final element can be uniquely determined.
-
-We define the transformation
-$\phi: \mathbb{R}^{n-1} \to \Delta^n_-: y \mapsto x_-$, where
-$x=\begin{pmatrix}x_- \\ \frac{1}{r}\end{pmatrix} \in \Delta^n$,
-$x_i = \frac{1}{r} e^{y_i}$ for $1 \le i \le n-1$, and
-$r = 1 + \sum_{i=1}^{n-1} e^{y_i}$.
-
-First we compute the scalar derivatives:
-\[
-\begin{aligned}
-  \frac{\mathrm{d} r}{\mathrm{d} y_j}
-  &= e^{y_j} = r x_j\\
-  \frac{\mathrm{d} x_i}{\mathrm{d} y_j}
-  &= \delta_{ij} \frac{1}{r} e^{y_i} - \frac{1}{r^2} e^{y_i}
-  \frac{\mathrm{d} r}{\mathrm{d} y_j}
-  = \delta_{ij} x_i - x_i x_j, \quad 1 \le i \le n-1
-\end{aligned}
-\]
-where
-$\delta_{ij} = \begin{cases} 1 &\text{if } i = j \\ 0
-  &\text{otherwise}\end{cases}$ is the Kronecker delta.
-
-If $\mathrm{diag}(x)$ is the diagonal matrix whose diagonal are the
-elements of $x$, then the Jacobian is
-\[
-  J = (I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top) \operatorname{diag}(x_-),
-\]
-where $\boldsymbol{1}_n$ is the $n$-vector of ones.
-
-Using Sylvester's determinant theorem,
-$|I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top| = 1 -
-\boldsymbol{1}_{n-1}^\top x_- = 1 - \sum_{i=1}^{n-1} x_i = x_n$, so
-$$\mathrm{correction} = |J| = x_n \prod_{i=1}^{n-1} x_i = \prod_{i=1}^{n} x_i = \exp\left(\sum_{i=1}^{n-1} y_i\right) \left(1 + \sum_{i=1}^{n-1} e^{y_i}\right)^{-n}$$
 
 
 \subsection{Simplex augmented softmax parameterization}
@@ -468,7 +389,7 @@ which corresponds to the Jacobian
 
 For invertible $A$, the determinant of the block matrix
 $\begin{pmatrix}A & B \\ C & D\end{pmatrix}$ is $|A| |D-CA^{-1}B|$.  A
-square matrix is invertible iff its determinant is non-yero.  From the
+square matrix is invertible iff its determinant is non-zero.  From the
 previous section,
 \[
   |I_{n-1} - x_- \boldsymbol{1}_{n-1}^\top| = x_n > 0,
