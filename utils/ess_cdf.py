@@ -13,9 +13,15 @@ import arviz as az
 
 parameters = [{'alpha':[0.1]*10, 'N':10}, {'alpha':[0.1]*100, 'N':100}, {'alpha': [0.1]*1000, 'N': 1000},
                {'alpha':[1]*10, 'N':10}, {'alpha':[1]*100, 'N':100},  {'alpha': [1]*1000, 'N': 1000},
-               {'alpha':[10]*10, 'N':10}, {'alpha':[10]*100, 'N':100},  {'alpha': [1]*1000, 'N': 1000}]
+               {'alpha':[10]*10, 'N':10}, {'alpha':[10]*100, 'N':100},  {'alpha': [10]*1000, 'N': 1000}]
 
 transforms = ['stickbreaking', 'softmax', 'softmax-augmented', 'stan']
+
+transform_label = {'stickbreaking': 'Stick-breaking',
+                   'softmax': 'Additive Log Ratio',
+                   'softmax-augmented': 'Augmented Softmax',
+                   'stan': 'Stick-breaking (in C++)'}
+                   
 transform_category='simplex'
 evaluating_model='dirichlet_symmetric'
 
