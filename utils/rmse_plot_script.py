@@ -41,7 +41,7 @@ for ax, params in zip(axes.flatten() if len(parameters)>1 else [axes],  paramete
         x, y = rmse_leapfrog(idata=idata, true_var=true_x, var_name='x', var_dim=0)
         ax.plot(x,y, label=transform_label[str(transform)])
         print(transform_label[str(transform)])
-	ax.set_title(f'alpha={alpha[0]}, N = {N}')
+    ax.set_title(f'alpha={alpha[0]}, N = {N}')
 ax.axes.yaxis.set_ticklabels([])
 plt.legend()
 plt.savefig('figures/simplex/rmse.png', dpi=300)
