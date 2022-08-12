@@ -13,7 +13,12 @@ import arviz as az
 transform_category='simplex'
 evaluating_model='dirichlet_symmetric'
 
-transforms = ['stan', 'softmax-augmented','stickbreaking', 'softmax']
+transforms = ['stickbreaking', 'softmax', 'softmax-augmented', 'stan']
+
+transform_label = {'stickbreaking': 'Stick-breaking',
+                   'softmax': 'Additive Log Ratio',
+                   'softmax-augmented': 'Augmented Softmax',
+                   'stan': 'Stick-breaking (in C++)'}
 
 parameters = [{'alpha':[0.1]*10, 'N':10}, {'alpha':[0.1]*100, 'N':100}, {'alpha': [0.1]*1000, 'N': 1000},
                {'alpha':[1]*10, 'N':10}, {'alpha':[1]*100, 'N':100},  {'alpha': [1]*1000, 'N': 1000},
@@ -34,7 +39,7 @@ for ax, params in zip(axes.flatten() if len(parameters)>1 else [axes],  paramete
         N = params['N']
         true_x = [a/sum(alpha) for a in alpha]
         x, y = rmse_leapfrog(idata=idata, true_var=true_x, var_name='x', var_dim=0)
-        ax.plot(x,y, label = str(transform))
+        ax.plot(x,y, label=transform_label[str(transform)])
         ax.set_title(f'alpha={alpha[0]}, N = {N}')
 ax.axes.yaxis.set_ticklabels([])
 plt.legend()

@@ -34,7 +34,9 @@ fig, axes = plt.subplots(3,3)
 for ax, params in zip(axes.flatten() if len(parameters)>1 else [axes],  parameters):
     for transform in transforms:
         x, y = get_ess_leapfrog_ratio(transform_category, transform, evaluating_model, params, var_name, var_dim, n_repeat=100, plot_type='density')
+        
         ax.plot(x,y, label=transform_label[str(transform)])
+
     ax.set_title(f'alpha = {params["alpha"][0]}, N = {params["N"]}')
 ax.axes.yaxis.set_ticklabels([])
 fig.supxlabel('ESS/Leapfrog')
