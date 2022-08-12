@@ -1,5 +1,4 @@
 
-
 import os
 os.chdir('transforms')
 
@@ -7,17 +6,6 @@ import sys
 sys.path.insert(1, 'utils')
 from sample import sample
 
-import pickle
-import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument('--parameters', type=int, required=True)
-args = parser.parse_args()
-
-with open(f"target_densities/param_map_dirichlet_symmetric.pkl", "rb") as f:
-    param_map = pickle.load(f)
-
-alpha = param_map[args.parameters]
-N = len(alpha)
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -30,8 +18,11 @@ from ess import get_ess_leapfrog_ratio
 transform_category='simplex'
 evaluating_model='dirichlet_symmetric'
 
+parameters = [{'alpha': [0.1]*10, 'N': 10}, {'alpha': [0.1]*100, 'N': 100}, {'alpha': [0.1]*1000, 'N': 1000},
+{'alpha': [1]*10, 'N': 10}, {'alpha': [1]*100, 'N': 100}, {'alpha': [1]*1000, 'N': 1000},
+{'alpha': [1]*10, 'N': 10}, {'alpha': [1]*100, 'N': 100}, {'alpha': [1]*1000, 'N': 1000}]
+
 transforms = ['stan', 'softmax-augmented','stickbreaking', 'softmax']
 
 get_dirichlet_symmetric_rmse(transforms, transform_category, 
-                             parameters=[{'alpha':alpha, 'N':N}],resample=False, fig_name=f'rmse_{args.parameters}.png', n_repeat=100)
-
+                             parameters, fig_name='rmse_example.png')

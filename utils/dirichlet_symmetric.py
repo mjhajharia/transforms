@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 from rmse import rmse_leapfrog
 from sample import sample
 
-def get_dirichlet_symmetric_rmse(transforms, transform_category, parameters, fig_name, n_repeat=1, n_iter=1000, 
-                                n_chains=4, show_progress=True, resample=True):
+def get_dirichlet_symmetric_rmse(transforms, transform_category, parameters, fig_name,  n_iter=1000, 
+                                n_chains=4, n_repeat=1, show_progress=True, resample=False, output_dir='/mnt/sdceph/users/mjhajaria/'):
     
     plt.rcParams["figure.figsize"] = [20,10]
     plt.rcParams['figure.dpi'] = 300
@@ -16,8 +16,8 @@ def get_dirichlet_symmetric_rmse(transforms, transform_category, parameters, fig
     for transform in transforms:            
         idata = sample(transform_category=transform_category, transform=transform, 
             evaluating_model='dirichlet_symmetric', parameters=parameters, 
-            auto_eval_all_params=False, n_iter = n_iter, n_chains = n_chains, n_repeat = n_repeat, 
-                                    show_progress = show_progress, resample=resample)
+            auto_eval_all_params=False, n_iter = n_iter,  n_chains = n_chains, n_repeat=n_repeat,
+                                    show_progress = show_progress, resample=resample, output_dir=output_dir,return_idata=True)
         alpha = parameters[0]['alpha']
         N = parameters[0]['N']
         true_x = [a/sum(alpha) for a in alpha]
@@ -42,8 +42,6 @@ def create_param_map():
 
     pickle.dump(param_map, open("param_map_dirichlet_symmmetric.pkl", "wb"))
 
-
 def get_dirichlet_symmetric_params():
     return pickle.load(open("param_map_dirichlet_symmmetric.pkl", "rb"))
-
 

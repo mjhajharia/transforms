@@ -32,7 +32,7 @@ def sample(
 ):
     """
     Sample from the given dictionary containing the models, transform_categories, and parameters.
-    It saves the results in a json file which is named with n_repeat, n_chains and n_iter.
+    It saves the results in a json file which is named with n_chains.
 
     Parameters
     ----------
@@ -55,14 +55,14 @@ def sample(
     auto_eval_all_params: bool
         If True, all parameterizations are evaluated.
 
-    n_repeat: int
-        Number of times to repeat the sampling.
-
     n_iter : int
         Number of samples to be drawn.
 
     n_chains : int
         Number of chains to be drawn.
+    
+    n_repeat : int 
+        Number of runs to be drawn.
 
     show_progress: bool (default = True)
         Whether to show progress bar.
@@ -79,7 +79,7 @@ def sample(
     Note
     ----
     The directory structure for storing stan files is: stan_models/{transform}_{evaluating_model}.stan
-    The directory structure for storing the results is: sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_mapping}.json
+    The directory structure for storing the results is: sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_mapping}_{n_repeat}.json
     """
     with open(f"target_densities/param_map_{evaluating_model}.pkl", "rb") as f:
         param_map = pickle.load(f)
@@ -108,6 +108,7 @@ def sample(
             model = CmdStanModel(
                 stan_file=stan_filename, cpp_options={"STAN_THREADS": "true"}
             )
+            ess=[]
             idata = az.from_cmdstanpy(
                 model.sample(
                     data=params,
@@ -116,7 +117,7 @@ def sample(
                     chains=n_chains,
                 )
             )
-	    
+            ess.append(az.ess(idata)['x'][0])
             for i in tqdm(range(n_repeat - 1)):
                 fit = model.sample(
                     data=params,
@@ -125,14 +126,17 @@ def sample(
                     chains=n_chains,
                     seed=i
                 )
-                idata = az.concat(idata, az.from_cmdstanpy(fit), dim="chain")
+                ess.append(az.ess(az.from_cmdstanpy(fit))['x'][0])
 
+        
+                idata = az.concat(idata, az.from_cmdstanpy(fit), dim="chain")
+            np.savetxt(f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/ess_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.csv', ess)
             filename = f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
-        print(filename)
-        idata.to_netcdf(filename)
-        with open(f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/time_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.txt', 'w') as f:
-	        f.write(str(time.time() - start_time))
-        if return_idata==True:
-            return idata
+            idata.to_netcdf(filename)
+            with open(f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/time_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.txt', 'w') as f:
+	            f.write(str(time.time() - start_time))
+            if return_idata==True:
+                return idata
 
         pass
+
