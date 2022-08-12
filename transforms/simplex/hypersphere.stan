@@ -6,10 +6,9 @@ parameters {
  vector[N] y;
 }
 transformed parameters {
- real<lower=0> logr = log_sum_exp(y);
- simplex[N] x = exp(y - logr);
+ simplex[N] x = y^2;
 }
 model {
- target += sum(y) - exp((1/N) * logr)*N;
+ target += log_determinant(2*y*transpose(y));
  target += target_density_lp(x, alpha);
 }
