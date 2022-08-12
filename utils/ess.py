@@ -8,7 +8,6 @@ import sys
 sys.path.insert(1, 'utils')
 from sample import sample
 import pickle
-from pylab import *
 
 def get_ess_leapfrog_ratio(
     transform_category,
@@ -40,8 +39,8 @@ def get_ess_leapfrog_ratio(
     ess = np.loadtxt(open(f'/mnt/sdceph/users/mjhajaria/sampling_results/{transform_category}/{transform}/{evaluating_model}/ess_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.csv'),delimiter = ",")
     leapfrog = np.average(idata.sample_stats['n_steps'].sum(axis=1).values.reshape(-1, 4), axis=1)
     Y=np.divide(ess, leapfrog)
-    dx = 0.01
-    X  = np.arange(-2, 2, dx)
+    dx = 0.02
+    X  = np.arange(0, 2, dx)
     Y /= (dx * Y).sum()
     CY = np.cumsum(Y * dx)
     if plot_type=='density':
