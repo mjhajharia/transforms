@@ -13,16 +13,19 @@ import arviz as az
 transform_category='simplex'
 evaluating_model='dirichlet_symmetric'
 
-transforms = ['stan', 'softmax-augmented','stickbreaking', 'softmax']
+transforms = ['stickbreaking', 'softmax', 'softmax-augmented', 'stan']
+
+transform_label = {'stickbreaking': 'Stick-breaking',
+                   'softmax': 'Additive Log Ratio',
+                   'softmax-augmented': 'Augmented Softmax',
+                   'stan': 'Stick-breaking (in C++)'}
 
 parameters = [{'alpha':[0.1]*10, 'N':10}, {'alpha':[0.1]*100, 'N':100}, {'alpha': [0.1]*1000, 'N': 1000},
                {'alpha':[1]*10, 'N':10}, {'alpha':[1]*100, 'N':100},  {'alpha': [1]*1000, 'N': 1000},
-               {'alpha':[10]*10, 'N':10}, {'alpha':[10]*100, 'N':100},  {'alpha': [1]*1000, 'N': 1000}]
+               {'alpha':[10]*10, 'N':10}, {'alpha':[10]*100, 'N':100},  {'alpha': [10]*1000, 'N': 1000}]
 
 plt.rcParams["figure.figsize"] = [20,10]
 fig, axes = plt.subplots(3,3)
-fig.supxlabel('Cumulative Leapfrog Steps')
-fig.supylabel('Root Mean Squared Error')
 
 for ax, params in zip(axes.flatten() if len(parameters)>1 else [axes],  parameters):
     for transform in transforms:
@@ -34,9 +37,11 @@ for ax, params in zip(axes.flatten() if len(parameters)>1 else [axes],  paramete
         N = params['N']
         true_x = [a/sum(alpha) for a in alpha]
         x, y = rmse_leapfrog(idata=idata, true_var=true_x, var_name='x', var_dim=0)
-        ax.plot(x,y, label = str(transform))
-        ax.set_title(f'alpha={alpha[0]}, N = {N}')
+        ax.plot(x,y, label=transform_label[str(transform)])
+    ax.set_title(f'alpha = {params["alpha"][0]}, N = {params["N"]}')
 ax.axes.yaxis.set_ticklabels([])
+fig.supxlabel('Cumulative Leapfrog Steps')
+fig.supylabel('Root Mean Squared Error')
 plt.legend()
 plt.savefig('figures/simplex/rmse.png', dpi=300)
 
