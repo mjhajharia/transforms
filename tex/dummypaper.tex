@@ -59,131 +59,42 @@ multiple constrained values.  Instead, usually constrained values are mapped to 
 We evaluate the efficiency of unconstraining parameter transforms using metrics like effective sample size, leapfrog steps and squared error. Different transforms work well for different models, this paper aims to provide a useful analysis of the same, so practitioners can choose transforms that work well for their models.
 
 \section{Transforms}
+The transform from a constrained space $\mathcal{X}$ to an unconstrained space $\mathcal{Y}$ is a smooth and bijective function $f: \mathcal{X} \to \mathcal{Y}$. We aim to induce a density $h(y)$ on $\mathcal{Y}$ and define a smooth and continous map $g\colon \mathcal{Y} \to \mathcal{X}$, such that $h(y)$ is uniform over $\mathcal{X}$. 
+%review and make this better
+Uniformity is defined here to mean, if $y$, $y`$ $\sim$ $h(y)$,  then $g(y)$, $g(y`)$ $\sim$ uniform($\mathcal{X}$).	
 
-To draw samples from a distribution $p_X(x)$, defined on a constrained space $\mathcal{X}$ that can be uniquely parameterized by $n$ real degrees of freedom, we instead perform sampling in an unconstrained space $\mathcal{Y}=\mathbb{R}^m$ for $m \ge n$.
 
-Let $f\colon \mathcal{Y} \to \mathcal{X}$ be a smooth and continuous map.
-Only when $m = n$ can $f$ be bijective.
-When $m > n$, multiple values of $y \in \mathcal{Y}$ may map to a given value of $x = f(y)$.
-In this case, to make the function bijective, we consider an additional smooth and continuous map $g\colon \mathcal{Y} \to \mathcal{Z}$, where $\mathcal{Z}$ can be uniquely parameterized by $m - n$ real degrees of freedom.
-We then define $h\colon \mathcal{Y} \to \mathcal{X} \times \mathcal{Z}: y \mapsto (f(y), g(y)) = (x, z)$.
-$f$ and $g$ must be chosen so that $h$ is bijective almost-everywhere;
-that is, the values of $y$ for which $h$ is non-bijective must have no probability mass.
-When $h$ is non-bijective at single points, we call these singularities.
-While singularities themselves are in general not a problem for sampling with MCMC, the region of a target density near the singularity tends to have high curvature.
+% check m,n relationship
+%To draw samples from a $y$ $p_X(x)$, defined on a constrained space $\mathcal{X}$ that can be uniquely parameterized by $n$ real degrees of freedom, we instead perform sampling in an unconstrained space $\mathcal{Y}=\mathbb{R}^m$ for $m \ge n$.
+
+
+%Only when $m = n$ can $f$ be bijective.
+%When $m > n$, multiple values of $y \in \mathcal{Y}$ may map to a given value of $x = g(y)$.
+
+%In this case, to make the function bijective, we consider an additional smooth and continuous map $g\colon \mathcal{Y} \to \mathcal{Z}$, where $\mathcal{Z}$ can be uniquely parameterized by $m - n$ real degrees of freedom.
+%We then define $h\colon \mathcal{Y} \to \mathcal{X} \times \mathcal{Z}: y \mapsto (f(y), g(y)) = (x, z)$.
+%$f$ and $g$ must be chosen so that $h$ is bijective almost-everywhere;
+%that is, the values of $y$ for which $h$ is non-bijective must have no probability mass.
+%When $h$ is non-bijective at single points, we call these singularities.
+%While singularities themselves are in general not a problem for sampling with MCMC, the region of a target density near the singularity tends to have high curvature.
+
+
 
 \subsection{Changes of Variables}
 
-If $X$ is a random variable with density $p_X$ and $Y = f(X)$ for a
-smooth and bijective function $f$, then
+If $Y \in \mathbb{R^N}$ is a random variable with density $p_Y(y)$, where $Y = g^{-1}(X)$, where $X \in \mathbb{R^M}$. Then for a smooth and bijective function $g$ which is the inverse transform from an unconstrained space to a constrained space, we can define its density as:
 \[
-  p_Y(y) = p_X(f^{-1}(y)) \absdet{J_{f^{-1}}(y)},
+  p_Y(y) = p_X(g(y)) \absdet{J_{g}(y)},
 \]
 where the Jacobian of the inverse transform is defined by
 \[
-  J_{f^{-1}}(y) = \frac{\partial}{\partial y} \, f^{-1}(y)
+  J_{g}(y) = \frac{\partial}{\partial y} \, g(y)
 \]
 and
 \[
-  \absdet{J_{f^{-1}}(y)}
-  = \abs{\det J_{f^{-1}}(y)}.
+  \absdet{J_{g}(y)}
+  = \abs{\det J_{g}(y)}.
 \]
-
-\subsection{Target Density}
-Given a proper joint distribution with a smooth and continuous density $p_{X,Y}(x, y | \theta)$ for some parameters $\theta$, we can use the usual change of variables formula to write
-
-\[
-  p_Y(y | \theta) = p_{X,Z}(f(y), g(y) | \theta) |J_h(y)|.
-\]
-
-To sample from a target density $p_X(x | \theta)$, let $p_{X,Z}(x, z | \theta) = p_X(x | \theta) p_Z(z | x, \theta)$.
-Then we must choose some proper distribution $p_Z$ that is smooth and continuous.
-Given that choice, we find that
-\[
-  p_Y(y | \theta) = p_X(f(y) | \theta) p_Z(g(y) | f(y), \theta) |J_h(y)|.
-\]
-
-Note that when $m > n$, it is insufficient to specify a transform $h$.
-One must also select a prior $p_Z$, and it is desirable to establish some general properties that a given pair $h$ and $p_Z$ should have.
-In addition to the above properties, the optimal pair would
-1. discard as few degrees of freedom $|m - n|$ as possible.
-2. produce a $p_Z$ and $|J_y|$ and their gradients that are efficient to compute.
-3. produce a $p_Y$ that is easy to sample from.
-
-We can expand a bit on the latter point.
-As a general rule, the more normal $p_Y$ is, the easier it is to sample from (REF?).
-Additionally, near singularities, small perturbations to $y$ tend to result in larger changes to $h(y)$ than far from the singularity.
-This warps the volume around the singularity, which causes $|J_y(y)|$ to smoothly approach infinity near the singularity.
-If $m$ is large, this is generally not a problem, as the "curse of dimensionality" works in our favor, and there is exponentially more volume away from the singularity than near the singularity.
-However, for low $m$, it is necessary that $p_{X,Z}$ goes to 0 near the singularity faster than $|J_y(y)|$ goes to infinity.
-While $p_X$ is generally fixed by the user-specified model and may not have this necessary property, the user may then choose a $p_Z$ that has this property.
-
-\section{Preliminaries}
-
-[SA: TODO: eliminate or merge with following section]
-
-To compute Jacobians of functions with matrix-valued inputs or outputs, we need to implicitly or explicitly choose for the inputs and outputs a set of coordinates with dimension equal to the number of degrees of freedom of the matrix
-Unless otherwise specified, we choose the coordinates to be the vectorization of the matrix.
-
-We define the (bijective) vectorization of a matrix $X \in \mathbb{R}^{N \times K}$ with columns $x_k$ for $k \in \{1, ..., K\}$ as the vector
-\[\vect(X) = \begin{bmatrix}x_1 \\ x_2 \\ \vdots \\ x_M\end{bmatrix}\]
-formed by stacking the columns of $X$.
-
-For $X \in \mathbb{R}^{N \times K}$, let $\vectu(X)$ be the map that stacks only the parts of the columns of $X$ above and including the diagonal.
-This map is sometimes called the half-vectorization and is bijective for upper-triangular or symmetric $X$.
-
-Similarly, $\vectu_-(X)$ extracts the same elements except the diagonal.
-When $X$ is strictly upper-triangular or skew-symmetric (i.e. $X = -X^\top$), then this map is bijective.
-
-\section{Computing Jacobian determinants}
-
-[SA: TODO: remove everything we do not use later, add strategy for making non-square Jacobian square]
-
-Here we introduce several strategies for computing Jacobian determinants.
-
-The vectorization has the useful property that for all matrices $A$, $X$, and $B$, $\vect(AYB) = (B^\top \otimes A) \vect(Y)$, where $\otimes$ is the Kronecker product.
-This allows us to convert expressions of matrices to expressions of vectors, from which the Jacobian can be read off.
-For example, let $X = AYB$. Then $\dv{X} = A \dv{Y} B$, and $\vect(\dv{X}) = (B^\top \otimes A) \vect(\dv{Y})$, and the Jacobian is $J = B^\top \otimes A$.
-
-When the previously discussed strategies are insufficient to compute the Jacobian, we bypass the Jacobian computation entirely and use the exterior product $\wedge$.
-For example, let $X \in \mathbb{R}^{N \times K}$.
-The exterior product
-\[
-  \dv{X_{11} }\wedge \dv{X_{21}} \wedge \ldots \wedge \dv{X_{NK}} = \bigwedge_{j=1}^K \bigwedge_{i=1}^N \dv{X}_{ij}
-\]
-is another more explicit way of writing the integration measure $\dv{X_{11}} \dv{X_{21}} \dots \dv{X_{NK}}$ that has useful properties for computing Jacobian determinants.
-The basic properties we will use are
-
-\begin{itemize}
-  \item $a\dv{x} \wedge b\dv{y} = (ab)(\dv{x} \wedge \dv{y})$ for $a,b \in \mathbb{R}$
-  \item $(\dv{x} + \dv{y}) \wedge \dv{z} = \dv{x} \wedge \dv{z} + \dv{y} \wedge \dv{z}$
-  \item $\dv{x} \wedge \dv{y} = - \dv{y} \wedge \dv{x}$
-  \item $\dv{x} \wedge \dv{x} = 0$
-\end{itemize}
-
-The connection between the exterior product and the Jacobian determinant is given by the following expression.
-Given $f: y \mapsto x$ for $x,y \in \mathbb{R}^N$,
-\[\bigwedge_{i=1}^N \dv{x_i} = \det(J_f(y)) \bigwedge_{i=1}^N \dv{y_i}.\]
-
-We can then find the Jacobian determinant by first writing all differential forms $\dv{x_i}$ or $\dv{y_i}$ and then computing the exterior product until the expression looks like the above.
-For our purposes, we will ignore the sign of the Jacobian determinant.
-
-A related useful property is that for $X,Y,B \in \mathbb{R}^{N \times K}$, if $\dv{X} = B \dv{Y}$, then
-\[\bigwedge_{j=1}^K \bigwedge_{i=1}^N \dv{X_i} = \det(B)^K \bigwedge_{j=1}^K \bigwedge_{i=1}^N \dv{Y_i}\]
-
-Following [REF, Edelman], we use the notation $(\cdot)^\wedge$ as a shorthand to represent the exterior product of the unique elements of $\cdot$.
-
-For example,
-\begin{itemize}
-  \item Rectangular matrix $\{X \in \mathbb{R}^{N \times K}\}$: $(\dv{X})^\wedge = \bigwedge_{j=1}^K \bigwedge_{i=1}^N \dv{X_{ij}}$
-  \item Upper-triangular rectangular matrix $\{X \in \mathbb{R}^{N \times K} | X_{ij} = 0\ \forall\ i > j\}$: $(\dv{X})^\wedge = \bigwedge_{j=1}^K \bigwedge_{i=1}^{\min(j, N)} \dv{X_{ij}}$
-  \item Diagonal matrix $\{X \in \mathbb{R}^{N \times K} | X_{ij} = 0\ \forall\ i \ne j\}$: $(\dv{X})^\wedge = \bigwedge_{i=1}^{\min(N, K)} \dv{X_{ii}}$
-  \item Symmetric matrix $\{X \in \mathbb{R}^{N \times N} | X_{ij} = X_{ji}\}$: $(\dv{X})^\wedge = \bigwedge_{j=1}^K \bigwedge_{i=1}^{j} \dv{X_{ij}}$
-  \item Skew-symmetric matrix $\{X \in \mathbb{R}^{N \times N} | X_{ij} = -X_{ji}, X_{ii} = 0\}$: $(\dv{X})^\wedge = \bigwedge_{j=1}^K \bigwedge_{i=1}^{j-1} \dv{X_{ij}}$
-\end{itemize}
-
-Using this notation, for example, $(B \dv{X})^\wedge = \det(B)^K (\dv{X})^\wedge$
-
 \section{Unit simplex}
 
 A unit $N$-simplex is an $N + 1$-dimensional vector of non-negative
@@ -448,195 +359,7 @@ Both of these corrections can be captured with the generalization
   = \exp\left(\sum_{i=1}^n y_i - \frac{1}{p} \left(\sum_{i=1}^n e^{y_i}\right)^p\right),
 \]
 for $p > 0$, which corresponds to $r \sim \text{Generalized-Gamma}(1, n, p)$.
-
-\subsection{Semi-orthogonal matrices (Stiefel manifold)}
-
-A matrix $X \in \mathbb{R}^{N \times K}$ for $K \le N$ is semi-orthogonal if and only if $X^\top X = I_K$.
-The semi-orthogonal matrices form a space called the Stiefel manifold.
-When $K=N$, $X \in O(N)$ is an orthogonal matrix and also satisfies $X X^\top = I_N$ and $\det(X) = \pm 1$.
-When $K=1$, $X$ is a point on the $(N-1)$-sphere $\mathbb{S}^{N-1} \subset \mathbb{R}^N$.
-
-By choosing a set of rules such as Gram-Schmidt orthonormalization of the canonical basis in $\mathbb{R}^{N \times N}$, it is possible to analytically compute from $X$ an orthogonal complement $X^\perp \in \mathbb{R}^{N \times (N - K)}$, such that $\tilde{X}^\top \tilde{X} = I_N$, where $\tilde{X} = \begin{bmatrix}X & X^\perp \end{bmatrix} \in O(N)$.
-
-Note that if we differentiate both sides of the constraint $X^\top X = I_K$, we get $\dv{X}^\top X + X^\top \dv{X} = 0$, which leads to $(X^\top \dv{X})^\top = - X^\top \dv{X}$.
-Therefore, $X^\top \dv{X}$ is a $K \times K$ skew-symmetric matrix with $\frac{K(K-1)}{2}$ unique entries in the strict upper triangle.
-
-Densities of distributions on the Stiefel manifold are usually written with respect to the invariant metric on the Stiefel manifold, which we will define separately for the two cases $K=N$ and $K < N$.
-
-For $X \in O(N)$ with the $i$th column written $x_i$, we define the invariant measure as the exterior product of the unique elements of this skew-symmetric matrix:
-\[
-  (X^\top \dv{X})^\wedge \equiv \bigwedge_{j=1}^N \bigwedge_{i=j+1}^N (X^\top \dv{X})_{ij} = \bigwedge_{j=1}^N \bigwedge_{i=j+1}^N x_i^\top \dv{x}_j.
-\]
-This measure is called invariant because if $f(X) = A X B$ for $A,B \in O(N)$ and $\mathcal{S} \subset O(N)$ then $\int_{\mathcal{S}} (X^\top \dv{X}) = \int_{f(\mathcal{S})} (X^\top \dv{X})$.
-It is also called the Haar measure on $O(N)$ \cite{muirhead2009aspects}..
-
-To choose an invariant measure for $K < N$, we first choose an $X^\perp$ analytically computed from $X$.
-Because $X^\perp$ is analytically computed, $\dv{X^\perp_{ij}} = 0$.
-We can then construct the invariant measure for $K<N$ from the invariant measure for $O(N)$:
-
-\[
-  (X^\top \dv{X})^\wedge \equiv \bigwedge_{j=1}^N \bigwedge_{i=j+1}^N x_i^\top \dv{x}_j = \bigwedge_{j=1}^K \bigwedge_{i=j+1}^N x_i^\top \dv{x}_j,
-\]
-
-Though we needed to choose a $X^\perp$, the invariant measure does not depend on the choice of $X^\perp$.
-Moreover, this measure is invariant to left-actions by $O(N)$ and right-actions by $O(K)$.
-For more details, see \cite{muirhead2009aspects}.
-
-When $K=1$, the invariant measure is equivalent to the usual Hausdorff measure on the sphere.
-
-\subsubsection{Givens parameterization of Stiefel manifold}
-
-\subsubsection{Cayley parameterization of Stiefel manifold}
-
-\subsubsection{Householder parameterization of Stiefel manifold}
-
-\subsubsection{Matrix exponential parameterization of Orthogonal group}
-
-\subsection{Positive definite matrices}
-
-[SA: all transformations below can be generalized to SPD matrices of fixed rank, but we'd need to know what the common reference measure is for densities of SPD matrices, and I can't recall seeing one.]
-
-An $N \times N$ positive definite (PD) matrix $X$ is a symmetric matrix that satisfies $v^\top X v \ge 0$ for all non-zero vectors $v$.
-Covariance matrices are examples of PD matrices.
-
-Density functions for distributions of PD matrices, such as the Wishart distribution, are generally defined with respect to the Lebesgue measure of the upper triangular elements $(\dv{X})^\wedge$.
-
-\subsubsection{Cholesky parameterization}
-
-Given a positive (semi-)definite $X$ of rank $K$, we can uniquely decompose it as $X = Z^\top Z$ where $Z$ is an $N \times N$ upper triangular matrix where $Z_{ii} > 0$ for all $i \le K$ and $Z_{ij} = 0$ for all $i > K$.
-$Z$ has $\frac{K(K+1)}{2} + (N - K)K$ degrees of freedom.
-When $K=N$, $X$ is positive-definite.
-
-We can construct $X$ by composing 2 bijective maps.
-The first, $f_1$, enforces the constraint of the positive diagonal:
-
-\[Z_{ij} = f_1(Y)_{ij} = \begin{cases} \exp(Y_{ij}) & \text{ if } i = j \le K \\ Y_{ij} & \text{otherwise} \end{cases}\]
-
-The density correction for this map is $\absdet{J_{f_1}(Y)} = \exp(\sum_{i=1}^K Y_{ii})$.
-
-The second map is $f_2: Z \mapsto Z^\top Z = X$.
-To compute the Jacobian of the map, we use the half-vectorization $\vectu(X)$.
-Note that $X_{ij} = \sum_{k=1}^{\min(i, j)} Z_{ki} Z_{kj}$.
-$X_{ij}$ is thus only dependent on elements of $Z$ that are above and to the left of the $(i, j)$ position.
-As a result, the Jacobian of $\vectu \circ f_2 \circ \\vectu^{-1}$ is lower-triangular, and its determinant is only the product of its diagonal elements: $\absdet{J_{f_2}} = \prod_{1 \le i \le j \le N} \frac{\partial X_{ij}}{\partial Z_{ij}}$.
-
-In this index range, $\frac{\partial X_{ij}}{\partial Z_{ij}} = (1 + \delta_{ij}) Z_{ii}$.
-As a result
-
-\[
-  \absdet{J_{f_2}(Z)} = 2^N \prod_{j = 1}^N \prod_{i = 1}^j Z_{ii} = 2^N \prod_{i=1}^N |Z_{ii}|^{N - i + 1} \\
-\]
-
-Combining the two bijective maps as $f = f_2 \circ f_1$, the combined density correction is
-
-\[
-  \absdet{J_{f}(Y)} = 2^N \exp\left( \sum_{i=1}^N (N - i + 2) Y_{ii}\right).
-\]
-
-\subsubsection{Matrix exponential parameterization}
-
-For every PD matrix $X \in \mathbb{R}^{N \times N}$, there is a unique symmetric matrix $Y$ such that $X = \Exp(Y)$, where $\operatorname{Exp}(\cdot)$ is the matrix exponential, defined as
-\[\Exp(Y) = \sum_{k=0}^\infty \frac{1}{k!} Y^k.\]
-
-Let $Y = U \Lambda U^\top$ be the symmetric eigendecomposition of $Y$, where the matrix of eigenvectors $U$ is orthogonal, and the $\Lambda = \operatorname{diag}(\lambda)$ for $\lambda \in \mathbb{R}^N$.
-Then $Y^2 = U \Lambda U^\top U \Lambda U^\top = U \Lambda^2 U^\top$.
-In fact, $Y^c = U \Lambda^c U^\top$ for all real $c$.
-As a result,
-\[\Exp(Y) = U \Exp(\Lambda) U^\top,\]
-where $\Exp(\Lambda)_{ij} = e^{\lambda_i} \delta_{ij}$.
-
-$\Exp(Y)$ is one example of a matrix function $f$, which we can roughly define for symmetric matrices as any function that obeys
-\[f(Y) = U f(\Lambda) U^\top,\]
-where $f(\Lambda)_{ij} = f(\lambda_i)\delta_{ij}$.
-\footnote{
-  In a similar way, we can generalize other scalar functions like the inverse, trigonometric, and hyperbolic functions to functions of matrices.
-  All results in this section apply to these functions as well.
-}
-
-For such functions $f$, we can compute a common form of the Jacobian determinant.
-Differentiating the expression, we find
-\[
-\begin{aligned}
-  \dv{(f(Y))} &= \dv{U} f(\Lambda) U^\top + U f'(\Lambda) \dv{\Lambda} U^\top + U f(\Lambda) \dv{U}^\top\\
-  U^\top \dv{(f(Y))} U &= U^\top \dv{U} f(\Lambda) + f(\Lambda) \dv{U}^\top U + f'(\Lambda)\dv{\Lambda},
-\end{aligned}
-\]
-where $f'(\Lambda)_{ij} = \frac{\dv{(f(\lambda_i))}}{\dv{\lambda_i}}$.
-
-Recall that $U^\top \dv{U}$ is skew-symmetric.
-Note also that for skew-symmetrix $Z = -Z^\top$ and diagonal matrix $\operatorname{diag}(v)$,
-\[(Z\operatorname{diag}(v) + \operatorname{diag}(v)Z^\top)_{ij} = Z_{ij} v_j + v_i Z_{ji} = Z_{ij} v_j - v_i Z_{ij} = Z_{ij} (v_j - v_i) = Z \circ V,\]
-where $V_{ij} = v_j - v_i$ and $\circ$ is the Hadamard (elementwise) product.
-
-From the right-hand side, note then that
-\[(U^\top \dv{(f(Y))} U)_{ij} = \begin{cases} (U^\top \dv{U})_{ij} (f(\lambda_j) - f(\lambda_i)) & \text{ if } i \ne j \\ f'(\lambda_i) \dv{f(\lambda_i)} &\text{ if } i = j \end{cases}\]
-
-The exterior product of the diagonal part is
-\[
-  \bigwedge_{i=1}^N f'(\lambda_i) \dv{\lambda_i} = \left(\prod_{i=1}^N f'(\lambda_i)\right) (\dv{\Lambda})^\wedge,
-\]
-while the exterior product of the super-diagonal part is
-\[
-  \bigwedge_{j=1}^N \bigwedge_{i=j+1}^N (U^\top \dv{U})_{ij} (f(\lambda_j) - f(\lambda_i)) = \left( \prod_{j=1}^N \prod_{i=1}^{j-1} (f(\lambda_j) - f(\lambda_i)) \right) \left(U^\top \dv{U} \right)^\wedge
-\]
-
-Lastly, note for any symmetric $Z$ and orthogonal matrix $U$,
-\[(U^\top \dv{Z} U)^\wedge = \det(U^\top)^N \det(U)^N (\dv{Z})^\wedge = (\dv{Z})^\wedge.\]
-
-As a result, we can compute $(\dv(f(Y)))^\wedge$ by taking the exterior product of the super-diagonal and diagonal parts: 
-\[(\dv{(f(Y))})^\wedge = \left(\prod_{j=1}^N f'(\lambda_j) \prod_{i=1}^{j-1} (f(\lambda_j) - f(\lambda_i))\right) ((U^\top \dv{U})^\wedge \wedge \dv{\Lambda})\]
-
-If $f$ is the identity map $f(Y) = Y$, then
-\[ (\dv{Y})^\wedge = \left(\prod_{j=1}^N \prod_{i=1}^{j-1} (\lambda_j - \lambda_i)\right) \left((U^\top \dv{U})^\wedge \wedge \dv{\Lambda}\right)\]
-
-Combining the latter two expressions:
-\[(\dv{(f(Y))})^\wedge = \left(\prod_{j=1}^N f'(\lambda_j) \prod_{i=1}^{j-1} \frac{f(\lambda_j) - f(\lambda_i)}{\lambda_j - \lambda_i}\right) (\dv{Y})^\wedge\]
-
-[REF, Edelman's notes] previously found this result.
-
-For $X = f(Y) = \Exp(Y)$ then,
-\[ (\dv{X})^\wedge = \left(\prod_{j=1}^N e^{\lambda_j} \prod_{i=1}^{j-1} \frac{e^{\lambda_j} - e^{\lambda_i}}{\lambda_j - \lambda_i}\right) (\dv{Y})^\wedge,\]
-
-so the Jacobian determinant of the exponential map is $\absdet{J_{\Exp}(Y)} = \prod_{j=1}^N e^{\lambda_j} \prod_{i=1}^{j-1} \left|\frac{e^{\lambda_j} - e^{\lambda_i}}{\lambda_j - \lambda_i}\right|$.
-
-Note that this expression is undefined when any eigenvalues are repeated.
-This is not a problem for MCMC, since the eigenvalues are non-unique with probability 0, but non-unique eigenvalues could occur when maximizing a log-density.
-
-Because $\lim_{h \to 0} \frac{f(x) - f(x + h)}{h} = f'(x)$, we can then modify the expression to handle such cases:
-\[
-  \absdet{J_{\Exp}(Y)} = \prod_{j=1}^N \prod_{i=1}^j \begin{cases}
-    \left|\frac{e^{\lambda_j} - e^{\lambda_i}}{\lambda_j - \lambda_i}\right| &\text{ if } \lambda_i \ne \lambda_j \\ 
-    e^{\lambda_i} &\text{ if } \lambda_i = \lambda_j
-  \end{cases}.
-\]
-
-While the cost of computing the Jacobian determinant is $O(N^2)$, the cost of computing the eigendecomposition naively is $O(N^3)$, so this transformation is expensive.
-An attractive alternative would be to define the transform directly from the eigendecomposition of $X$.
-
-\subsubsection{Eigendecomposition parameterization}
-
-To define a transform directly from the symmetric eigendecomposition of $X$, we first need to note that the eigendecomposition is not unique; if we swap any two columns $i$ and $j$ of $U$ as well as swapping the eigenvalues $\lambda_i$ and $\lambda_j$, the result is the same matrix.
-
-When the eigenvalues are all unique, we can make the eigendecomposition also unique by enforcing the ordering of eigenvalues $\lambda_i > \lambda_j > 0$ for $j > i$.
-This is the ordering generally used for symmetric singular value decomposition.
-
-So we can construct a bijective map with the maps $f_1$ that produces an ordered vector of positive eigenvalues and $f_2$ that produces an orthogonal matrix.
-Consider $\lambda = f_1(y_1)$ and $U = f_2(y_2)$.
-
-Let $f_1$ be the map that computes each $\lambda_i$ as
-\[
-  \lambda_i = \begin{cases}
-    e^{(y_1)_N} &\text{ if } i = N\\
-    \lambda_{i-1} + e^{(y_1)_i} &\text{ if } 1 \le i < N
-  \end{cases}
-\]
-The Jacobian determinant of this map is $\absdet{J_{f_1}(y_1)} = \exp\left(\sum_{i=1}^N (y_1)_i\right)$.
-
-We can then choose for $f_2$ any of the transforms to the orthogonal matrices previously discussed.
-The combined Jacobian determinant of $f: (y_1, y_2) \mapsto f_2(y_2) \operatorname{diag}(f_1(y_1)) f_2(y_2)^\top = X$ is then 
-\[ \absdet{J_{f}(y_1, y_2)} = \absdet{J_{f_2}(y_2)} \exp\left(\sum_{i=1}^N (y_1)_i\right).\]
-
-\subsubsection*{Acknowledgements}
+\subsection*{Acknowledgements}
 
 We would like to thank \url{matrixcalculus.org} for providing an
 easy-to-use symbolic matrix derivative calculator.
