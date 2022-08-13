@@ -1,13 +1,11 @@
-
 data {
   int<lower=0> N;
   vector<lower=0>[N] alpha;
 }
 parameters {
-  vector[N - 1] y;
+  vector[N-1] y;
 }
 transformed parameters {
-  vector[N-1] z = inv_logit(y[1:N - 1] - log(reverse(linspaced_vector(N - 1, 1, N - 1))));
   simplex[N] x;
   vector[N-1] z;
   z = inv_logit(y[1:N-1] - log(reverse(linspaced_vector(N-1, 1,N-1))));

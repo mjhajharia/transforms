@@ -42,6 +42,8 @@ def create_param_map():
 
     pickle.dump(param_map, open("param_map_dirichlet_symmmetric.pkl", "wb"))
 
+
 def get_dirichlet_symmetric_params():
     return pickle.load(open("param_map_dirichlet_symmmetric.pkl", "rb"))
+
 
