@@ -10,7 +10,7 @@ transformed parameters {
   // L is a Cholesky factor of a K x K correlation matrix
   cholesky_factor_corr[K] L = diag_matrix(rep_vector(1, K));
   real log_det_jacobian = 0;
-ß
+
   {
     int counter = 1;
     real s;
