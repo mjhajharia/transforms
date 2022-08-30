@@ -7,7 +7,7 @@ parameters {
 }
 transformed parameters {
   simplex[N] x;
-  real log_det_jacobian = 0;
+  real log_det_jacobian = (N - 1) * log2();
   {
     real log_phi, phi, z, s, c;
     real s2_prod = 1;
@@ -25,7 +25,6 @@ transformed parameters {
       rcounter -= 2;
     }
     x[N] = s2_prod;
-    log_det_jacobian += (N - 1) * log2();
   }
 }
 model {
