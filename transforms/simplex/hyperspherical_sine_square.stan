@@ -7,26 +7,18 @@ parameters {
 }
 transformed parameters {
   simplex[N] x;
-  real log_det_jacobian = 0;
+  real log_det_jacobian = -lgamma(N);
   {
-    real log_s2, log_c2;
-    real log_s2_sum = 0;
-    int rcounter = N - 1;
-    vector [N-1] z;
-    real suminvk = 0;
-    for (k in 1:(N-1)) {
-      z[N-k] = y[N-k] + suminvk;
-      suminvk += inv(k);
-    }
+    real log_z, log_w;
+    real s = 0;
     for (i in 1:(N-1)) {
-      log_s2 = log_inv_logit(z[i]);
-      log_c2 = log1m_inv_logit(z[i]);
-      x[i] = exp(log_s2_sum + log_c2);
-      log_s2_sum += log_s2;
-      log_det_jacobian += rcounter * log_s2 + log_c2;
-      rcounter -= 1;
+      log_w = log_inv_logit(y[i]);
+      log_z = log_w / (N - i);
+      x[i] = exp(s + log1m_exp(log_z));
+      s += log_z;
+      log_det_jacobian += log_w + log1m_exp(log_w);
     }
-    x[N] = exp(log_s2_sum);
+    x[N] = exp(s);
   }
 }
 model {
