@@ -3,26 +3,29 @@ data {
   vector<lower=0>[N] alpha;
 }
 parameters {
-  vector<lower=0,upper=pi()/2>[N-1] phi;
+  vector[N - 1] y;
 }
 transformed parameters {
   simplex[N] x;
   real log_det_jacobian = 0;
   {
-    real phi_i, s_i, c_i;
-    real sin2_prod = 1;
+    real log_phi, phi, z, s, c;
+    real s2_prod = 1;
+    real log_halfpi = log(pi()) - log2();
     int rcounter = 2 * N - 3;
     for (i in 1:(N-1)) {
-      phi_i = phi[i];
-      s_i = sin(phi_i);
-      c_i = cos(phi_i);
-      x[i] = sin2_prod * c_i^2;
-      sin2_prod *= s_i^2;
-      log_det_jacobian += rcounter * log(s_i) + log(c_i);
+      z = log_inv_logit(y[i]);
+      log_phi = z + log_halfpi;
+      phi = exp(log_phi);
+      s = sin(phi);
+      c = cos(phi);
+      x[i] = s2_prod * c^2;
+      s2_prod *= s^2;
+      log_det_jacobian += log_phi + log1m_exp(z) + rcounter * log(s) + log(c);
       rcounter -= 2;
     }
-    x[N] = sin2_prod;
-    // omit a (N - 1) * log(2) term, since it is constant
+    x[N] = s2_prod;
+    log_det_jacobian += (N - 1) * log2();
   }
 }
 model {

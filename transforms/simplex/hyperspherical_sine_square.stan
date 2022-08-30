@@ -9,18 +9,18 @@ transformed parameters {
   simplex[N] x;
   real log_det_jacobian = 0;
   {
-    real yi;
-    real zi, zprod, zprod_new;
-    zprod = 1;
+    real log_s2, log_c2;
+    real log_s2_sum = 0;
+    int rcounter = N - 1;
     for (i in 1:(N-1)) {
-      yi = y[i];
-      zi = inv_logit(yi);
-      zprod_new = zprod * zi;
-      x[i] = zprod - zprod_new;
-      zprod = zprod_new;
-      log_det_jacobian += (N - i) * log_inv_logit(yi) + log1m_inv_logit(yi);
+      log_s2 = log_inv_logit(y[i]);
+      log_c2 = log1m_exp(log_s2);
+      x[i] = exp(log_s2_sum + log_c2);
+      log_s2_sum += log_s2;
+      log_det_jacobian += rcounter * log_s2 + log_c2;
+      rcounter -= 1;
     }
-    x[N] = zprod;
+    x[N] = exp(log_s2_sum);
   }
 }
 model {
