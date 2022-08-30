@@ -14,7 +14,7 @@ transformed parameters {
     int rcounter = N - 1;
     for (i in 1:(N-1)) {
       log_s2 = log_inv_logit(y[i]);
-      log_c2 = log1m_exp(log_s2);
+      log_c2 = log1m_inv_logit(y[i]);
       x[i] = exp(log_s2_sum + log_c2);
       log_s2_sum += log_s2;
       log_det_jacobian += rcounter * log_s2 + log_c2;
