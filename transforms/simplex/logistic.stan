@@ -9,16 +9,16 @@ transformed parameters {
   simplex[N] x;
   real log_det_jacobian = -lgamma(N);
   {
-    real log_z, log_w;
-    real s = 0;
+    real log_u, log_z;
+    real sum_log_z = 0;
     for (i in 1:(N-1)) {
-      log_w = log_inv_logit(y[i]);
-      log_z = log_w / (N - i);
-      x[i] = exp(s + log1m_exp(log_z));
-      s += log_z;
-      log_det_jacobian += log_w + log1m_exp(log_w);
+      log_u = log_inv_logit(y[i]);
+      log_z = log_u / (N - i);
+      x[i] = exp(sum_log_z + log1m_exp(log_z));
+      sum_log_z += log_z;
+      log_det_jacobian += log_u + log1m_exp(log_u);
     }
-    x[N] = exp(s);
+    x[N] = exp(sum_log_z);
   }
 }
 model {
