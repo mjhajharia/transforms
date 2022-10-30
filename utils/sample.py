@@ -86,7 +86,7 @@ def sample(
 
     if resample == False:
         for params in parameters:
-            filename = f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
+            filename = f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
             return az.from_netcdf(filename)
     else:
 
@@ -100,14 +100,15 @@ def sample(
         start_time = time.time()
         if type(parameters)==dict:
             parameters = [parameters]
-        
-        stan_filename=f'stan_models/{transform}_{evaluating_model}.stan'
-        start_time = time.time()
+
+        # with open(stan_filename, 'wb') as f:
+        #     f.write(f'#include ../target_densities/{evaluating_model}.stan{os.linesep}#include ../transforms/{transform_category}/{transform}.stan{os.linesep}')
+        #     f.close()
 
         for params in tqdm(parameters):
             model = CmdStanModel(
-                stan_file=stan_filename, cpp_options={"STAN_THREADS": "true"}
-            )
+                stan_file=stan_filename, cpp_options={"STAN_THREADS": "true"})
+                
             ess=[]
             idata = az.from_cmdstanpy(
                 model.sample(
@@ -137,6 +138,5 @@ def sample(
 	            f.write(str(time.time() - start_time))
             if return_idata==True:
                 return idata
-        with open(f'{output_dir}/sampling_results/{transform_category}/{transform}/{evaluating_model}/time_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.txt', 'w') as f:
+        with open(f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/time_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.txt', 'w') as f:
             f.write(str(time.time() - start_time))
-

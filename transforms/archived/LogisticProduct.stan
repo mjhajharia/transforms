@@ -10,8 +10,7 @@ transformed parameters {
   real log_det_jacobian = 0;
   {
     real yi;
-    real zi, zprod, zprod_new;
-    zprod = 1;
+    real zi, zprod=1, zprod_new;
     for (i in 1:(N-1)) {
       yi = y[i];
       zi = inv_logit(yi);

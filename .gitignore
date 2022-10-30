@@ -6,3 +6,7 @@ utils/.ipynb_checkpoints/*
 sampling_results/*
 .ipynb_checkpoints/*
 __pycache__/*
+*.slurm
+*.nc
+*.csv
+

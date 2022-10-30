@@ -46,25 +46,7 @@ functions {
     return make_vinv(make_v_fullrank(helmert_coding(N)));
   }
 
+real target_density_lp(vector x, vector alpha){
+    return dirichlet_lpdf(x | alpha);
 }
-data {
- int<lower=0> N;
- vector<lower=0>[N] alpha;
-}
-transformed data {
-  matrix[N - 1, N - 1] Vinv = construct_vinv(N);
-  real logN = log(N);
-}
-parameters {
- vector[N - 1] y;
- simplex[N] z;
-}
-transformed parameters {
-  vector[N] s = append_row(Vinv * y, 0);
-  real logr = log_sum_exp(s);
-  simplex[N] x = exp(s - logr);
-}
-model {
-  target += sum(s) - N * logr + logN;
-  target += target_density_lp(x, alpha);
 }

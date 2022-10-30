@@ -1,0 +1,14 @@
+#!/bin/bash
+
+<<<<<<< HEAD
+for i in {1..9}
+=======
+for i in {1..2}
+>>>>>>> 2ede23a (parent 94479f2ab3a6c4bf224fca5283a60d100f8e3541)
+do
+        for j in 'Stickbreaking' 'ALR' 'AugmentedSoftmax' 'StanStickbreaking' 'AugmentedILR' 'Hyperspherical' 'HypersphericalAngular' 'HypersphericalLogit' 'LogisticProduct';
+        do
+                echo -e "#!/bin/bash\n#SBATCH --partition=ccm -N1 --job-name='$i$j'\nsource ~/miniconda3/etc/profile.d/conda.sh\nconda activate stan\n cd ~/transforms\n python3 utils/script-simplex.py --parameters=$i --transform='$j'">>~/transforms/utils/slurm/scripts/$i$j.slurm
+                sbatch ~/transforms/utils/slurm/scripts/$i$j.slurm
+        done
+done
