@@ -6,9 +6,9 @@ from sample import sample
 
 def list_transforms(transform_category='simplex'):
     if transform_category=='simplex':
-        return ['Stickbreaking', 'ALR'
+        return ['Stickbreaking', 'ALR',
         'AugmentedSoftmax', 'StanStickbreaking','AugmentedILR', 
-        'Hyperspherical', 'HypersphericalAngular', 'HypersphericalLogit','LogisticProduct']
+        'Hyperspherical', 'HypersphericalAngular', 'HypersphericalLogit']
 
 def transforms_labels(transform_category='simplex'):
     if transform_category=='simplex':
@@ -20,7 +20,6 @@ def transforms_labels(transform_category='simplex'):
                         'Hyperspherical': 'Hyperspherical',
                         'HypersphericalAngular': 'Hyperspherical-Angular',
                         'HypersphericalLogit': 'Hyperspherical-Logit',
-                        'LogisticProduct': 'Logistic-Product',
                         }
         return labels
 

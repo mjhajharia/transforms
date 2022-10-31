@@ -25,10 +25,11 @@ def sample(
     auto_eval_all_params=False,
     n_iter=1000,
     n_chains=4,
-    n_repeat=1,
+    n_repeat=100,
     show_progress=True,
     resample=False,
     return_idata=True,
+    inits=None
 ):
     """
     Sample from the given dictionary containing the models, transform_categories, and parameters.
@@ -116,6 +117,8 @@ def sample(
                     show_progress=show_progress,
                     iter_sampling=n_iter,
                     chains=n_chains,
+                    inits=inits,
+                    show_console=True
                 )
             )
             ess.append(az.ess(idata)['x'][0])
@@ -125,7 +128,9 @@ def sample(
                     show_progress=show_progress,
                     iter_sampling=n_iter,
                     chains=n_chains,
-                    seed=i
+                    seed=i,
+                    inits=inits,
+                    show_console=True
                 )
                 ess.append(az.ess(az.from_cmdstanpy(fit))['x'][0])
 
@@ -134,8 +139,7 @@ def sample(
             np.savetxt(f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/ess_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.csv', ess)
             filename = f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
             idata.to_netcdf(filename)
-            with open(f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/time_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.txt', 'w') as f:
-	            f.write(str(time.time() - start_time))
+
             if return_idata==True:
                 return idata
         with open(f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/time_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.txt', 'w') as f:

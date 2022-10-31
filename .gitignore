@@ -8,5 +8,6 @@ sampling_results/*
 __pycache__/*
 *.slurm
 *.nc
-*.csv
-
+*.log
+/stan_models/**
+!/stan_models/*.stan

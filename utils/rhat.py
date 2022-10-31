@@ -7,7 +7,6 @@ import logging
 logger = logging.getLogger("cmdstanpy")
 logger.addHandler(logging.NullHandler())
 
-
 def calc_rhat_mixed_chains(path_1, path_2, variable, data, force_compile=False):
 
     """
