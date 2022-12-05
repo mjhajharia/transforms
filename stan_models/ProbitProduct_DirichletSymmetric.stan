@@ -1,2 +1,2 @@
 #include ../target_densities/DirichletSymmetric.stan
-#include ../transforms/simplex/LogisticProduct.stan
+#include ../transforms/simplex/ProbitProduct.stan
