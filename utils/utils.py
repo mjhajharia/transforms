@@ -2,6 +2,7 @@ import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 from sample import sample
+from scipy.stats import norm, entropy
 
 
 def list_transforms(transform_category='simplex'):
@@ -84,3 +85,9 @@ def create_param_map():
     with open(f"target_densities/param_map_DirichletSymmetric.pkl", "rb") as f:
         param_map = pickle.load(f)
     return param_map
+
+def get_kl_divergence(draws, n_iter):
+    l = draws.draws_pd()[['x[1]']].values[:n_iter]
+    rv = norm()
+    r = norm.rvs(size=n_iter)
+    return entropy(l, r)[0]
