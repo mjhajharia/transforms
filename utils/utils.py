@@ -2,13 +2,14 @@ import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 from sample import sample
+from scipy.stats import norm, entropy
 
 
 def list_transforms(transform_category='simplex'):
     if transform_category=='simplex':
-        return ['Stickbreaking', 'ALR',
-        'AugmentedSoftmax', 'StanStickbreaking','AugmentedILR', 
-        'Hyperspherical', 'HypersphericalAngular', 'HypersphericalLogit']
+        return ['Stickbreaking', 'ALR', 'AugmentedSoftmax', 'StanStickbreaking', 
+        'AugmentedILR', 'HypersphericalAngular', 'HypersphericalLogit',
+         'HypersphericalProbit', 'ProbitProduct']
 
 def transforms_labels(transform_category='simplex'):
     if transform_category=='simplex':
@@ -17,9 +18,10 @@ def transforms_labels(transform_category='simplex'):
                         'AugmentedSoftmax': 'Augmented-Softmax',
                         'StanStickbreaking': 'Stick-breaking (in C++)',
                         'AugmentedILR'  : 'Augmented-Isometric Log Ratio',
-                        'Hyperspherical': 'Hyperspherical',
+                        'HypersphericalProbit': 'Hyperspherical - Probit',
                         'HypersphericalAngular': 'Hyperspherical-Angular',
                         'HypersphericalLogit': 'Hyperspherical-Logit',
+                        'ProbitProduct': 'Probit Product',
                         }
         return labels
 
@@ -29,7 +31,11 @@ def list_params(evaluating_model='DirichletSymmetric'):
                     {'alpha':[1]*10, 'N':10}, {'alpha':[1]*100, 'N':100},  {'alpha': [1]*1000, 'N': 1000},
                     {'alpha':[10]*10, 'N':10}, {'alpha':[10]*100, 'N':100},  {'alpha': [10]*1000, 'N': 1000}]
         return parameters
-def get_true_x(params, evaluating_model='DirichletSymmetric'):
+def get_true_x(params=None, evaluating_model='DirichletSymmetric', alpha=None):
+
+    if evaluating_model=='DirichletAsymmetric':
+        return [a/sum(alpha) for a in alpha]
+
     if evaluating_model=='DirichletSymmetric':
         alpha = params['alpha']
         N = params['N']
@@ -79,3 +85,9 @@ def create_param_map():
     with open(f"target_densities/param_map_DirichletSymmetric.pkl", "rb") as f:
         param_map = pickle.load(f)
     return param_map
+
+def get_kl_divergence(draws, n_iter):
+    l = draws.draws_pd()[['x[1]']].values[:n_iter]
+    rv = norm()
+    r = norm.rvs(size=n_iter)
+    return entropy(l, r)[0]

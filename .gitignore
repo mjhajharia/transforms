@@ -10,4 +10,3 @@ __pycache__/*
 *.nc
 *.log
 /stan_models/**
-!/stan_models/*.stan

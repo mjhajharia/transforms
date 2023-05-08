@@ -41,7 +41,7 @@ def get_ess_leapfrog_ratio(
     
     with open(f"target_densities/param_map_{evaluating_model}.pkl", "rb") as f:
         param_map = pickle.load(f)
-    ess = np.loadtxt(open(f'/mnt/home/mjhajaria/ceph/sampling_results/{transform_category}/{transform}/{evaluating_model}/ess_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.csv'),delimiter = ",")
+    ess = np.loadtxt(open(f'/mnt/home/mjhajaria/transforms/ess_{transform}_{param_map[tuple(list(params.values())[0])]}.csv'),delimiter = ",")
     leapfrog = np.average(idata.sample_stats['n_steps'].sum(axis=1).values.reshape(-1, 4), axis=1)
     
     x=np.divide(ess, leapfrog)
@@ -70,13 +70,18 @@ def get_ess_plot(plottype, transform_category, evaluating_model, var_name, var_d
     fig, axes = plt.subplots(3,3)
     for ax, params in zip(axes.flatten() if len(parameters)>1 else [axes],  parameters):
         for transform in transforms:
-            if plottype=='density':
-                label='Probability Density Function'
-                x, y = get_ess_leapfrog_ratio(transform_category, transform, evaluating_model, params, var_name, var_dim, plot_type='density')
-            if plottype=='cdf':
-                label='Cumulative Probability'
-                x, y = get_ess_leapfrog_ratio(transform_category, transform, evaluating_model, params, var_name, var_dim, plot_type='cdf')
-            ax.plot(x,y, label=transform_label[str(transform)])
+            try:
+                if plottype=='density':
+                    label='Probability Density Function'
+                    x, y = get_ess_leapfrog_ratio(transform_category, transform, evaluating_model, params, var_name, var_dim, plot_type='density')
+                if plottype=='cdf':
+                    label='Cumulative Probability'
+                    x, y = get_ess_leapfrog_ratio(transform_category, transform, evaluating_model, params, var_name, var_dim, plot_type='cdf')
+                
+                ax.plot(x,y, label=transform_label[str(transform)])
+            except FileNotFoundError:
+                print(f' no sampler data for parametrization {params} and transform {transform_label[str(transform)]}')
+            
         ax.set_title(f'alpha = {params["alpha"][0]}, N = {params["N"]}')
     ax.axes.yaxis.set_ticklabels([])
     fig.supxlabel('ESS/Leapfrog')

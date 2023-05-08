@@ -10,6 +10,7 @@ import argparse
 import arviz as az
 from pathlib import Path
 from tqdm import tqdm
+from pathlib import Path
 
 # import logging
 # logger = logging.getLogger('cmdstanpy')
@@ -76,11 +77,15 @@ def sample(
 
     return_idata: bool (default = True)
         Whether to return the idata.
+    
+    
 
     Note
     ----
     The directory structure for storing stan files is: stan_models/{transform}_{evaluating_model}.stan
-    The directory structure for storing the results is: sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_mapping}_{n_repeat}.json
+    The directory structure for storing the results is: sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_number}_{n_repeat}.nc
+
+    param_number is obtained from the param_map.pkl file. It is a dictionary with keys as the parameterization and values as the param_number.
     """
     with open(f"target_densities/param_map_{evaluating_model}.pkl", "rb") as f:
         param_map = pickle.load(f)
@@ -98,19 +103,21 @@ def sample(
                 parameters = pickle.load(f)
        
         stan_filename=f'stan_models/{transform}_{evaluating_model}.stan'
+
         start_time = time.time()
         if type(parameters)==dict:
             parameters = [parameters]
 
-        # with open(stan_filename, 'wb') as f:
-        #     f.write(f'#include ../target_densities/{evaluating_model}.stan{os.linesep}#include ../transforms/{transform_category}/{transform}.stan{os.linesep}')
-        #     f.close()
+        Path("stan_models").mkdir(parents=True, exist_ok=True)
+
+        with open(stan_filename, 'w') as f:
+            f.write(f'#include ../target_densities/{evaluating_model}.stan{os.linesep}#include ../transforms/{transform_category}/{transform}.stan{os.linesep}')
+            f.close()
 
         for params in tqdm(parameters):
             model = CmdStanModel(
                 stan_file=stan_filename, cpp_options={"STAN_THREADS": "true"})
                 
-            ess=[]
             idata = az.from_cmdstanpy(
                 model.sample(
                     data=params,
@@ -121,7 +128,6 @@ def sample(
                     show_console=True
                 )
             )
-            ess.append(az.ess(idata)['x'][0])
             for i in tqdm(range(n_repeat - 1)):
                 fit = model.sample(
                     data=params,
@@ -132,15 +138,14 @@ def sample(
                     inits=inits,
                     show_console=True
                 )
-                ess.append(az.ess(az.from_cmdstanpy(fit))['x'][0])
-
         
                 idata = az.concat(idata, az.from_cmdstanpy(fit), dim="chain")
-            np.savetxt(f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/ess_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.csv', ess)
-            filename = f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc'
-            idata.to_netcdf(filename)
+            
+            complete_output_dir=f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/'
+            Path(f'{complete_output_dir}').mkdir(parents=True, exist_ok=True)
+            idata.to_netcdf(f'{complete_output_dir}{param_map[tuple(list(params.values())[0])]}_{n_repeat}.nc')
+            with open(f'{complete_output_dir}time_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.txt', 'w') as f:
+	            f.write(str(time.time() - start_time))
 
             if return_idata==True:
                 return idata
-        with open(f'{output_dir}sampling_results/{transform_category}/{transform}/{evaluating_model}/time_{param_map[tuple(list(params.values())[0])]}_{n_repeat}.txt', 'w') as f:
-            f.write(str(time.time() - start_time))
