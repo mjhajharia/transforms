@@ -1,2 +1,2 @@
-#include ../target_densities/DirichletSymmetric.stan
-#include ../transforms/simplex/ALR.stan
+#include target_densities/DirichletSymmetric.stan
+#include transforms/ALR.stan

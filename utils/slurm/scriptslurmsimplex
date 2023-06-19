@@ -25,4 +25,4 @@ do
                 echo -e "#!/bin/bash\n#SBATCH --partition=ccm -N1 --job-name='$i$j'\nsource /mnt/home/mjhajaria/miniconda3/etc/profile.d/conda.sh\nconda activate stan\n cd /mnt/home/mjhajaria/transforms\n python3 utils/script-simplex.py --parameters=$i --transform='$j' --inits=0.1">>/mnt/home/mjhajaria/transforms/utils/slurm/scripts/$i$j.slurm
                 sbatch /mnt/home/mjhajaria/transforms/utils/slurm/scripts/$i$j.slurm
         done
-done
+done 
