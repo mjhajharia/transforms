@@ -23,8 +23,7 @@ transformed parameters {
       r += z[i];
       log_det_jacobian += std_normal_lpdf(y[i]);
     }
-    for (i in 1:N)
-      x[i] = z[i] / r;
+    x = z / r;
   }
 }
 model {
