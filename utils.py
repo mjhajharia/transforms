@@ -18,7 +18,7 @@ from scipy.stats import norm, entropy
 # logger = logging.getLogger('cmdstanpy')
 # logger.addHandler(logging.NullHandler())
 def list_transforms():
-    return ['Stickbreaking', 'ALR', 'AugmentedSoftmax',
+    return ['Stickbreaking', 'ALR',
     'AugmentedILR', 'HypersphericalAngular', 'HypersphericalLogit',
     'HypersphericalProbit', 'ProbitProduct']
 
