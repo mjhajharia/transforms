@@ -1,4 +1,4 @@
-import pickle
+import json
 
 alphas = [0.1, 1, 10]
 Ns = [10, 100, 1000]
@@ -9,7 +9,5 @@ for alpha in alphas:
         parameters.append(tuple([alpha]*N))
 
 param_map = dict(zip(keys, parameters))
-reverse_map = dict(zip(parameters, keys))
-param_map.update(reverse_map)
-
-pickle.dump(param_map, open("target_densities/param_map_DirichletSymmetric.pkl", "wb"))
+with open('data/dirichletsymmetric.json', 'w') as fp:
+    json.dump(param_map, fp)
