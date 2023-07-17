@@ -22,9 +22,7 @@ output_dir='/mnt/home/mjhajaria/ceph/sampling_results/simplex'
 with open('data/dirichletsymmetric.json') as f:
     datajson = json.load(f)
 
-transforms = ['StanStickbreaking', 'Stickbreaking', 'ALR','AugmentedSoftmax',
-    'AugmentedILR', 'HypersphericalAngular', 'HypersphericalLogit',
-    'HypersphericalProbit', 'ProbitProduct']
+transforms = ['NormalizedExponential']
 
 n_repeat=100
 for transform in transforms:
