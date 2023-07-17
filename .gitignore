@@ -9,3 +9,4 @@ utils/.ipynb_checkpoints/*
 *.nc
 *.log
 /stan_models/**
+notebooks/**

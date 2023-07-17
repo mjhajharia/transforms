@@ -1,25 +1,57 @@
+import pandas as pd
+import numpy as np
 import os
-from tqdm import tqdm
+import time
+import json
 import sys
-sys.path.insert(1, 'utils')
-
-from sample import sample
-from utils import create_param_map, list_transforms, list_params
 import pickle
+from cmdstanpy import CmdStanModel
+import argparse
+import arviz as az
+from pathlib import Path
+from tqdm import tqdm
+from pathlib import Path
+from scipy.stats import norm, entropy
+import json
+import sys
+sys.path.insert(1, 'utils/')
+from sample import sample
+
+output_dir='/mnt/home/mjhajaria/ceph/sampling_results/simplex'
+
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument('--parameters', type=int, required=True)
 parser.add_argument('--transform', type=str, required=True)
-parser.add_argument('--inits', type=float, required=False)
+parser.add_argument('--datakey', type=str, required=True)
 args = parser.parse_args()
 
-param_map = create_param_map()
-alpha = param_map[args.parameters]
-print(alpha)
-N = len(alpha)
-params={'alpha':alpha, 'N':N}
+with open('data/dirichletsymmetric.json') as f:
+    datajson = json.load(f)
 
-sample(transform_category='simplex', transform=args.transform, evaluating_model='DirichletSymmetric', 
-parameters=params, auto_eval_all_params=False, n_iter = 1000, n_chains = 4, n_repeat=100,
-show_progress = True, resample=True, return_idata=False,
-        output_dir= '/mnt/home/mjhajaria/ceph/', inits=args.inits)
+
+n_repeat=100
+
+stan_filename=f'stan_models/simplex/{args.transform}_DirichletSymmetric.stan'
+
+with open(stan_filename, 'w') as f:
+        f.write(f'#include ../../target_densities/DirichletSymmetric.stan{os.linesep}#include ../../transforms/simplex/{args.transform}.stan{os.linesep}')
+        f.close()
+        
+output_file_name=f'{output_dir}/{args.transform}/DirichletSymmetric/draws_{args.datakey}_{n_repeat}.nc'
+alpha=datajson[args.datakey]
+data={'alpha': alpha, 'N': len(alpha)}
+
+output_file_name_time=f'{output_dir}/{args.transform}/DirichletSymmetric/time_{args.datakey}_{n_repeat}.txt'
+
+sample(
+stan_filename,
+data,
+output_file_name,
+n_repeat,
+output_file_name_time,
+n_iter=1000,
+n_chains=4,
+show_progress=True,
+return_idata=False,
+inits=None
+)

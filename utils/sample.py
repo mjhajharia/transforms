@@ -18,7 +18,7 @@ def sample(
     stan_filename,
     data,
     output_file_name,
-    n_repeat,
+    n_repeat=100,
     output_file_name_time=None,
     n_iter=1000,
     n_chains=4,
@@ -74,10 +74,11 @@ def sample(
             iter_sampling=n_iter,
             chains=n_chains,
             inits=inits,
+            seed=0,
             show_console=True
         )
     )
-    for i in tqdm(range(n_repeat - 1)):
+    for i in tqdm(range(1,n_repeat)):
         fit = az.from_cmdstanpy(model.sample(
             data=data,
             show_progress=show_progress,

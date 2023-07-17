@@ -46,6 +46,10 @@ functions {
     return make_vinv(make_v_fullrank(helmert_coding(N)));
   }
 
+  real exponential_log_qf(real logp){
+    return -log1m_exp(logp);
+  }
+  
   real target_density_lp(vector x, vector alpha){
     return dirichlet_lpdf(x | alpha);
 }

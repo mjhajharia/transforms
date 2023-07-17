@@ -22,11 +22,11 @@ output_dir='/mnt/home/mjhajaria/ceph/sampling_results/simplex'
 with open('data/dirichletsymmetric.json') as f:
     datajson = json.load(f)
 
-transforms = ['NormalizedExponential']
+transforms = ['ProbitProduct']
 
 n_repeat=100
 for transform in transforms:
-    for datakey in ['1','2','3','4','5','6', '7','8', '9']:
+    for datakey in ['8']:
     
         # stan_filename=f'../stan_models/simplex/{transform}_DirichletSymmetric.stan'
 
