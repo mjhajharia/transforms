@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "/mnt/home/mjhajaria/transforms/utils/simplex-scripts/hess1.py", line 30, in <module>
-    stan_filename=f'stan_models/{transform}_DirichletSymmetric.stan'
-                                 ^^^^^^^^^
-NameError: name 'transform' is not defined

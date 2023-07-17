@@ -10,3 +10,6 @@ utils/.ipynb_checkpoints/*
 *.log
 /stan_models/**
 notebooks/**
+*.out
+slurmoutputs/*
+utils/__pycache__/**
