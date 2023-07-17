@@ -17,7 +17,8 @@ transformed parameters {
   x[N] = 1 - (cum_sum+x[N-1]);
 }
 model {
- target += log(z[1:N - 1]) + log1m(z[1:N - 1]) + log1m(cumulative_sum(append_row(0, x[1:N - 2])));
+//  target += log(z[1:N - 1])  + log1m(z[1:N - 1]) + log1m(cumulative_sum(append_row(0.0, x[1:N - 2])));
+//commented out version causes an error for autodiff, equivalent modification below
+ target += sum(log(z[1:N - 1])  + log1m(z[1:N - 1]) + log1m(cumulative_sum(append_row(0.0, x[1:N - 2]))));
  target += target_density_lp(x, alpha);
 }
-

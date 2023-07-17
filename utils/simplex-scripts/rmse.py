@@ -44,6 +44,7 @@ for transform in transforms:
 
             rmse={}
             for i in idata.posterior.x.x_dim_0.values:
+                
                 pred_var = cumulative_mean(np.mean(idata.posterior['x'].sel(x_dim_0=i), axis=0))
 
                 rmse_array = []
