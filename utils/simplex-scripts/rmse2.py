@@ -35,20 +35,18 @@ def cumulative_mean(x, axis=0):
 
 n_repeat=100
 for transform in transforms:
-    for datakey in ['1','4', '7']:
+    for datakey in ['2','5', '8']:
         print(transform, datakey)
+        output_file_name=f'{output_dir}/{transform}/DirichletSymmetric/draws_{datakey}_{n_repeat}.nc'
         alpha=datajson[datakey]
         data={'alpha': alpha, 'N': len(alpha)}
-
-        output_file_name=f'{output_dir}/{transform}/DirichletSymmetric/draws_{datakey}_{n_repeat}.nc'
-
         try:
             idata = az.from_netcdf(output_file_name)
 
             true_alpha = np.asarray(data['alpha'])/sum(data['alpha'])
 
             rmse={}
-            for i in idata.posterior.x.x_dim_0.values:
+            for i in [0, 10, 20, 30, 40, 55, 70, 80, 90, 99]:
                 true_var=true_alpha[i]
                 pred_var = cumulative_mean(idata.posterior['x'].sel(x_dim_0=i), axis=1)
                 rmse_matrix = np.sqrt(cumulative_mean((true_var-pred_var) ** 2))

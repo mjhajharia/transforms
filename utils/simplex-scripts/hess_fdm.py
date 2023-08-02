@@ -53,7 +53,8 @@ try:
         make_args=[ "BRIDGESTAN_AD_HESSIAN=false", "STAN_THREADS=true"])
         n=bsmodel.param_unc_num()
         print(bsmodel.param_num(), n)
-        if 'BRIDGESTAN_AD_HESSIAN=true' in bsmodel.model_info():
+        if 'BRIDGESTAN_AD_HESSIAN=false' in bsmodel.model_info():
+            print("ok")
             cond_array=np.asarray([])
             data= idata.posterior.y.values.reshape(400000,n)
             print(args.datakey, args.transform)
@@ -76,8 +77,8 @@ try:
                 except:
                     cond_array= np.append(cond_array, np.nan)
 
-            np.save(f"{output_dir}/{args.transform}/DirichletSymmetric/ad_cond_{args.datakey}_{n_repeat}.npy",cond_array)
+            np.save(f"{output_dir}/{args.transform}/DirichletSymmetric/fdm_cond_{args.datakey}_{n_repeat}.npy",cond_array)
     except:
-        print(f"AD failed for {args.transform} {args.datakey}")
+        print(f"FDM failed for {args.transform} {args.datakey}")
 except OSError:
     print("file not found error")

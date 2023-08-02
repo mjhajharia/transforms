@@ -22,34 +22,36 @@ output_dir='/mnt/home/mjhajaria/ceph/sampling_results/simplex'
 with open('data/dirichletsymmetric.json') as f:
     datajson = json.load(f)
 
-transforms = ['NormalizedExponential']
+transforms = ['AugmentedSoftmax']
+
+
+def cumulative_mean(x, axis=0):
+    shape = [1] * x.ndim
+    shape[axis] = x.shape[axis]
+    return np.divide(
+        np.cumsum(x, axis=axis), 
+        np.reshape(np.arange(1, x.shape[axis] + 1), shape)
+    )
 
 n_repeat=100
 for transform in transforms:
-    for datakey in ['3', '6', '9']:
-    
-        output_file_name=f'{output_dir}/{transform}/DirichletSymmetric/draws_{datakey}_{n_repeat}.nc'
+    for datakey in ['3','6', '9']:
+        print(transform, datakey)
         alpha=datajson[datakey]
         data={'alpha': alpha, 'N': len(alpha)}
-
-        output_file_name_time=f'{output_dir}/{transform}/DirichletSymmetric/time_{datakey}_{n_repeat}.txt'
+        output_file_name=f'{output_dir}/{transform}/DirichletSymmetric/draws_{datakey}_{n_repeat}.nc'
 
         try:
             idata = az.from_netcdf(output_file_name)
 
-            true_var = np.asarray(data['alpha'])/sum(data['alpha'])
-
-            def cumulative_mean(x):
-                return np.divide(np.cumsum(x), np.arange(1, len(x) + 1))
+            true_alpha = np.asarray(data['alpha'])/sum(data['alpha'])
 
             rmse={}
-            for i in [0,10,20,30,40,50,60,70,80,99]:
-                pred_var = cumulative_mean(np.mean(idata.posterior['x'].sel(x_dim_0=i), axis=0))
-
-                rmse_array = []
-                for j in tqdm(range(1, len(pred_var) + 1)):
-                    rmse_array.append(np.sqrt(np.mean((true_var[i]-pred_var[:j].values) ** 2)))
-                rmse['x_'+str(i)] = rmse_array
+            for i in [0, 100, 200, 300, 400, 550, 700, 800, 900, 999]:
+                true_var=true_alpha[i]
+                pred_var = cumulative_mean(idata.posterior['x'].sel(x_dim_0=i), axis=1)
+                rmse_matrix = np.sqrt(cumulative_mean((true_var-pred_var) ** 2))
+                rmse['x_'+str(i)] = np.mean(rmse_matrix, axis=0)
                 
             with open(f'{output_dir}/{transform}/DirichletSymmetric/rmse_{datakey}_{n_repeat}.pickle', 'wb') as handle:
                 pickle.dump(rmse, handle, protocol=pickle.HIGHEST_PROTOCOL)
