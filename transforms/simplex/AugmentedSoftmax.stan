@@ -6,7 +6,7 @@ parameters {
  vector[N] y;
 }
 transformed parameters {
- real<lower=0> logr = log_sum_exp(y);
+ real logr = log_sum_exp(y);
  simplex[N] x = exp(y - logr);
 }
 model {
