@@ -6,7 +6,7 @@ functions {
     real cum_sum = 0;
     vector[Nm1 + 1] x; // simplex vector
 
-    for n in 2:Nm1 {
+    for (n in 2:Nm1) {
       cum_sum += z[n - 1];
       z[n] *= (1 - cum_sum);
     }
