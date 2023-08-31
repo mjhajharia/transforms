@@ -2,7 +2,7 @@ functions {
   vector stick_break_simplex_constrain_lp(vector y, data vector log_linspaced_vector) {
     int Nm1 = rows(y);
     vector[Nm1] z = inv_logit(y - log_linspaced_vector);
-    real logabs_jacobian = sum(log1m(z));
+    real logabs_jacobian;
     real cum_sum = 0;
     vector[Nm1 + 1] x; // simplex vector
 
@@ -12,8 +12,7 @@ functions {
     }
     
     x = append_row(z, 1 - (cum_sum + z[Nm1]));
-
-    logabs_jacobian += sum(log(x[1:Nm1]));
+    logabs_jacobian = sum(log(x));
 
     target += logabs_jacobian;
 
