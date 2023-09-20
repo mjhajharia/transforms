@@ -5,9 +5,9 @@ functions {
     vector[N] log_x;
     log_x[1] = log_z[1];
     real log_cum_sum = negative_infinity();
-    for (n in 2:N - 1) {
-      log_cum_sum = log_sum_exp(log_cum_sum, log_x[n - 1]);
-      log_x[n] = log1m_exp(log_cum_sum) + log_z[n];
+    for (i in 2:N - 1) {
+      log_cum_sum = log_sum_exp(log_cum_sum, log_x[i - 1]);
+      log_x[i] = log1m_exp(log_cum_sum) + log_z[i];
     }   
     log_x[N] = log1m_exp(log_sum_exp(log_cum_sum, log_x[N-1]));
     target += log_x[N];
