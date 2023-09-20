@@ -17,6 +17,7 @@ parameters {
 }
 transformed parameters {
   vector<upper=0>[N] log_x = augmented_softmax_log_simplex_constrain_lp(y);
+  simplex[N] x = exp(log_x);
 }
 model {
   target += target_density_lp(x, alpha);

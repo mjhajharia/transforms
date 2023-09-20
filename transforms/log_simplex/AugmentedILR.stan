@@ -23,6 +23,7 @@ parameters {
 }
 transformed parameters {
   vector<upper=0>[N] log_x = inv_ilr_log_simplex_constrain_lp(y, Vinv);
+  simplex[N] x = exp(log_x);
 }
 model {
   target += target_density_lp(log_x, alpha);
