@@ -1,17 +1,17 @@
 functions {
   vector stickbreaking_log_simplex_constrain_lp(vector y) {
     int N = rows(y) + 1;
-    vector[N-1] log_z = log_inv_logit(y - log(reverse(linspaced_vector(N - 1, 1, N - 1))));
     vector[N] log_x;
-    log_x[1] = log_z[1];
-    real log_cum_sum = negative_infinity();
-    for (i in 2:N - 1) {
-      log_cum_sum = log_sum_exp(log_cum_sum, log_x[i - 1]);
-      log_x[i] = log1m_exp(log_cum_sum) + log_z[i];
+    real log_z;
+    real log_cum_prod = 0;
+    for (i in 1:(N - 1)) {
+      log_z = log_inv_logit(y[i] - log(N - i));
+      log_x[i] = log_cum_prod + log_z;
+      log_cum_prod += log1m_exp(log_z);
     }   
-    log_x[N] = log1m_exp(log_sum_exp(log_cum_sum, log_x[N-1]));
-    target += log_x[N];
-    return log_x;    
+    log_x[N] = log_cum_prod;
+    target += log_cum_prod;
+    return log_x;
   }
 }
 data {
