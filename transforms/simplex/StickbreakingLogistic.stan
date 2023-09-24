@@ -1,3 +1,21 @@
+functions {
+  vector stickbreaking_logistic_simplex_constrain_lp(vector y) {
+    int N = rows(y) + 1;
+    vector[N] x;
+    real log_zi, log_xi;
+    real log_cum_prod = 0;
+    for (i in 1:N - 1) {
+      log_zi = log_inv_logit(y[i] - log(N - i)); // logistic_lcdf(y[i] | log(N - i), 1)
+      log_xi = log_cum_prod + log_zi;
+      x[i] = exp(log_xi);
+      log_cum_prod += log1m_exp(log_zi);
+      target += log_xi;
+    }   
+    x[N] = exp(log_cum_prod);
+    target += log_cum_prod;
+    return x;
+  }
+}
 data {
   int<lower=0> N;
   vector<lower=0>[N] alpha;
@@ -6,18 +24,9 @@ parameters {
   vector[N - 1] y;
 }
 transformed parameters {
-  vector[N-1] z = inv_logit(y[1:N - 1] - log(reverse(linspaced_vector(N - 1, 1, N - 1))));
-  simplex[N] x;
-  x[1] = z[1];
-  real cum_sum = 0;
-  for (n in 2:N - 1) {
-    cum_sum += x[n - 1];
-    x[n] = (1 - cum_sum) * z[n];
-  }   
-  x[N] = 1 - (cum_sum+x[N-1]);
+  simplex[N] x = stickbreaking_logistic_simplex_constrain_lp(y);
 }
 model {
- target += log(z[1:N - 1]) + log1m(z[1:N - 1]) + log1m(cumulative_sum(append_row(0, x[1:N - 2])));
- target += target_density_lp(x, alpha);
+  target += target_density_lp(x, alpha);
 }
 
