@@ -1,3 +1,21 @@
+functions {
+  vector stickbreaking_normal_simplex_constrain_lp(vector y) {
+    int N = rows(y) + 1;
+    vector[N] x;
+    real log_zi, log_xi, wi;
+    real log_cum_prod = 0;
+    for (i in 1:N - 1) {
+      wi = y[i] - log(N - i) / 2;
+      log_zi = std_normal_lcdf(wi);
+      log_xi = log_cum_prod + log_zi;
+      x[i] = exp(log_xi);
+      target += std_normal_lpdf(wi) + log_cum_prod;
+      log_cum_prod += log1m_exp(log_zi);
+    }
+    x[N] = exp(log_cum_prod);
+    return x;
+  }
+}
 data {
   int<lower=0> N;
   vector<lower=0>[N] alpha;
@@ -6,25 +24,9 @@ parameters {
   vector[N - 1] y;
 }
 transformed parameters {
-  simplex[N] x;
-  real log_det_jacobian = 0;
-  {
-    real yi;
-    real zi, zprod = 1, zprod_new;
-  
-    for (i in 1:(N-1)) {
-      yi = y[i];
-      zi = Phi(yi);
-      log_det_jacobian += std_normal_lpdf(yi |);
-      zprod_new = zprod * zi;
-      log_det_jacobian += log(zprod);
-      x[i] = zprod - zprod_new;
-      zprod = zprod_new;
-    }
-    x[N] = zprod;
-  }
+  simplex[N] x = stickbreaking_normal_simplex_constrain_lp(y);
 }
 model {
-  target += log_det_jacobian; 
   target += target_density_lp(x, alpha);
 }
+
