@@ -13,8 +13,7 @@ functions {
     }
     real log_r = log_sum_exp(z);
     log_x = z - log_r;
-    for (i in 1:(N - 1))
-      target += -log_x[i];
+    target += -log_x[1:N - 1];
     target += std_normal_lpdf(y);
     return log_x;
   }
