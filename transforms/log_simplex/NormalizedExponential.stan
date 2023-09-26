@@ -4,7 +4,6 @@ functions {
   }
   vector normalized_exponential_log_simplex_constrain_lp(vector y) {
     int N = rows(y);
-    vector[N] log_x;
     vector[N] z;
     real log_u;
     for (i in 1:N) {
@@ -12,7 +11,7 @@ functions {
       z[i] = log(exponential_log_qf(log_u));
     }
     real log_r = log_sum_exp(z);
-    log_x = z - log_r;
+    vector[N] log_x = z - log_r;
     target += -log_x[1:N - 1];
     target += std_normal_lpdf(y);
     return log_x;
