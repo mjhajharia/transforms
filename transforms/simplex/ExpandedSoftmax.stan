@@ -6,11 +6,10 @@ parameters {
  vector[N] y;
 }
 transformed parameters {
- real logr = log_sum_exp(y);
+ real<lower=0> logr = log_sum_exp(y);
  simplex[N] x = exp(y - logr);
 }
 model {
- target += sum(y) - N * logr;  // target += log(prod(x))
- target += std_normal_lupdf(logr - log(N));
+ target += sum(y) - exp((1/N) * logr)*N;
  target += target_density_lp(x, alpha);
 }

@@ -1,0 +1,2 @@
+19, HypersphericalAngular, logitnormal_rho95e-2_scalevar_100dims
+20, HypersphericalAngular, logitnormal_rho5e-1_scalevar_100dims

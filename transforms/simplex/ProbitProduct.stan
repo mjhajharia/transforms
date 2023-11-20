@@ -6,20 +6,30 @@ data {
   cov_matrix[dirichlet_target ? 1 : N-1] sigma;
   vector<lower=0>[dirichlet_target ? N : 0] alpha;
 }
-transformed data {
-  matrix[N - 1, N - 1] Vinv = construct_vinv(N);
-  real logN = log(N);
-}
 parameters {
- vector[N - 1] y;
+  vector[N - 1] y;
 }
 transformed parameters {
-  vector[N] s = append_row(Vinv * y, 0);
-  real logr = log_sum_exp(s);
-  simplex[N] x = exp(s - logr);
+  simplex[N] x;
+  real log_det_jacobian = 0;
+  {
+    real yi;
+    real zi, zprod = 1, zprod_new;
+  
+    for (i in 1:(N-1)) {
+      yi = y[i];
+      zi = Phi(yi);
+      log_det_jacobian += std_normal_lpdf(yi |);
+      zprod_new = zprod * zi;
+      log_det_jacobian += log(zprod);
+      x[i] = zprod - zprod_new;
+      zprod = zprod_new;
+    }
+    x[N] = zprod;
+  }
 }
 model {
-  target += sum(s) - N * logr + logN;
+  target += log_det_jacobian; 
   if (dirichlet_target==1){
       target += target_density_lp(x, alpha);
   }

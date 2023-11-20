@@ -1,3 +1,6 @@
-# transforms
+# simplex-transforms
 
-Currently you can sample the transforms in `transforms/simplex` directory using the scripts in `utils` and generate all the plots as well - an example is shown in `example.ipynb` 
+Transforms that failed to sample:
+
+- HypersphericalAngular: N=1000, alpha=0.1 and alpha=1
+- ProbitProduct: N=1000, alpha=0.1
