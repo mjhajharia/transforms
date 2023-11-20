@@ -1,101 +1,62 @@
-import pandas as pd
-import numpy as np
 import os
 import time
-import json
-import sys
+import csv
 import pickle
 from cmdstanpy import CmdStanModel
 import argparse
-import arviz as az
 from pathlib import Path
 from tqdm import tqdm
-from pathlib import Path
-from scipy.stats import norm, entropy
-
+    
 
 def sample(
-    stan_filename,
-    data,
-    output_file_name,
-    n_repeat=100,
-    output_file_name_time=None,
+    transform,
+    target_keyword,
+    n_repeat=25,
     n_iter=1000,
     n_chains=4,
     show_progress=True,
-    return_idata=False,
     inits=None
 ):
-    """
-    Sample from the given dictionary containing the models, transform_categories, and parameters.
-    It saves the results in a json file which is named with n_chains.
+    stan_filename=f'tmp/{target_keyword}/{transform}.stan'
+    path = Path(stan_filename)
 
-    Parameters
-    ----------
-    stan_filename: str
-        The stan file to use.
-
-    data: dict
-        Dictionary of data for CmdStanPy Model. 
-
-    output_file_name: str
-        Custom filename to save the results
-
-    n_iter : int
-        Number of samples to be drawn.
-
-    n_chains : int
-        Number of chains to be drawn.
+    if not path.is_dir():
+        path.parent.mkdir(parents=True, exist_ok=True)
     
-    n_repeat : int 
-        Number of runs to be drawn.
+    with open(stan_filename, 'w') as f:
+            f.write(f'#include targetdensities.stan{os.linesep}#include transforms/simplex/{transform}.stan{os.linesep}')
+            f.close()
 
-    output_file_name_time: str (default = None)
-        Custom filename to save the time.
+    with open(f'data/{target_keyword}.pickle', 'rb') as file:
+        data = pickle.load(file)
 
-    show_progress: bool (default = True)
-        Whether to show progress bar.
-
-    retrieve: bool (default = False)
-        Whether to retrieve the results from the json file.
-
-    return_idata: bool (default = True)
-        Whether to return the idata.
-    """
-    start_time = time.time()
+    outputpath = Path(f'/mnt/home/mjhajaria/ceph/stan_output/simplex/{target_keyword}')
+    if not outputpath.exists():
+        outputpath.mkdir(parents=True, exist_ok=True)
 
     model = CmdStanModel(
-        stan_file=stan_filename, cpp_options={"STAN_THREADS": "true"})
-    
-    idata = az.from_cmdstanpy(
+        stan_file=stan_filename, 
+        cpp_options={"STAN_THREADS": "true"},
+        stanc_options={"include-paths":'/mnt/home/mjhajaria/transforms/'})
+    for i in tqdm(range(0,n_repeat)):
+        start_time = time.time()
         model.sample(
             data=data,
             show_progress=show_progress,
             iter_sampling=n_iter,
             chains=n_chains,
             inits=inits,
-            seed=0,
-            show_console=True
-        )
-    )
-    for i in tqdm(range(1,n_repeat)):
-        fit = az.from_cmdstanpy(model.sample(
-            data=data,
-            show_progress=show_progress,
-            iter_sampling=n_iter,
-            chains=n_chains,
             seed=i,
-            inits=inits,
-            show_console=True
-        ))
-
-        idata = az.concat(idata, fit, dim="chain")
-    
- 
-    idata.to_netcdf(output_file_name)
-
-    with open(output_file_name_time, 'w') as f:
-        f.write(str(time.time() - start_time))
-
-    if return_idata==True:
-        return idata
+            show_console=True,
+            output_dir=f'/mnt/home/mjhajaria/ceph/stan_output/simplex/{target_keyword}'
+        )
+        
+        with open('outputs/time.csv', 'a', newline='') as csvfile:
+            fieldnames = ['target_keyword', 'transform', 'seed', 'time']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writerow({
+                'target_keyword': target_keyword,
+                'transform': transform,
+                'seed': i,
+                'time': str(time.time() - start_time)
+            })

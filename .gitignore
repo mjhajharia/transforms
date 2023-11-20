@@ -13,3 +13,5 @@ notebooks/**
 *.out
 slurmoutputs/*
 utils/__pycache__/**
+archive/**
+tmp/**

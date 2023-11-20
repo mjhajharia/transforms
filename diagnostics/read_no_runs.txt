@@ -1,0 +1,10 @@
+1, HypersphericalAngular, asymdir_e-1rand10_1000dims
+1, HypersphericalAngular, dirsym_e-1_1000dims
+1, HypersphericalAngular, asymdir_e-1to10_1000dims
+1, HypersphericalAngular, dirsym_1_1000dims
+1, HypersphericalAngular, dirsym_10_1000dims
+1, ProbitProduct, asymdir_e-1rand10_1000dims
+1, ProbitProduct, dirsym_e-1_1000dims
+1, ProbitProduct, asymdir_e-1to10_1000dims
+1, ProbitProduct, dirsym_1_1000dims
+1, ProbitProduct, dirsym_10_1000dims

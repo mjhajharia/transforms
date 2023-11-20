@@ -18,9 +18,9 @@ from scipy.stats import norm, entropy
 # logger = logging.getLogger('cmdstanpy')
 # logger.addHandler(logging.NullHandler())
 def list_transforms():
-    return ['Stickbreaking', 'ALR',
-    'AugmentedILR', 'HypersphericalAngular', 'HypersphericalLogit',
-    'HypersphericalProbit', 'ProbitProduct']
+    return ['Stickbreaking', 'ALR', 'NormalizedExponential'
+    'AugmentedILR', 'HypersphericalAngular', 'HypersphericalLogit', 'StanStickbreaking',
+    'HypersphericalProbit', 'ProbitProduct', 'AugmentedSoftmax']
 
 def transforms_labels():
     return {'Stickbreaking': 'Stick-breaking',
