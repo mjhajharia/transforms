@@ -6814,3 +6814,5 @@ logitnormal_rho95e-2_scalevar_100dims,HypersphericalLogit,24,648.5695526599884
 logitnormal_rho5e-1_scalevar_100dims,HypersphericalAngular,14,1134.9228703975677
 logitnormal_rho95e-2_scalevar_100dims,HypersphericalProbit,23,975.3199956417084
 logitnormal_rho95e-2_scalevar_100dims,HypersphericalAngular,14,1195.9438240528107
+logitnormal_rho5e-1_scalevar_100dims,HypersphericalAngular,19,1234.3940608501434
+logitnormal_rho5e-1_scalevar_100dims,HypersphericalAngular,22,1250.6117253303528
