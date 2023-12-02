@@ -27,7 +27,7 @@ functions {
     vector[N] z = V * y;
     real logr = log_sum_exp(z);
     vector[N] log_x = z - logr;
-    target += log_x[N] + log(N);
+    target += log_x[N] + log(N) / 2;
     return log_x;
   }
 }
