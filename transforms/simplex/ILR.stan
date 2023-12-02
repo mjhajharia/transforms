@@ -22,7 +22,7 @@ functions {
     return V;
   }
 
-  vector ilr_simplex_constrain_lp(vector y, matrix V) {
+  vector inv_ilr_simplex_constrain_lp(vector y, matrix V) {
     int N = rows(y) + 1;
     vector[N] z = V * y;
     real logr = log_sum_exp(z);
@@ -42,7 +42,7 @@ parameters {
   vector[N - 1] y;
 }
 transformed parameters {
-  simplex[N] x = ilr_simplex_constrain_lp(y, V);
+  simplex[N] x = inv_ilr_simplex_constrain_lp(y, V);
 }
 model {
   target += target_density_lp(x, alpha);
