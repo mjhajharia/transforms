@@ -1,14 +1,14 @@
 data {
- int<lower=0> N;
- vector<lower=0>[N] alpha;
+  int<lower=0> N;
+  vector<lower=0>[N] alpha;
 }
 transformed data {
   matrix[N - 1, N - 1] Vinv = construct_vinv(N);
   real logN = log(N);
 }
 parameters {
- vector[N - 1] y;
- simplex[N] z;
+  vector[N - 1] y;
+  simplex[N] z;
 }
 transformed parameters {
   vector[N] s = append_row(Vinv * y, 0);
