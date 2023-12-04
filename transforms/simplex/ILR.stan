@@ -17,9 +17,7 @@ functions {
   }
 
   matrix semiorthogonal_matrix(int N) {
-    matrix[N, N] H = helmert_matrix(N);
-    matrix[N, N - 1] V = transpose(H[2:N, 1:N]);
-    return V;
+    return helmert_matrix(N)[2:N]';
   }
 
   vector inv_ilr_simplex_constrain_lp(vector y, matrix V) {
