@@ -7,7 +7,7 @@ functions {
       helmert_mat[1, j] = inv_nrm2;
     for (i in 2:D) {
       inv_nrm2 = inv_sqrt(i * (i - 1));
-      for (j in 1:i)
+      for (j in 1:(i - 1))
         helmert_mat[i, j] = inv_nrm2;
       helmert_mat[i, i] = -(i - 1) * inv_nrm2;
       for (j in (i + 1):D)
