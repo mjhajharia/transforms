@@ -1,17 +1,13 @@
 functions {
   matrix helmert_matrix(int D) {
-    int Dm1 = D - 1;
     matrix[D, D] helmert_mat;
     real inv_nrm2 = inv_sqrt(D);
-    for (j in 1:D)
-      helmert_mat[1, j] = inv_nrm2;
-    for (i in 2:D) {
-      inv_nrm2 = inv_sqrt(i * (i - 1));
-      for (j in 1:(i-1))
-        helmert_mat[i, j] = inv_nrm2;
-      helmert_mat[i, i] = -(i - 1) * inv_nrm2;
-      for (j in (i + 1):D)
-        helmert_mat[i, j] = 0;
+    helmert_mat[1, 1:D] = rep_row_vector(inv_nrm2, D);
+    for (d in 2:D) {
+      inv_nrm2 = inv_sqrt(d * (d - 1));
+      helmert_mat[d, 1:(d - 1)] = rep_row_vector(inv_nrm2, d - 1);
+      helmert_mat[d, d] = -(d - 1) * inv_nrm2;
+      helmert_mat[d, (d + 1):D] = rep_row_vector(0, D - d);
     }
     return helmert_mat;
   }
