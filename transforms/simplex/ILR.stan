@@ -1,19 +1,14 @@
 functions {
-  matrix helmert_matrix(int D) {
-    matrix[D, D] helmert_mat;
-    real inv_nrm2 = inv_sqrt(D);
-    helmert_mat[1, 1:D] = rep_row_vector(inv_nrm2, D);
-    for (d in 2:D) {
-      inv_nrm2 = inv_sqrt(d * (d - 1));
-      helmert_mat[d, 1:(d - 1)] = rep_row_vector(inv_nrm2, d - 1);
-      helmert_mat[d, d] = -(d - 1) * inv_nrm2;
-      helmert_mat[d, (d + 1):D] = rep_row_vector(0, D - d);
-    }
-    return helmert_mat;
-  }
-
   matrix semiorthogonal_matrix(int N) {
-    return helmert_matrix(N)[2:N]';
+    matrix[N, N - 1] V;
+    real inv_nrm2 = inv_sqrt(N);
+    for (n in 1:(N - 1)) {
+      inv_nrm2 = inv_sqrt(n * (n + 1));
+      V[1:n, n] = rep_vector(inv_nrm2, n);
+      V[n + 1, n] = -n * inv_nrm2;
+      V[(n + 2):N, n] = rep_vector(0, N - n - 1);
+    }
+    return V;
   }
 
   vector inv_ilr_simplex_constrain_lp(vector y, matrix V) {
