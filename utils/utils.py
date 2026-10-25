@@ -2,8 +2,32 @@ import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 from sample import sample
-from scipy.stats import norm, entropy
+from scipy.stats import norm, entropy, skewnorm
 
+
+def create_param_map():
+    alphas = [0.1, 1, 10]
+    Ns = [10, 100, 1000]
+    keys = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+    parameters = []
+    for alpha in alphas:
+        for N in Ns:
+            parameters.append(tuple([alpha]*N))
+    
+    parameters.append(tuple(np.linspace(0.1, 100, 1000)))
+    parameters.append(tuple(np.linspace(100, 0.1, 1000)))
+    parameters.append(tuple(np.sort(skewnorm.rvs(a=20, loc=0.1, scale=50, size=1000))))
+    parameters.append(tuple(np.flip(np.sort(skewnorm.rvs(a=20, loc=0.1, scale=50, size=1000)))))
+    
+    param_map = dict(zip(keys, parameters))
+    reverse_map = dict(zip(parameters, keys))
+    param_map.update(reverse_map)
+
+    pickle.dump(param_map, open("target_densities/param_map_Dirichlet.pkl", "wb"))
+
+    with open(f"target_densities/param_map_Dirichlet.pkl", "rb") as f:
+        param_map = pickle.load(f)
+    return param_map
 
 def list_transforms(transform_category='simplex'):
     if transform_category=='simplex':
@@ -30,7 +54,14 @@ def list_params(evaluating_model='DirichletSymmetric'):
         parameters = [{'alpha':[0.1]*10, 'N':10}, {'alpha':[0.1]*100, 'N':100}, {'alpha': [0.1]*1000, 'N': 1000},
                     {'alpha':[1]*10, 'N':10}, {'alpha':[1]*100, 'N':100},  {'alpha': [1]*1000, 'N': 1000},
                     {'alpha':[10]*10, 'N':10}, {'alpha':[10]*100, 'N':100},  {'alpha': [10]*1000, 'N': 1000}]
-        return parameters
+
+    if evaluating_model=='DirichletAsymmetric':
+        parameters = [tuple(np.linspace(0.1, 100, 1000)), tuple(np.linspace(100, 0.1, 1000)), 
+                    tuple(np.sort(skewnorm.rvs(a=20, loc=0.1, scale=50, size=1000))), 
+                    tuple(np.flip(np.sort(skewnorm.rvs(a=20, loc=0.1, scale=50, size=1000))))]
+
+    return parameters
+
 def get_true_x(params=None, evaluating_model='DirichletSymmetric', alpha=None):
 
     if evaluating_model=='DirichletAsymmetric':
@@ -66,25 +97,6 @@ def get_DirichletSymmetric_rmse(transforms, transform_category, parameters, fig_
         ax.set_title(f'alpha={alpha[0]}, N = {N}')
     fig.legend(labels=transforms,bbox_to_anchor = (0.6, -0.05))
     fig.savefig(f'figures/{fig_name}', dpi=300)
-
-def create_param_map():
-    alphas = [0.1, 1, 10]
-    Ns = [10, 100, 1000]
-    keys = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    parameters = []
-    for alpha in alphas:
-        for N in Ns:
-            parameters.append(tuple([alpha]*N))
-
-    param_map = dict(zip(keys, parameters))
-    reverse_map = dict(zip(parameters, keys))
-    param_map.update(reverse_map)
-
-    pickle.dump(param_map, open("target_densities/param_map_DirichletSymmetric.pkl", "wb"))
-
-    with open(f"target_densities/param_map_DirichletSymmetric.pkl", "rb") as f:
-        param_map = pickle.load(f)
-    return param_map
 
 def get_kl_divergence(draws, n_iter):
     l = draws.draws_pd()[['x[1]']].values[:n_iter]

@@ -11,5 +11,5 @@ transformed parameters {
 }
 model {
  target += sum(y) - exp((1/N) * logr)*N;
- target += target_density_lp(x, alpha);
+ target += dirichlet_lpdf(x | alpha);
 }

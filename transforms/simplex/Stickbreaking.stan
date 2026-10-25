@@ -18,6 +18,6 @@ transformed parameters {
 }
 model {
  target += log(z[1:N - 1]) + log1m(z[1:N - 1]) + log1m(cumulative_sum(append_row(0, x[1:N - 2])));
- target += target_density_lp(x, alpha);
+ target += dirichlet_lpdf(x | alpha);
 }
 

@@ -23,5 +23,5 @@ transformed parameters {
 }
 model {
   target += log_det_jacobian;
-  target += target_density_lp(x, alpha);
+  target += dirichlet_lpdf(x | alpha);
 }
